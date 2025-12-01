@@ -27,6 +27,7 @@ dependencies {
 
     // 2. Logging: 버전 명시 제거 (Spring Boot 관리)
     implementation 'org.slf4j:slf4j-api'
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 
     // DB
     runtimeOnly 'com.h2database:h2'
