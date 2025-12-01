@@ -29,7 +29,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update # 운영시 반드시 none
+      ddl-auto: create-drop # 운영시 반드시 none
     properties:
       hibernate:
         format_sql: true
@@ -55,3 +55,13 @@ logging:
     root: info
     org.hibernate.orm.jdbc.bind: TRACE
     org.springframework.batch: DEBUG
+
+decorator:
+  datasource:
+    enabled: true                  # P6Spy 및 데이터소스 데코레이터 전체 활성화 여부 (기본값: true)
+    p6spy:
+      enable-logging: true         # SQL 로깅 기능 자체를 켤지 끄를지 결정
+      multiline: true              # 쿼리를 여러 줄로 포맷팅하여 출력 (가독성 매우 향상됨)
+      logging: slf4j               # 로그 출력 방식 (sysout, slf4j, file 등. slf4j 권장)
+      log-filter:
+        pattern: ".*"              # 정규식 패턴을 사용하여 특정 쿼리만 로깅하거나 제외 가능
