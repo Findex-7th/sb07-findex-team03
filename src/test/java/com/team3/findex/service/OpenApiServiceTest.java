@@ -1,0 +1,66 @@
+package com.team3.findex.service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.team3.findex.openapi.IndexApiResponse;
+import org.junit.jupiter.api.AutoClose;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+@ActiveProfiles("local")
+class OpenApiServiceTest {
+
+    @Autowired
+    private OpenApiService openApiService;
+
+    @Test
+    @DisplayName("api 호출 테스트")
+    void 호출_테스트() throws JsonProcessingException {
+        // given
+        String openApiDataByDate = openApiService.getOpenApiDataByDate(LocalDate.of(2025, 11, 28));
+
+        // when
+        System.out.println("openApiDataByDate = " + openApiDataByDate);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        JsonNode jsonNode = objectMapper.readTree(openApiDataByDate);
+        JsonNode items = jsonNode.get("response").get("body").get("items").get("item");
+        String items2 = jsonNode.get("response").get("body").get("items").toString();
+
+        List<IndexApiResponse> list = Arrays.asList(objectMapper.readValue(items2, IndexApiResponse[].class));
+        System.out.println();
+
+
+    }
+
+
+    @Test
+    @DisplayName("api 호출 클래스 매핑 테스트")
+    void 매핑_호출_테스트() throws JsonProcessingException {
+        // given
+        IndexApiResponse result = openApiService.getOpenApiDataByDate2(LocalDate.of(2025, 11, 28));
+
+        System.out.println("result = " + result);
+
+        System.out.println("result.getIndexName() = " + result.getIndexName());
+
+
+    }
+}
