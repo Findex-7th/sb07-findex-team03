@@ -42,10 +42,14 @@ class OpenApiServiceTest {
 
         JsonNode jsonNode = objectMapper.readTree(openApiDataByDate);
         JsonNode items = jsonNode.get("response").get("body").get("items").get("item");
-        String items2 = jsonNode.get("response").get("body").get("items").toString();
+        JsonNode items2 = jsonNode.path("response").path("body").path("items").path("item");
 
-        List<IndexApiResponse> list = Arrays.asList(objectMapper.readValue(items2, IndexApiResponse[].class));
-        System.out.println();
+        List<IndexApiResponse> indexApiResponses = objectMapper.convertValue(items2, new TypeReference<List<IndexApiResponse>>() {
+        });
+
+        for (IndexApiResponse indexApiRespons : indexApiResponses) {
+            System.out.println("indexApiRespons = " + indexApiRespons.getIndexName());
+        }
 
 
     }
