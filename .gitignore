@@ -38,3 +38,6 @@ out/
 /src/main/resources/application-local.yml
 
 /.gitignore.local
+
+### ai ###
+/CLAUDE.md
