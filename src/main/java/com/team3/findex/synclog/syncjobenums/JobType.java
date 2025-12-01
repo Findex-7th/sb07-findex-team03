@@ -1,4 +1,4 @@
-package com.team3.findex.synclog.enums;
+package com.team3.findex.synclog.syncjobenums;
 
 public enum JobType {
     INDEX_INFO("지수 정보"),

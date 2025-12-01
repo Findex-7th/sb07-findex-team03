@@ -1,6 +1,6 @@
 package com.team3.findex.synclog.entity;
 
-import com.team3.findex.synclog.enums.JobType;
+import com.team3.findex.synclog.syncjobenums.JobType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
