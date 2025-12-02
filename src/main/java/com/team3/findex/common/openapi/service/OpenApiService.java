@@ -1,6 +1,6 @@
-package com.team3.findex.service;
+package com.team3.findex.common.openapi.service;
 
-import com.team3.findex.domain.openapi.IndexApiResponse;
+import com.team3.findex.common.openapi.IndexApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
