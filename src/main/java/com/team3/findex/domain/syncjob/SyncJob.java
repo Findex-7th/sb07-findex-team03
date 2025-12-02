@@ -33,6 +33,11 @@ public class SyncJob {
     @NotNull
     private String worker;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Result result;
+
     @CreatedDate
     @Column( name = "created_at", updatable = false, nullable = false)
     @NotNull
@@ -43,7 +48,7 @@ public class SyncJob {
     private IndexInfo indexInfo;
 
 
-    public SyncJob(JobType jobType, String worker, IndexInfo indexInfo){
+    public SyncJob(JobType jobType, String worker, Result result, IndexInfo indexInfo){
         this.jobType = jobType;
         this.worker = worker;
         this.indexInfo = indexInfo;
