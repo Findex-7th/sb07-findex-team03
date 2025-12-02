@@ -42,7 +42,7 @@ public class IndexOpenApiClient {
         return restTemplate.getForObject(uri.toUriString(), String.class);
     }
 
-    protected String getByDateAndName(LocalDate date, String indexName) {
+    protected String getByNameAndDate(String indexName, LocalDate date) {
         UriComponents uri = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("resultType", "json")
                 .queryParam("serviceKey", serviceKey)
