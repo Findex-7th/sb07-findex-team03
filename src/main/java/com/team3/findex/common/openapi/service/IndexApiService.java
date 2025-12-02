@@ -13,6 +13,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 주가 OpenApi를 불러와서 IndexApiResponse에 담는다
+ */
 @Service
 @RequiredArgsConstructor
 public class IndexApiService {

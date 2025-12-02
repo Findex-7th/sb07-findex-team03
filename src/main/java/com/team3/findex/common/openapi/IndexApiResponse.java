@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import lombok.Getter;
 
 /**
@@ -23,7 +25,7 @@ public class IndexApiResponse {
   private String baseIndex;
 
   @JsonProperty("basDt")
-  private String baseDate;
+  private LocalDate baseDate;
 
   @JsonProperty("idxCsf")
   private String indexCategory;
