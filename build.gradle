@@ -55,8 +55,6 @@ dependencies {
     // DevTools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-    // 한국 공휴일 관련 라이브러리
-    implementation 'com.github.usingsky:korean-lunar-calendar:0.3.1'
 }
 
 tasks.named('test') {
