@@ -1,4 +1,4 @@
-package com.team3.findex.openapi;
+package com.team3.findex.domain.openapi;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

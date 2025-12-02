@@ -1,6 +1,6 @@
-package com.team3.findex.synclog.entity;
+package com.team3.findex.domain.synclog;
 
-import com.team3.findex.synclog.syncjobenums.JobType;
+import com.team3.findex.domain.index.IndexInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -35,6 +35,8 @@ public class SyncJob {
     @NotNull
     private String worker;
 
-    private Long indexInfoId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "index_info_id")
+    private IndexInfo indexInfo;
     
 }

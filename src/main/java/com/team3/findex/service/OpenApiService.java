@@ -1,6 +1,6 @@
 package com.team3.findex.service;
 
-import com.team3.findex.openapi.IndexApiResponse;
+import com.team3.findex.domain.openapi.IndexApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,11 +24,6 @@ public class OpenApiService {
     private final RestTemplate restTemplate;
 
     public String getOpenApiDataByDate(LocalDate date) {
-//        Map<String, Object> resultMap = new HashMap<String, Object>();
-//
-//        HttpHeaders httpHeaders = new HttpHeaders();
-//        HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
-//
         UriComponents uri = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("resultType", "json")
                 .queryParam("serviceKey", serviceKey)
@@ -37,12 +32,8 @@ public class OpenApiService {
 
         return restTemplate.getForObject(uri.toUriString(), String.class);
     }
+
     public IndexApiResponse getOpenApiDataByDate2(LocalDate date) {
-//        Map<String, Object> resultMap = new HashMap<String, Object>();
-//
-//        HttpHeaders httpHeaders = new HttpHeaders();
-//        HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
-//
         UriComponents uri = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("resultType", "json")
                 .queryParam("serviceKey", serviceKey)
