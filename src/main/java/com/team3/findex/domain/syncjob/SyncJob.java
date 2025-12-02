@@ -10,12 +10,15 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 @Getter
 @ToString(exclude = "indexInfo")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "sync_job")
 public class SyncJob {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,14 +29,14 @@ public class SyncJob {
     @NotNull
     private JobType jobType;
 
+    @Column(nullable = false)
+    @NotNull
+    private String worker;
+
     @CreatedDate
     @Column( name = "created_at", updatable = false, nullable = false)
     @NotNull
     private Instant createdAt;
-
-    @Column(nullable = false)
-    @NotNull
-    private String worker;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "index_info_id", insertable = false, updatable = false)

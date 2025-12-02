@@ -25,6 +25,4 @@ public class SyncJobService {
         }
         return syncJobRepository.save(new SyncJob(jobType, worker, indexInfo));
     }
-
-
 }
