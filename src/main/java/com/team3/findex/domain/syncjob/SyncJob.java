@@ -1,4 +1,4 @@
-package com.team3.findex.domain.synclog;
+package com.team3.findex.domain.syncjob;
 
 import com.team3.findex.domain.index.IndexInfo;
 import jakarta.persistence.*;
@@ -13,7 +13,7 @@ import java.time.Instant;
 
 @Entity
 @Getter
-@ToString(exclude = "indexInfoId")
+@ToString(exclude = "indexInfo")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class SyncJob {
@@ -38,5 +38,11 @@ public class SyncJob {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "index_info_id")
     private IndexInfo indexInfo;
-    
+
+
+    public SyncJob(JobType jobType, String worker, IndexInfo indexInfo){
+        this.jobType = jobType;
+        this.worker = worker;
+        this.indexInfo = indexInfo;
+    }
 }
