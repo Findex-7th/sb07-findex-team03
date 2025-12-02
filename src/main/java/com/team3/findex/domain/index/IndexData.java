@@ -1,13 +1,7 @@
-package com.team3.findex.IndexData.entity;
+package com.team3.findex.domain.index;
 
-import com.team3.findex.IndexData.common.SourceType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.AccessLevel;
@@ -15,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table
@@ -24,8 +18,9 @@ public class IndexData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "index_info_id")
-    private Long indexInfoId; // 지수ID
+    private IndexInfo indexInfo; // 지수ID
 
     @Column(name = "marke_price", precision = 6, scale = 2, nullable = false)
     private BigDecimal marketPrice; // 시가
