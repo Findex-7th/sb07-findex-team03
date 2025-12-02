@@ -1,11 +1,10 @@
-package com.team3.findex.service;
+package com.team3.findex.common.openapi.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team3.findex.common.openapi.IndexApiResponse;
-import com.team3.findex.common.openapi.service.OpenApiService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,18 +14,19 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("local")
-class OpenApiServiceTest {
+class IndexOpenApiClientTest {
 
     @Autowired
-    private OpenApiService openApiService;
+    private IndexOpenApiClient openApiService;
 
     @Test
     @DisplayName("api 호출 테스트")
     void 호출_테스트() throws JsonProcessingException {
         // given
-        String openApiDataByDate = openApiService.getOpenApiDataByDate(LocalDate.of(2025, 11, 28));
+        String openApiDataByDate = openApiService.getByDate(LocalDate.of(2025, 11, 28));
 
         // when
         System.out.println("openApiDataByDate = " + openApiDataByDate);
@@ -43,21 +43,6 @@ class OpenApiServiceTest {
         for (IndexApiResponse indexApiRespons : indexApiResponses) {
             System.out.println("indexApiRespons = " + indexApiRespons.getIndexName());
         }
-
-
     }
 
-
-    @Test
-    @DisplayName("api 호출 클래스 매핑 테스트")
-    void 매핑_호출_테스트() throws JsonProcessingException {
-        // given
-        IndexApiResponse result = openApiService.getOpenApiDataByDate2(LocalDate.of(2025, 11, 28));
-
-        System.out.println("result = " + result);
-
-        System.out.println("result.getIndexName() = " + result.getIndexName());
-
-
-    }
 }
