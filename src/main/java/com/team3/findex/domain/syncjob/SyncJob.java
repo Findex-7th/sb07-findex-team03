@@ -36,7 +36,7 @@ public class SyncJob {
     private String worker;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "index_info_id")
+    @JoinColumn(name = "index_info_id", insertable = false, updatable = false)
     private IndexInfo indexInfo;
 
 
