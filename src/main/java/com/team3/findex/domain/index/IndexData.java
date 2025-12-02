@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,7 +35,7 @@ public class IndexData {
     @Column(name = "low_price", precision = 6, scale = 2, nullable = false)
     private BigDecimal lowPrice; //	저가
 
-    @JoinColumn(name = "trading_quantity")
+    @Column(name = "trading_quantity")
     private Long tradingQuantity; // 거래량
 
     @Column(name = "variation_sign", precision = 6, scale = 2, nullable = false)
@@ -47,5 +48,11 @@ public class IndexData {
     private SourceType sourceType; // 소스 타입
 
     @Column(name = "base_point_time", nullable = false)
-    private Instant baseDate; // 기준일자
+    private LocalDate baseDate; // 기준일자
+
+    @Column(name = "trading_price", nullable = false)
+    private Long tradingPrice; //거래대금
+
+    @Column(name = "market_total_amount", nullable = false)
+    private Long marketTotalAmount; //상장시가총액
 }

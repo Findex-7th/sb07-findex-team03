@@ -55,6 +55,9 @@ dependencies {
     // DevTools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
+    // 공휴일 계산에 필요
+    // https://mvnrepository.com/artifact/com.ibm.icu/icu4j
+    implementation("com.ibm.icu:icu4j:77.1")
 }
 
 tasks.named('test') {
