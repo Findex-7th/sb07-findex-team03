@@ -1,9 +1,8 @@
 package com.team3.findex.common.openapi.service;
 
-import com.team3.findex.common.openapi.IndexApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -11,19 +10,19 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class OpenApiService {
+public class IndexOpenApiClient {
 
     @Value("${open-api.key}")
-    private String serviceKey;
+    protected String serviceKey;
 
     @Value("${open-api.url}")
-    private String url;
+    protected String url;
 
     private final RestTemplate restTemplate;
 
-    public String getOpenApiDataByDate(LocalDate date) {
+    protected String getByDate(LocalDate date) {
         UriComponents uri = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("resultType", "json")
                 .queryParam("serviceKey", serviceKey)
@@ -33,14 +32,26 @@ public class OpenApiService {
         return restTemplate.getForObject(uri.toUriString(), String.class);
     }
 
-    public IndexApiResponse getOpenApiDataByDate2(LocalDate date) {
+    protected String getByName(String indexName) {
         UriComponents uri = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("resultType", "json")
                 .queryParam("serviceKey", serviceKey)
+                .queryParam("idxNm", indexName)
+                .build();
+
+        return restTemplate.getForObject(uri.toUriString(), String.class);
+    }
+
+    protected String getByDateAndName(LocalDate date, String indexName) {
+        UriComponents uri = UriComponentsBuilder.fromHttpUrl(url)
+                .queryParam("resultType", "json")
+                .queryParam("serviceKey", serviceKey)
+                .queryParam("idxNm", indexName)
                 .queryParam("basDt", date.format(DateTimeFormatter.ofPattern("yyyyMMdd")))
                 .build();
 
-        return restTemplate.getForObject(uri.toUriString(), IndexApiResponse.class);
+        return restTemplate.getForObject(uri.toUriString(), String.class);
     }
+
 
 }
