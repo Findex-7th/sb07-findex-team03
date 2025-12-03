@@ -1,14 +1,9 @@
 package com.team3.findex.common.openapi;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.team3.findex.common.openapi.dto.IndexApiResponse;
 import com.team3.findex.common.openapi.dto.IndexInfoSyncData;
 import com.team3.findex.common.openapi.dto.IndexSyncData;
 import com.team3.findex.common.openapi.mapper.OpenApiMapper;
 import com.team3.findex.common.openapi.service.IndexApiService;
-import com.team3.findex.common.util.HolidayUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -105,5 +100,19 @@ public class OpenApiProvider {
 
     public Optional<IndexSyncData> getIndexByNameYesterday(String indexName) {
         return indexApiService.getByNameYesterday(indexName).map(openApiMapper::toIndexSyncData);
+    }
+
+    public List<IndexInfoSyncData> getIndexInfoByDayRange(LocalDate start, LocalDate end) {
+        return indexApiService.getByDayRange(start, end)
+                .stream()
+                .map(openApiMapper::toIndexInfoSyncData)
+                .toList();
+    }
+
+    public List<IndexSyncData> getIndexByDayRange(LocalDate start, LocalDate end) {
+        return indexApiService.getByDayRange(start, end)
+                .stream()
+                .map(openApiMapper::toIndexSyncData)
+                .toList();
     }
 }

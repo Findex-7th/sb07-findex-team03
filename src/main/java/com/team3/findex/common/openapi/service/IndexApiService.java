@@ -8,8 +8,11 @@ import com.team3.findex.common.openapi.dto.IndexApiResponse;
 import com.team3.findex.common.util.HolidayUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -125,6 +128,21 @@ public class IndexApiService {
             return Optional.ofNullable(
                     objectMapper.convertValue(itemsNode, new TypeReference<IndexApiResponse>() {})
             );
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<IndexApiResponse> getByDayRange(LocalDate start, LocalDate end) {
+        try {
+            JsonNode itemsNode = objectMapper.readTree(indexOpenApiClient.getByDateRange(start, end))
+                    .path("response")
+                    .path("body")
+                    .path("items");
+
+            return objectMapper.convertValue(itemsNode, new TypeReference<List<IndexApiResponse>>() {
+            });
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);

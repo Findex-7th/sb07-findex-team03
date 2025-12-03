@@ -53,5 +53,16 @@ public class IndexOpenApiClient {
         return restTemplate.getForObject(uri.toUriString(), String.class);
     }
 
+    protected String getByDateRange(LocalDate start, LocalDate end) {
+        UriComponents uri = UriComponentsBuilder.fromHttpUrl(url)
+                .queryParam("resultType", "json")
+                .queryParam("serviceKey", serviceKey)
+                .queryParam("beginBasDt", start.format(DateTimeFormatter.ofPattern("yyyyMMdd")))
+                .queryParam("endBasDt", end.format(DateTimeFormatter.ofPattern("yyyyMMdd")))
+                .build();
+
+        return restTemplate.getForObject(uri.toUriString(), String.class);
+    }
+
 
 }
