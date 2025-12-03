@@ -1,14 +1,13 @@
 package com.team3.findex.domain.syncjob.controller;
 
-import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.syncjob.dto.IndexDataSyncRequest;
 import com.team3.findex.domain.syncjob.dto.SyncJobDto;
-import com.team3.findex.domain.syncjob.enums.JobType;
 import com.team3.findex.domain.syncjob.service.SyncJobService;
-import com.team3.findex.repository.IndexInfoRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,14 +22,18 @@ public class SyncJobController {
 
 
     @PostMapping("/index-infos")
-    public ResponseEntity<?> getIndexInfo(HttpServletRequest request){
+    public ResponseEntity<List<SyncJobDto>> getIndexInfo(HttpServletRequest request){
         String worker = ipIntercept(request);
-        List<SyncJobDto> indexInfos = syncJobService.createSyncJobs(JobType.INDEX_INFO, worker);
+        List<SyncJobDto> indexInfos = syncJobService.syncIndexInfos(worker);
         return ResponseEntity.ok(indexInfos);
     }
 
     @PostMapping("/index-data")
-    public ResponseEntity<?> getIndexData(){
+    public ResponseEntity<List<SyncJobDto>> getIndexData(
+            @RequestBody IndexDataSyncRequest indexDataSyncRequest,
+            HttpServletRequest request
+    ){
+        String worker = ipIntercept(request);
         return null;
     }
 

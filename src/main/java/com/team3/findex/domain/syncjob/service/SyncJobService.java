@@ -3,7 +3,6 @@ package com.team3.findex.domain.syncjob.service;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.syncjob.dto.SyncJobDto;
 import com.team3.findex.domain.syncjob.enums.JobType;
-import com.team3.findex.domain.syncjob.enums.Result;
 import com.team3.findex.domain.syncjob.SyncJob;
 import com.team3.findex.domain.syncjob.mapper.SyncJobMapper;
 import com.team3.findex.repository.IndexInfoRepository;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,23 +26,19 @@ public class SyncJobService {
 
 
     @Transactional
-    public List<SyncJobDto> createSyncJobs(JobType jobType, String worker){
+    public List<SyncJobDto> syncIndexInfos(String worker){
         List<IndexInfo> indexInfos = indexInfoRepository.findAll();
         return indexInfos.stream()
                 .map(indexInfo -> {
-                    if(jobType==null){
-                        log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexInfo.getId(), "작업 유형을 확인 할 수 없습니다.");
-                        return createFailureLog(jobType, worker, indexInfo);
-                    }
                     if(worker == null || worker.isBlank()){
                         log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexInfo.getId(), "작업자를 확인 할 수 없습니다.");
-                        return createFailureLog(jobType, worker, indexInfo);
+                        return createFailureLog(JobType.INDEX_INFO, worker, indexInfo);
                     }
                     if(indexInfo == null) {
                         log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexInfo.getId(), "지수 정보를 확인 할 수 없습니다.");
-                        return createFailureLog(jobType, worker, indexInfo);
+                        return createFailureLog(JobType.INDEX_INFO, worker, indexInfo);
                     }
-                    return createSuccessLog(jobType, worker, indexInfo);
+                    return createSuccessLog(JobType.INDEX_INFO, worker, indexInfo);
                 })
                 .map(syncJobMapper::toDto)
                 .toList();
