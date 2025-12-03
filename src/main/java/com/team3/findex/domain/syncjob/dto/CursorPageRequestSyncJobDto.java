@@ -1,6 +1,6 @@
 package com.team3.findex.domain.syncjob.dto;
 
-import com.team3.findex.synclog.syncjobenums.JobType;
+import com.team3.findex.domain.syncjob.enums.JobType;
 
 public record CursorPageRequestSyncJobDto(
     JobType jobType,
