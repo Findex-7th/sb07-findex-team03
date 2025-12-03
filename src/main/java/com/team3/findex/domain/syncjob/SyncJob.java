@@ -1,5 +1,6 @@
 package com.team3.findex.domain.syncjob;
 
+import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.syncjob.enums.JobType;
 import com.team3.findex.domain.syncjob.enums.Result;
@@ -18,7 +19,7 @@ import java.time.Instant;
 @ToString(exclude = "indexInfo")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "sync_job")
+@Table
 public class SyncJob {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +30,7 @@ public class SyncJob {
     @NotNull
     private JobType jobType;
 
-    @Column(nullable = false)
-    @NotNull
+    @Column
     private String worker;
 
     @Column(nullable = false)
@@ -46,7 +46,6 @@ public class SyncJob {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "index_info_id", insertable = false, updatable = false)
     private IndexInfo indexInfo;
-
 
     public SyncJob(JobType jobType, String worker, IndexInfo indexInfo, Result result){
         this.jobType = jobType;

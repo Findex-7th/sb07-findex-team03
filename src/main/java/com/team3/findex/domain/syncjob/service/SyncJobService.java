@@ -1,16 +1,19 @@
 package com.team3.findex.domain.syncjob.service;
 
 import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.syncjob.dto.IndexDataSyncRequest;
 import com.team3.findex.domain.syncjob.dto.SyncJobDto;
 import com.team3.findex.domain.syncjob.enums.JobType;
 import com.team3.findex.domain.syncjob.SyncJob;
 import com.team3.findex.domain.syncjob.mapper.SyncJobMapper;
 import com.team3.findex.repository.IndexInfoRepository;
 import com.team3.findex.repository.SyncJobRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -42,6 +45,15 @@ public class SyncJobService {
                 })
                 .map(syncJobMapper::toDto)
                 .toList();
+    }
+
+    @Transactional
+    public List<SyncJobDto> syncIndexData(
+            IndexDataSyncRequest indexDataSyncRequest,
+            String worker
+            ){
+
+        return null;
     }
 
     @Transactional

@@ -1,21 +1,20 @@
 package com.team3.findex.domain.syncjob.controller;
 
+import com.team3.findex.domain.syncjob.dto.CursorPageRequestSyncJobDto;
+import com.team3.findex.domain.syncjob.dto.CursorPageResponseSyncJobDto;
 import com.team3.findex.domain.syncjob.dto.IndexDataSyncRequest;
 import com.team3.findex.domain.syncjob.dto.SyncJobDto;
 import com.team3.findex.domain.syncjob.service.SyncJobService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/sync-job")
+@RequestMapping("/api/sync-jobs")
 public class SyncJobController {
 
     private final SyncJobService syncJobService;
@@ -34,6 +33,14 @@ public class SyncJobController {
             HttpServletRequest request
     ){
         String worker = ipIntercept(request);
+        return null;
+    }
+
+    @GetMapping("/index-infos/{id}")
+    public ResponseEntity<CursorPageResponseSyncJobDto> cursorPageResponse(
+            @RequestBody CursorPageRequestSyncJobDto cursorPageRequestSyncJobDto
+            ){
+
         return null;
     }
 
