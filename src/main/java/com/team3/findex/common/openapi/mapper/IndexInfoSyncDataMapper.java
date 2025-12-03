@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import com.team3.findex.common.openapi.IndexApiResponse;
+import com.team3.findex.common.openapi.dto.IndexApiResponse;
 import com.team3.findex.common.openapi.dto.IndexInfoSyncData;
 import com.team3.findex.common.openapi.service.IndexApiService;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,8 @@
 package com.team3.findex.common.openapi.mapper;
 
-import com.team3.findex.common.openapi.IndexApiResponse;
+import com.team3.findex.common.openapi.dto.IndexApiResponse;
 import com.team3.findex.common.openapi.dto.IndexInfoSyncData;
 import com.team3.findex.common.openapi.dto.IndexSyncData;
-import com.team3.findex.common.openapi.mapper.IndexInfoSyncDataMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
