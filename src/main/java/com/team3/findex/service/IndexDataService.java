@@ -12,16 +12,17 @@ import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
 //import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
 //import com.team3.findex.entity.index.IndexPerformance;
 //import com.team3.findex.entity.index.RankedIndexPerformance;
-import com.team3.findex.entity.index.ChartPeriodType;
-import com.team3.findex.entity.index.IndexChart;
-import com.team3.findex.entity.index.IndexData;
-import com.team3.findex.mapper.IndexChartMapper;
-import com.team3.findex.mapper.IndexDataMapper;
+import com.team3.findex.domain.index.ChartPeriodType;
+import com.team3.findex.domain.index.IndexChart;
+import com.team3.findex.domain.index.IndexData;
+import com.team3.findex.domain.index.mapper.IndexChartMapper;
+import com.team3.findex.domain.index.mapper.IndexDataMapper;
 //import com.team3.findex.mapper.IndexPerformanceMapper;
 //import com.team3.findex.mapper.RankedIndexPerformanceMapper;
 import com.team3.findex.repository.IndexDataRepository;
+import com.team3.findex.service.Interface.IndexDataServiceInterface;
 import jakarta.transaction.Transactional;
-//import java.util.List;
+import java.util.List;
 import java.util.NoSuchElementException;
 //import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -41,16 +42,16 @@ public class IndexDataService implements IndexDataServiceInterface {
 
     @Override
     public CursorPageResponse<IndexDataDto> getAllIndexData(String sortField, String sortDirection, Integer size) {
-//
-//        if (null == sortField) throw new IllegalArgumentException("🚨sortField is null");
-//        if (null == sortDirection) throw new IllegalArgumentException("🚨 sortDirection is null");
-//        if (null == size) throw new IllegalArgumentException("🚨size is null");
-//
-//        List<IndexDataDto> indexDataDtoList = indexDataRepository.getAllIndexData(sortField, sortDirection, size)
-//            .stream()
-//            .map(indexDataMapper::toDTO)
-//            .toList();
-//
+
+        if (null == sortField) throw new IllegalArgumentException("🚨sortField is null");
+        if (null == sortDirection) throw new IllegalArgumentException("🚨 sortDirection is null");
+        if (null == size) throw new IllegalArgumentException("🚨size is null");
+
+        List<IndexDataDto> indexDataDtoList = indexDataRepository.getAllIndexData(sortField, sortDirection, size)
+            .stream()
+            .map(indexDataMapper::toDTO)
+            .toList();
+
 //        return new CursorPageResponse<indexDataDto>(); //??
         return null;
     }

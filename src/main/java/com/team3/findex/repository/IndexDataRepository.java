@@ -2,7 +2,7 @@ package com.team3.findex.repository;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.team3.findex.entity.index.IndexData;
+import com.team3.findex.domain.index.IndexData;
 
 public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 //    @Query("SELECT i FROM IndexData i ORDER BY i.indexInfo.indexName ASC LIMIT '{'limit'}'") //????

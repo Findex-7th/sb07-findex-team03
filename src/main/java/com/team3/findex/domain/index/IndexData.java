@@ -1,4 +1,4 @@
-package com.team3.findex.entity.index;
+package com.team3.findex.domain.index;
 
 import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
 import jakarta.persistence.Column;

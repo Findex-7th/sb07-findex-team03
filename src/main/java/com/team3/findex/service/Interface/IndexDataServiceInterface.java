@@ -1,4 +1,4 @@
-package com.team3.findex.service;
+package com.team3.findex.service.Interface;
 
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 
@@ -9,7 +9,7 @@ import com.team3.findex.dto.indexDataDto.IndexDataDto;
 import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
 import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
-import com.team3.findex.entity.index.ChartPeriodType;
+import com.team3.findex.domain.index.ChartPeriodType;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

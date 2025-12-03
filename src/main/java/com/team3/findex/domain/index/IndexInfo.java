@@ -1,6 +1,5 @@
 package com.team3.findex.domain.index;
 
-import com.team3.findex.entity.index.SourceType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
