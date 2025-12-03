@@ -1,8 +1,8 @@
 package com.team3.findex.domain.syncjob.dto;
 
 
-import com.team3.findex.domain.syncjob.JobType;
-import com.team3.findex.domain.syncjob.Result;
+import com.team3.findex.domain.syncjob.enums.JobType;
+import com.team3.findex.domain.syncjob.enums.Result;
 
 public record SyncJobDto(
         Long Id,

@@ -1,8 +1,8 @@
 package com.team3.findex.domain.syncjob.service;
 
 import com.team3.findex.domain.index.IndexInfo;
-import com.team3.findex.domain.syncjob.JobType;
-import com.team3.findex.domain.syncjob.Result;
+import com.team3.findex.domain.syncjob.enums.JobType;
+import com.team3.findex.domain.syncjob.enums.Result;
 import com.team3.findex.domain.syncjob.SyncJob;
 import com.team3.findex.repository.SyncJobRepository;
 import lombok.RequiredArgsConstructor;

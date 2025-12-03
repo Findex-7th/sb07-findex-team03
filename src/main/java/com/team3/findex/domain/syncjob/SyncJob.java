@@ -1,6 +1,8 @@
 package com.team3.findex.domain.syncjob;
 
 import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.syncjob.enums.JobType;
+import com.team3.findex.domain.syncjob.enums.Result;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -10,8 +12,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Getter
