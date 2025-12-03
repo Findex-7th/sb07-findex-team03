@@ -3,6 +3,8 @@ package com.team3.findex.common.openapi.mapper;
 import com.team3.findex.common.openapi.IndexApiResponse;
 import com.team3.findex.common.openapi.dto.IndexSyncData;
 import com.team3.findex.common.openapi.service.IndexApiService;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -25,7 +27,7 @@ public class IndexSyncMapper {
      */
     public static IndexSyncData toIndexSyncData(IndexApiResponse indexApiResponse) {
         return new IndexSyncData(
-                indexApiResponse.getBaseDate(),
+            LocalDate.parse(indexApiResponse.getBaseDate(), DateTimeFormatter.ofPattern("yyyyMMdd")),
                 indexApiResponse.getMarketPrice(),
                 indexApiResponse.getClosingPrice(),
                 indexApiResponse.getHighPrice(),
@@ -45,7 +47,7 @@ public class IndexSyncMapper {
     public static List<IndexSyncData> toIndexSyncData(List<IndexApiResponse> indexApiResponses) {
         return indexApiResponses.stream()
                 .map(indexApiResponse -> new IndexSyncData(
-                        indexApiResponse.getBaseDate(),
+                    LocalDate.parse(indexApiResponse.getBaseDate(), DateTimeFormatter.ofPattern("yyyyMMdd")),
                         indexApiResponse.getMarketPrice(),
                         indexApiResponse.getClosingPrice(),
                         indexApiResponse.getHighPrice(),

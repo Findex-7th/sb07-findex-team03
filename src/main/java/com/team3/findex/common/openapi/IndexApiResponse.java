@@ -25,7 +25,7 @@ public class IndexApiResponse {
   private String baseIndex;
 
   @JsonProperty("basDt")
-  private LocalDate baseDate;
+  private String baseDate;
 
   @JsonProperty("idxCsf")
   private String indexCategory;
