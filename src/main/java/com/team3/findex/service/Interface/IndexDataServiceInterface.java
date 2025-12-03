@@ -10,6 +10,7 @@ import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
 import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
 import com.team3.findex.domain.index.ChartPeriodType;
+import java.util.List;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -20,7 +21,7 @@ public interface IndexDataServiceInterface {
     IndexDataDto updateIndexData(Long id, IndexDataUpdateRequest request);
     IndexChartDto getChartData(Long id, ChartPeriodType chartPeriodType);
     RankedIndexPerformanceDto performanceRank(long indexInfoId, String periodType, int limit);
-    IndexPerformanceDto performanceFavorite(ChartPeriodType chartPeriodType);
+    List<IndexPerformanceDto> performanceFavorite(ChartPeriodType chartPeriodType);
 //    void exportCsv(ExportCsvRequest request);
     void exportCsv( Long indexInfoId, String startDate, String endDate, String sortField, String sortDirection);
 }

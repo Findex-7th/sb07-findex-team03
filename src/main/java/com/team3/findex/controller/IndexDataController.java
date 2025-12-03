@@ -13,6 +13,7 @@ import com.team3.findex.service.Interface.IndexDataServiceInterface;
 import com.team3.findex.swaggerDocs.IndexDataDoc;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -157,11 +158,11 @@ public class IndexDataController implements IndexDataDoc {
      * @return
      */
     @GetMapping("/performance/favorite")
-    public ResponseEntity<IndexPerformanceDto> performanceFavorite(
+    public ResponseEntity<List<IndexPerformanceDto>> performanceFavorite(
         @RequestParam("periodType") ChartPeriodType chartPeriodType
     ){
 
-        IndexPerformanceDto indexPerformanceDto = indexDataService.performanceFavorite(chartPeriodType);
+        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataService.performanceFavorite(chartPeriodType);
 
         return ResponseEntity
             .status(HttpStatus.OK)

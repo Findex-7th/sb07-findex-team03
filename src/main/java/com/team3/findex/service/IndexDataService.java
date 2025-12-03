@@ -26,6 +26,7 @@ import jakarta.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 //import java.util.Optional;
@@ -124,13 +125,9 @@ public class IndexDataService implements IndexDataServiceInterface {
     }
 
     @Override
-    public IndexPerformanceDto performanceFavorite(ChartPeriodType chartPeriodType) {
+    public List<IndexPerformanceDto> performanceFavorite(ChartPeriodType chartPeriodType) {
 
-//        indexDataRepository
-
-        IndexPerformanceDto indexPerformance = null;
-
-        return null; //indexPerformanceMapper.toDTO(indexPerformance);
+        return indexDataRepository.findAllFavoritesData(chartPeriodType);
     }
 
     @Override
@@ -140,6 +137,15 @@ public class IndexDataService implements IndexDataServiceInterface {
                             String sortField,
                             String sortDirection
                         ) {
+
+        //?? 내 맘대로 하루치??!!
+        if (startDate.isEmpty() || startDate.isBlank())
+            startDate = String.valueOf(LocalDate.now());
+
+        if (endDate.isEmpty() || endDate.isBlank())
+            endDate = String.valueOf(LocalDate.now());
+
+        sortField = "baseDate";
 
         Sort.Order order = (0 != sortDirection.compareTo("desc")) ? Order.desc(sortField) : Order.asc(sortField);
 

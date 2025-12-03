@@ -1,5 +1,9 @@
 package com.team3.findex.repository;
 
+import com.team3.findex.domain.index.ChartPeriodType;
+import com.team3.findex.domain.index.IndexDataUser;
+import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Sort;
@@ -25,7 +29,15 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 //    IndexData findByIdAndPeriodType(Long id, ChartPeriodType chartPeriodType);
 
 
-    @Query("SELECT i. FROM IndexData d "
+    @Query("SELECT new com.team3.findex.dto.indexDataDto.IndexPerformanceDto(i, d) "
+    + "FROM IndexDataUser f "
+    + "JOIN f.indexInfo i "
+    + "JOIN IndexData d ON d.indexInfo.id = i.id "
+    + "WHERE f.isFavorites = true ")
+    List<IndexPerformanceDto> findAllFavoritesData(@Param("id") ChartPeriodType chartPeriodType);
+
+
+    @Query("SELECT i FROM IndexData d "
         + "JOIN FETCH IndexInfo i "
         + "WHERE i.id = :id "
         + "AND d.baseDate > :startDate "
@@ -34,7 +46,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
                                          @Param("startDate") String startDate,
                                          @Param("endDate") String endDate,
                                          Sort sort );
-
 }
 
 
