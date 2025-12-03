@@ -6,6 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * 자동 연동 설정 엔티티
+ * <p>indexInfo에 대한 자동 데이터 연동 활성화 여부 관리</p>
+ */
+
 @Entity
 @Getter
 @ToString(exclude = "indexInfo")
