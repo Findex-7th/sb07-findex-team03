@@ -58,6 +58,9 @@ dependencies {
     // 공휴일 계산에 필요
     // https://mvnrepository.com/artifact/com.ibm.icu/icu4j
     implementation("com.ibm.icu:icu4j:77.1")
+
+    //  exportCsv() 함수에서 사용
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
 }
 
 tasks.named('test') {

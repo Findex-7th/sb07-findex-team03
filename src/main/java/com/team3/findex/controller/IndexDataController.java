@@ -116,6 +116,7 @@ public class IndexDataController implements IndexDataDoc {
         @RequestParam(value = "periodType", required = false) ChartPeriodType chartPeriodType
     ){
 
+        // 대시보드
         IndexChartDto indexChartDto = indexDataService.getChartData(id, chartPeriodType);
 
         return ResponseEntity
