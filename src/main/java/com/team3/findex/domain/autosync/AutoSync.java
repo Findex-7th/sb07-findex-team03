@@ -17,10 +17,20 @@ public class AutoSync {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "is_auto", nullable = false)
-    private boolean isAuto = false;
+    @Column(name = "is_enable", nullable = false)
+    private boolean isEnable = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "index_info_id", insertable = false, updatable = false)
     private IndexInfo indexInfo;
+
+    public AutoSync(IndexInfo indexInfo){
+      this.indexInfo = indexInfo;
+      this.isEnable = false;
+    }
+
+    public void updateEnable(boolean isEnable){
+        this.isEnable = isEnable;
+    }
+
 }

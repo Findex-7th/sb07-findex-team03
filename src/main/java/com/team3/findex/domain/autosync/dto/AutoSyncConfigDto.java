@@ -1,4 +1,4 @@
-package com.team3.findex.domain.syncjob.dto;
+package com.team3.findex.domain.autosync.dto;
 
 public record AutoSyncConfigDto(
         Long id,
