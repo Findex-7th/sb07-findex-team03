@@ -1,11 +1,14 @@
 package com.team3.findex.swaggerDocs;
 
-import com.team3.findex.domain.index.ChartPeriodType;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.ExportCsvRequest;
+import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
 import com.team3.findex.dto.indexDataDto.IndexDataDto;
 import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
+import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
+import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
+import com.team3.findex.entity.index.ChartPeriodType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -91,7 +94,7 @@ public interface IndexDataDoc {
             )
         )
     })
-    ResponseEntity<Object> createIndexData(
+    ResponseEntity<IndexDataDto> createIndexData(
         @Valid @RequestBody IndexDataCreateRequest request);
 
 
@@ -148,7 +151,7 @@ public interface IndexDataDoc {
             )
         )
     })
-    ResponseEntity<Object> updateIndexData(
+    ResponseEntity<IndexDataDto> updateIndexData(
         @Valid @PathVariable("id") Long id,
         @Valid @RequestBody IndexDataUpdateRequest request
     );
@@ -185,9 +188,9 @@ public interface IndexDataDoc {
             )
         )
     })
-    ResponseEntity<Object> getChartData(
-        @Valid @PathVariable("id") Long id,
-        @Valid @RequestParam("periodType") String periodType
+    ResponseEntity<IndexChartDto> getChartData(
+        @Valid @PathVariable(value = "id") Long id,
+        @RequestParam(value = "periodType", required = false) ChartPeriodType chartPeriodType
     );
 
 
@@ -215,10 +218,10 @@ public interface IndexDataDoc {
             )
         )
     })
-    ResponseEntity<Object> performaceRank(
-        @Valid @RequestParam("indexInfoId") long indexInfoId ,
-        @Valid @RequestParam("periodType") String periodType,
-        @Valid @RequestParam("limit") int limit
+    public ResponseEntity<RankedIndexPerformanceDto> performanceRank(
+        @RequestParam("indexInfoId") long indexInfoId,
+        @RequestParam("periodType") String periodType,
+        @RequestParam("limit") int limit
     );
 
 
@@ -238,8 +241,8 @@ public interface IndexDataDoc {
             )
         )
     })
-    ResponseEntity<Object> performaceFavorite(
-        @Valid @RequestParam("periodType") ChartPeriodType chartPeriodType
+    ResponseEntity<IndexPerformanceDto> performanceFavorite(
+        @RequestParam("periodType") ChartPeriodType chartPeriodType
     );
 
 

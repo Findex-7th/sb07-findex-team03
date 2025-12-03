@@ -1,6 +1,5 @@
-package com.team3.findex.service.Interface;
+package com.team3.findex.service;
 
-import com.team3.findex.domain.index.ChartPeriodType;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 
 import com.team3.findex.dto.indexDataDto.ExportCsvRequest;
@@ -10,16 +9,17 @@ import com.team3.findex.dto.indexDataDto.IndexDataDto;
 import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
 import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
+import com.team3.findex.entity.index.ChartPeriodType;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public interface IndexDataServiceInterface {
     CursorPageResponse<IndexDataDto> getAllIndexData(String sortField, String sortDirection, Integer size);
-    void createIndexData(IndexDataCreateRequest request);
+    IndexDataDto createIndexData(IndexDataCreateRequest request);
     void deleteIndexData(Long id);
     IndexDataDto updateIndexData(Long id, IndexDataUpdateRequest request);
     IndexChartDto getChartData(Long id, ChartPeriodType chartPeriodType);
-    RankedIndexPerformanceDto performaceRank(long indexInfoId, String periodType, int limit);
-    IndexPerformanceDto performaceFavorite(ChartPeriodType chartPeriodType);
+    RankedIndexPerformanceDto performanceRank(long indexInfoId, String periodType, int limit);
+    IndexPerformanceDto performanceFavorite(ChartPeriodType chartPeriodType);
     void exportCsv(ExportCsvRequest request);
 }

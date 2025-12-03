@@ -1,4 +1,4 @@
-package com.team3.findex.domain.index;
+package com.team3.findex.entity.index;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

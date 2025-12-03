@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Pattern;
 
 public record GetChartDataRequest(
 
-    @NotNull
+    @NotNull(message = "🚨id 필수입니다.")
     @Min(1)
     Long id,  // 지수 정보 ID
 

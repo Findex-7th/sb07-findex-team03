@@ -8,7 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 public record ExportCsvRequest(
 
-    @NotNull
+    @NotNull(message = "🚨 필수입니다.")
     @Min(1)
     Long indexInfoId,  // 지수 정보 ID
 

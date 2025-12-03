@@ -1,4 +1,4 @@
-package com.team3.findex.dto.indexDataDto;
+package com.team3.findex.dto.indexDataRequestDto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record PerformanceRankRequest(
 
-    @NotNull
+    @NotNull(message = "🚨indexInfoId 필수입니다.")
     @Min(1)
     Long indexInfoId,  // 지수 정보 ID
 
