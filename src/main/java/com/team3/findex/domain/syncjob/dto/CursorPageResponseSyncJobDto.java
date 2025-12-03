@@ -3,7 +3,7 @@ package com.team3.findex.domain.syncjob.dto;
 import java.util.List;
 
 public record CursorPageResponseSyncJobDto(
-        List<IndexInfoSyncJobDto> content,
+        List<SyncJobDto> content,
         String nextCursor,
         Long nextIdAfter,
         int size,
