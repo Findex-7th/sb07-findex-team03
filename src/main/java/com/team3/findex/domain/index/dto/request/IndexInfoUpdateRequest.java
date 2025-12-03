@@ -1,0 +1,11 @@
+package com.team3.findex.domain.index.dto.request;
+
+import java.time.LocalDate;
+
+public record IndexInfoUpdateRequest(
+    Long id,
+    Integer employedItemsCount,
+    LocalDate basePointInTime,
+    Double baseIndex,
+    Boolean favorite
+) {}

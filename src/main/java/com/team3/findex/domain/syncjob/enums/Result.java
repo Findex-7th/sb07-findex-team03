@@ -1,4 +1,4 @@
-package com.team3.findex.domain.synclog;
+package com.team3.findex.domain.syncjob.enums;
 
 public enum Result {
     SUCCESS("성공"),

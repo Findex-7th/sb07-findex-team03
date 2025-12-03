@@ -3,6 +3,9 @@ package com.team3.findex.common.openapi;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import lombok.Getter;
 
 /**
@@ -22,7 +25,7 @@ public class IndexApiResponse {
   private String baseIndex;
 
   @JsonProperty("basDt")
-  private String baseDate;
+  private LocalDate baseDate;
 
   @JsonProperty("idxCsf")
   private String indexCategory;
@@ -34,22 +37,22 @@ public class IndexApiResponse {
   private Integer itemsCount;
 
   @JsonProperty("clpr")
-  private Double closingPrice;
+  private BigDecimal closingPrice;
 
   @JsonProperty("vs")
-  private Double variationSign;
+  private BigDecimal variationSign;
 
   @JsonProperty("fltRt")
-  private Double changeRate;
+  private BigDecimal changeRate;
 
   @JsonProperty("mkp")
-  private Double marketPrice;
+  private BigDecimal marketPrice;
 
   @JsonProperty("hipr")
-  private Double highPrice;
+  private BigDecimal highPrice;
 
   @JsonProperty("lopr")
-  private Double lowPrice;
+  private BigDecimal lowPrice;
 
   @JsonProperty("trqu")
   private Long tradeVolume;

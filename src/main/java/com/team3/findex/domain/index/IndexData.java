@@ -50,4 +50,10 @@ public class IndexData extends IndexDataBaseEntity {
 
     @Column(name = "base_point_time", nullable = false)
     private LocalDate baseDate; // 기준일자
+
+    @Column(name = "trading_price", nullable = false)
+    private Long tradingPrice; //거래대금
+
+    @Column(name = "market_total_amount", nullable = false)
+    private Long marketTotalAmount; //상장시가총액
 }

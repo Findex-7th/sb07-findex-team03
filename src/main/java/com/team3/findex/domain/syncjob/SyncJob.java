@@ -1,6 +1,8 @@
-package com.team3.findex.domain.synclog;
+package com.team3.findex.domain.syncjob;
 
 import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.syncjob.enums.JobType;
+import com.team3.findex.domain.syncjob.enums.Result;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -13,9 +15,10 @@ import java.time.Instant;
 
 @Entity
 @Getter
-@ToString(exclude = "indexInfoId")
+@ToString(exclude = "indexInfo")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "sync_job")
 public class SyncJob {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,17 +29,28 @@ public class SyncJob {
     @NotNull
     private JobType jobType;
 
+    @Column(nullable = false)
+    @NotNull
+    private String worker;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Result result;
+
     @CreatedDate
     @Column( name = "created_at", updatable = false, nullable = false)
     @NotNull
     private Instant createdAt;
 
-    @Column(nullable = false)
-    @NotNull
-    private String worker;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "index_info_id")
+    @JoinColumn(name = "index_info_id", insertable = false, updatable = false)
     private IndexInfo indexInfo;
-    
+
+
+    public SyncJob(JobType jobType, String worker, Result result, IndexInfo indexInfo){
+        this.jobType = jobType;
+        this.worker = worker;
+        this.indexInfo = indexInfo;
+    }
 }
