@@ -271,6 +271,10 @@ public interface IndexDataDoc {
         )
     })
     ResponseEntity<Object> exportCsv(
-        @Valid @RequestBody ExportCsvRequest request
-    );
+//        @Valid @RequestParam("") ExportCsvRequest request
+        @RequestParam(value = "indexInfoId")                    Long indexInfoId,
+        @RequestParam(value = "startDate", required = false)    String startDate,
+        @RequestParam(value = "endDate",   required = false)    String endDate,
+        @RequestParam(value = "sortField", required = false)    String sortField,
+        @RequestParam(value = "sortDirection")                  String sortDirection);
 }

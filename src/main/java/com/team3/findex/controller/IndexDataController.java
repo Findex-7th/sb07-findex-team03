@@ -179,15 +179,9 @@ public class IndexDataController implements IndexDataDoc {
         @RequestParam(value = "startDate", required = false)    String startDate,
         @RequestParam(value = "endDate",   required = false)    String endDate,
         @RequestParam(value = "sortField", required = false)    String sortField,
-        @RequestParam(value = "sortDirection")                  String sortDirection
-    ){
-        indexDataService.exportCsv( Long indexInfoId,
-                                    String startDate,
-                                    String endDate,
-                                    String sortField,
-                                    String sortDirection
-                                    );
+        @RequestParam(value = "sortDirection")                  String sortDirection) {
 
+        indexDataService.exportCsv(indexInfoId, startDate, endDate, sortField, sortDirection);
         return ResponseEntity
             .status(HttpStatus.OK)
             .build();
