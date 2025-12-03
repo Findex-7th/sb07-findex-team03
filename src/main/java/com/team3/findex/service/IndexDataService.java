@@ -149,7 +149,6 @@ public class IndexDataService implements IndexDataServiceInterface {
             .map(indexDataMapper::toExcelDto)
             .toList();
 
-
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
 
             XSSFSheet sheet = workbook.createSheet("index-data");
@@ -181,10 +180,8 @@ public class IndexDataService implements IndexDataServiceInterface {
                 row.createCell(9).setCellValue(dto.marketTotalAmount().doubleValue());
             }
 
-            // 메모리에 파일 저장 후 반환
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             workbook.write(out);
-//            return new ByteArrayInputStream(out.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException("🚨파일 다운로드 실패");
         }
