@@ -174,13 +174,19 @@ public class IndexDataController implements IndexDataDoc {
      */
     @GetMapping("/export/csv")
     public ResponseEntity<Object> exportCsv(
-        @Valid @RequestParam("") ExportCsvRequest request //??
+//        @Valid @RequestParam("") ExportCsvRequest request
+        @RequestParam(value = "indexInfoId")                    Long indexInfoId,
+        @RequestParam(value = "startDate", required = false)    String startDate,
+        @RequestParam(value = "endDate",   required = false)    String endDate,
+        @RequestParam(value = "sortField", required = false)    String sortField,
+        @RequestParam(value = "sortDirection")                  String sortDirection
     ){
-        //??
-        // Media type
-        // String
-
-        indexDataService.exportCsv(request);
+        indexDataService.exportCsv( Long indexInfoId,
+                                    String startDate,
+                                    String endDate,
+                                    String sortField,
+                                    String sortDirection
+                                    );
 
         return ResponseEntity
             .status(HttpStatus.OK)

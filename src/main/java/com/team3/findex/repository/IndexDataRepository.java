@@ -31,8 +31,8 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
         + "AND d.baseDate > :startDate "
         + "AND d.baseDate < :endDate ")
     List<IndexData> findAllExportCsvData(@Param("id") Long indexInfoId,
-                                         @Param("startDate") LocalDate startDate,
-                                         @Param("endDate") LocalDate endDate,
+                                         @Param("startDate") String startDate,
+                                         @Param("endDate") String endDate,
                                          Sort sort );
 
 }

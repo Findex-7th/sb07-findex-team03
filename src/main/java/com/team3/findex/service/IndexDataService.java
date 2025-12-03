@@ -134,14 +134,19 @@ public class IndexDataService implements IndexDataServiceInterface {
     }
 
     @Override
-    public void exportCsv(ExportCsvRequest request) {
+    public void exportCsv(  Long indexInfoId,
+                            String startDate,
+                            String endDate,
+                            String sortField,
+                            String sortDirection
+                        ) {
 
-        Sort sort = Sort.by(Order.desc("city"));
+        Sort.Order order = (0 != sortDirection.compareTo("desc")) ? Order.desc(sortField) : Order.asc(sortField);
 
-        List<IndexData> indexDataList = indexDataRepository.findAllExportCsvData( request.indexInfoId(),
-                                                            request.startDate(),
-                                                            request.endDate(),
-                                                            sort);
+        List<IndexData> indexDataList = indexDataRepository.findAllExportCsvData(indexInfoId,
+                                                            startDate,
+                                                            endDate,
+                                                            Sort.by(order));
 
         if (indexDataList.isEmpty()) throw new NoSuchElementException("🚨해당하는 엑셀 자료 없음");
 

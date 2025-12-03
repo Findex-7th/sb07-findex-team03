@@ -21,5 +21,12 @@ public interface IndexDataServiceInterface {
     IndexChartDto getChartData(Long id, ChartPeriodType chartPeriodType);
     RankedIndexPerformanceDto performanceRank(long indexInfoId, String periodType, int limit);
     IndexPerformanceDto performanceFavorite(ChartPeriodType chartPeriodType);
-    void exportCsv(ExportCsvRequest request);
+//    void exportCsv(ExportCsvRequest request);
+    void exportCsv( Long indexInfoId,
+                    String startDate,
+                    String endDate,
+                    String sortField,
+                    String sortDirection
+                );
 }
+
