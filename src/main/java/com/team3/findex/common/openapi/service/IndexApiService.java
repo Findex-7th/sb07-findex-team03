@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team3.findex.common.openapi.IndexApiResponse;
+import com.team3.findex.common.openapi.dto.IndexApiResponse;
 import com.team3.findex.common.util.HolidayUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
