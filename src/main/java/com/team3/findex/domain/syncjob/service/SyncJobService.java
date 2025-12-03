@@ -1,29 +1,70 @@
 package com.team3.findex.domain.syncjob.service;
 
 import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.syncjob.dto.IndexDataSyncRequest;
+import com.team3.findex.domain.syncjob.dto.SyncJobDto;
 import com.team3.findex.domain.syncjob.enums.JobType;
-import com.team3.findex.domain.syncjob.enums.Result;
 import com.team3.findex.domain.syncjob.SyncJob;
+import com.team3.findex.domain.syncjob.mapper.SyncJobMapper;
+import com.team3.findex.repository.IndexInfoRepository;
 import com.team3.findex.repository.SyncJobRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
+@Transactional(readOnly = true)
 public class SyncJobService {
 
     private final SyncJobRepository syncJobRepository;
+    private final IndexInfoRepository indexInfoRepository;
+    private final SyncJobMapper syncJobMapper;
 
-    public SyncJob create(JobType jobType, String worker, Result result, IndexInfo indexInfo){
-        if(jobType == null){
-            throw new IllegalArgumentException("데이터 유형을 확인 할 수 없습니다.");
-        }
-        if(worker == null){
-            throw new IllegalArgumentException("작업자를 확인 할 수 없습니다.");
-        }
-        if(indexInfo == null){
-            throw new IllegalArgumentException("지수 정보를 확인 할 수 없습니다.");
-        }
-        return syncJobRepository.save(new SyncJob(jobType, worker, result, indexInfo));
+
+    @Transactional
+    public List<SyncJobDto> syncIndexInfos(String worker){
+        List<IndexInfo> indexInfos = indexInfoRepository.findAll();
+        return indexInfos.stream()
+                .map(indexInfo -> {
+                    if(worker == null || worker.isBlank()){
+                        log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexInfo.getId(), "작업자를 확인 할 수 없습니다.");
+                        return createFailureLog(JobType.INDEX_INFO, worker, indexInfo);
+                    }
+                    if(indexInfo == null) {
+                        log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexInfo.getId(), "지수 정보를 확인 할 수 없습니다.");
+                        return createFailureLog(JobType.INDEX_INFO, worker, indexInfo);
+                    }
+                    return createSuccessLog(JobType.INDEX_INFO, worker, indexInfo);
+                })
+                .map(syncJobMapper::toDto)
+                .toList();
+    }
+
+    @Transactional
+    public List<SyncJobDto> syncIndexData(
+            IndexDataSyncRequest indexDataSyncRequest,
+            String worker
+            ){
+
+        return null;
+    }
+
+    @Transactional
+    protected SyncJob createSuccessLog(JobType jobType, String worker, IndexInfo indexInfo) {
+        SyncJob successJob = SyncJob.ofSuccess(jobType, worker, indexInfo);
+         return syncJobRepository.save(successJob);
+    }
+
+    @Transactional
+    protected SyncJob createFailureLog(JobType jobType, String worker, IndexInfo indexInfo) {
+        SyncJob failJob = SyncJob.ofFailure(jobType, worker, indexInfo);
+        return syncJobRepository.save(failJob);
     }
 }
