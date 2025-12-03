@@ -10,7 +10,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 //    WHERE id > :cursor
 //    ORDER BY id ASC
 //    LIMIT :limit;
-    List<IndexData> getAllIndexData(String sortField, String sortDirection, Integer size);
+//    List<IndexData> getAllIndexData(String sortField, String sortDirection, Integer size);
 
 //    IndexData findByIdAndPeriodType(Long id, ChartPeriodType chartPeriodType);
 }

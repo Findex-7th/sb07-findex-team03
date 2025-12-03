@@ -47,10 +47,10 @@ public class IndexDataService implements IndexDataServiceInterface {
         if (null == sortDirection) throw new IllegalArgumentException("🚨 sortDirection is null");
         if (null == size) throw new IllegalArgumentException("🚨size is null");
 
-        List<IndexDataDto> indexDataDtoList = indexDataRepository.getAllIndexData(sortField, sortDirection, size)
-            .stream()
-            .map(indexDataMapper::toDTO)
-            .toList();
+//        List<IndexDataDto> indexDataDtoList = indexDataRepository.getAllIndexData(sortField, sortDirection, size)
+//            .stream()
+//            .map(indexDataMapper::toDTO)
+//            .toList();
 
 //        return new CursorPageResponse<indexDataDto>(); //??
         return null;
