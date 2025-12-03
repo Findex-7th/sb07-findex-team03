@@ -5,7 +5,7 @@ import com.team3.findex.domain.syncjob.enums.JobType;
 import com.team3.findex.domain.syncjob.enums.Result;
 
 public record SyncJobDto(
-        Long Id,
+        Long id,
         JobType jobType,
         Long indexInfoId,
         String targetDate,
