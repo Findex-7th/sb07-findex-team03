@@ -36,7 +36,7 @@ public class SyncJob {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @NotNull
-    private Result result;
+    private Result result = Result.SUCCESS;
 
     @CreatedDate
     @Column( name = "created_at", updatable = false, nullable = false)
@@ -48,9 +48,18 @@ public class SyncJob {
     private IndexInfo indexInfo;
 
 
-    public SyncJob(JobType jobType, String worker, Result result, IndexInfo indexInfo){
+    public SyncJob(JobType jobType, String worker, IndexInfo indexInfo, Result result){
         this.jobType = jobType;
         this.worker = worker;
         this.indexInfo = indexInfo;
+        this.result = result;
+    }
+
+    public static SyncJob ofSuccess(JobType jobType, String worker, IndexInfo indexInfo){
+        return new SyncJob(jobType, worker, indexInfo, Result.SUCCESS);
+    }
+
+    public static SyncJob ofFailure(JobType jobType, String worker, IndexInfo indexInfo){
+        return new SyncJob(jobType, worker, indexInfo, Result.FAILED);
     }
 }
