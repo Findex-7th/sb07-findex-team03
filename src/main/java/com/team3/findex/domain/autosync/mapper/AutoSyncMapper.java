@@ -23,7 +23,7 @@ public interface AutoSyncMapper {
   @Mapping(source = "indexInfo.id", target = "indexInfoId")
   @Mapping(source = "indexInfo.indexClassification", target = "indexClassification")
   @Mapping(source = "indexInfo.indexName", target = "indexName")
-  @Mapping(source = "isEnable", target = "enabled")
+  @Mapping(source = "enable", target = "enabled")
   AutoSyncConfigDto toDto(AutoSync autoSync);
 
   /**
