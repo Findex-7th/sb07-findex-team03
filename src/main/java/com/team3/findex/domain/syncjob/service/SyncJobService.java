@@ -1,11 +1,13 @@
 package com.team3.findex.domain.syncjob.service;
 
+import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.syncjob.dto.IndexDataSyncRequest;
 import com.team3.findex.domain.syncjob.dto.SyncJobDto;
 import com.team3.findex.domain.syncjob.enums.JobType;
 import com.team3.findex.domain.syncjob.SyncJob;
 import com.team3.findex.domain.syncjob.mapper.SyncJobMapper;
+import com.team3.findex.repository.IndexDataRepository;
 import com.team3.findex.repository.IndexInfoRepository;
 import com.team3.findex.repository.SyncJobRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +28,7 @@ public class SyncJobService {
     private final SyncJobRepository syncJobRepository;
     private final IndexInfoRepository indexInfoRepository;
     private final SyncJobMapper syncJobMapper;
+    private final IndexDataRepository indexDataRepository;
 
 
     /**
@@ -63,6 +66,8 @@ public class SyncJobService {
             IndexDataSyncRequest indexDataSyncRequest,
             String worker
             ){
+        List<Long> indexInfoIds = indexDataSyncRequest.indexInfoIds();
+//        List<IndexData> indexDataList = indexDataRepository.findAllByIdInAndBaseDateBetween(indexInfoIds, indexDataSyncRequest.baseDateFrom(), indexDataSyncRequest.baseDateTo());
 
         return null;
     }
