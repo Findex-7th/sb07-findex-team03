@@ -36,12 +36,12 @@ public class SyncJobController {
         return null;
     }
 
-    @GetMapping("/index-infos/{id}")
+    @GetMapping
     public ResponseEntity<CursorPageResponseSyncJobDto> cursorPageResponse(
             @RequestBody CursorPageRequestSyncJobDto cursorPageRequestSyncJobDto
             ){
 
-        return null;
+        return ResponseEntity.ok(syncJobService.getSyncJobsByCursor(cursorPageRequestSyncJobDto));
     }
 
 

@@ -2,6 +2,8 @@ package com.team3.findex.domain.syncjob.service;
 
 import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.syncjob.dto.CursorPageRequestSyncJobDto;
+import com.team3.findex.domain.syncjob.dto.CursorPageResponseSyncJobDto;
 import com.team3.findex.domain.syncjob.dto.IndexDataSyncRequest;
 import com.team3.findex.domain.syncjob.dto.SyncJobDto;
 import com.team3.findex.domain.syncjob.enums.JobType;
@@ -9,14 +11,13 @@ import com.team3.findex.domain.syncjob.SyncJob;
 import com.team3.findex.domain.syncjob.mapper.SyncJobMapper;
 import com.team3.findex.repository.IndexDataRepository;
 import com.team3.findex.repository.IndexInfoRepository;
-import com.team3.findex.repository.SyncJobRepository;
-import jakarta.servlet.http.HttpServletRequest;
+import com.team3.findex.domain.syncjob.repository.SyncJobRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -45,17 +46,18 @@ public class SyncJobService {
     @Transactional
     public List<SyncJobDto> syncIndexInfos(String worker){
         List<IndexInfo> indexInfos = indexInfoRepository.findAll();
+//        indexInfoRepository.findByIndexClassificationAndIndexName()
         return indexInfos.stream()
                 .map(indexInfo -> {
-                    if(worker == null || worker.isBlank()){
-                        log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexInfo.getId(), "작업자를 확인 할 수 없습니다.");
-                        return createFailureLog(JobType.INDEX_INFO, worker, indexInfo);
-                    }
                     if(indexInfo == null) {
                         log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexInfo.getId(), "지수 정보를 확인 할 수 없습니다.");
-                        return createFailureLog(JobType.INDEX_INFO, worker, indexInfo);
+                        return createFailureLog(JobType.INDEX_INFO, worker, null, indexInfo);
                     }
-                    return createSuccessLog(JobType.INDEX_INFO, worker, indexInfo);
+                    if(worker == null || worker.isBlank()){
+                        log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexInfo.getId(), "작업자를 확인 할 수 없습니다.");
+                        return createFailureLog(JobType.INDEX_INFO, worker, null, indexInfo);
+                    }
+                    return createSuccessLog(JobType.INDEX_INFO, worker, null, indexInfo);
                 })
                 .map(syncJobMapper::toDto)
                 .toList();
@@ -67,9 +69,48 @@ public class SyncJobService {
             String worker
             ){
         List<Long> indexInfoIds = indexDataSyncRequest.indexInfoIds();
-//        List<IndexData> indexDataList = indexDataRepository.findAllByIdInAndBaseDateBetween(indexInfoIds, indexDataSyncRequest.baseDateFrom(), indexDataSyncRequest.baseDateTo());
+        List<IndexData> indexDataList = indexDataRepository.findAll(); /*indexDataRepository.findAllByIdInAndBaseDateBetween(indexInfoIds, indexDataSyncRequest.baseDateFrom(), indexDataSyncRequest.baseDateTo());*/
+        return indexDataList.stream().map(indexData -> {
+            if(indexData.getIndexInfo() == null) {
+                log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexData.getIndexInfo().getId(), "지수 정보를 확인 할 수 없습니다.");
+                return createFailureLog(JobType.INDEX_INFO, worker, indexData.getBaseDate(), indexData.getIndexInfo());
+            }
+            if(worker == null || worker.isBlank()){
+                log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexData.getIndexInfo().getId(), "작업자를 확인 할 수 없습니다.");
+                return createFailureLog(JobType.INDEX_INFO, worker, indexData.getBaseDate(), indexData.getIndexInfo());
+            }
+            return createSuccessLog(JobType.INDEX_INFO, worker, indexData.getBaseDate(), indexData.getIndexInfo());
+        })
+                .map(syncJobMapper::toDto)
+                .toList();
+    }
 
-        return null;
+    public CursorPageResponseSyncJobDto getSyncJobsByCursor(CursorPageRequestSyncJobDto request){
+        List<SyncJob> syncJobs = syncJobRepository.findAllByCursor(request);
+        boolean hasNext = false;
+        String nextCursor = null;
+        Long nextIdAfter = null;
+        if(syncJobs.size() > request.size()){
+            hasNext = true;
+            syncJobs.remove(request.size());
+        }
+
+        if(!syncJobs.isEmpty()){
+            SyncJob lastJob = syncJobs.get(syncJobs.size() - 1);
+            nextCursor = String.valueOf(lastJob.getTargetDate());
+            nextIdAfter = lastJob.getId();
+        }
+
+        List<SyncJobDto> content = syncJobs.stream()
+                .map(syncJobMapper::toDto)
+                .toList();
+        return new CursorPageResponseSyncJobDto(
+                content,
+                nextCursor,
+                nextIdAfter,
+                request.size(),
+                (long) content.size(),
+                hasNext);
     }
 
     /**
@@ -81,8 +122,8 @@ public class SyncJobService {
      * @return DB에 저장된 성공 상태(Result.SUCCESS)의 SyncJob 엔티티
      */
     @Transactional
-    protected SyncJob createSuccessLog(JobType jobType, String worker, IndexInfo indexInfo) {
-        SyncJob successJob = SyncJob.ofSuccess(jobType, worker, indexInfo);
+    protected SyncJob createSuccessLog(JobType jobType, String worker, LocalDate targetDate, IndexInfo indexInfo) {
+        SyncJob successJob = SyncJob.ofSuccess(jobType, worker, targetDate, indexInfo);
          return syncJobRepository.save(successJob);
     }
 
@@ -98,8 +139,8 @@ public class SyncJobService {
      * @return DB에 저장된 실패 상태(Result.FAILED)의 SyncJob 엔티티
      */
     @Transactional
-    protected SyncJob createFailureLog(JobType jobType, String worker, IndexInfo indexInfo) {
-        SyncJob failJob = SyncJob.ofFailure(jobType, worker, indexInfo);
+    protected SyncJob createFailureLog(JobType jobType, String worker, LocalDate targetDate, IndexInfo indexInfo) {
+        SyncJob failJob = SyncJob.ofFailure(jobType, worker, targetDate, indexInfo);
         return syncJobRepository.save(failJob);
     }
 }
