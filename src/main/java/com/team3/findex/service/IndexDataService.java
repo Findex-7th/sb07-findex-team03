@@ -1,12 +1,9 @@
 package com.team3.findex.service;
 
 //import com.team3.findex.dto.indexDataDto.CursorPageResponse;
-import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.PeriodType;
-import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexDataExcelDto;
-import com.team3.findex.dto.indexDataDto.PerformanceFavoriteDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
@@ -27,7 +24,6 @@ import com.team3.findex.service.Interface.IndexDataServiceInterface;
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -212,7 +208,6 @@ public class IndexDataService implements IndexDataServiceInterface {
                             String sortDirection
                         ) {
 
-        //?? 내 맘대로 하루치??!!
         if (startDate.isEmpty() || startDate.isBlank())
             startDate = "1970-01-01";   // String.valueOf(LocalDate.now());
 
