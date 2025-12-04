@@ -1,14 +1,13 @@
 package com.team3.findex.controller;
 
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
-import com.team3.findex.dto.indexDataDto.ExportCsvRequest;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
 import com.team3.findex.dto.indexDataDto.IndexDataDto;
 import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
 import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
-import com.team3.findex.domain.index.ChartPeriodType;
+import com.team3.findex.domain.index.PeriodType;
 import com.team3.findex.service.Interface.IndexDataServiceInterface;
 import com.team3.findex.swaggerDocs.IndexDataDoc;
 import jakarta.validation.Valid;
@@ -114,11 +113,11 @@ public class IndexDataController implements IndexDataDoc {
     @GetMapping("/{id}/chart")
     public ResponseEntity<IndexChartDto> getChartData(
         @Valid @PathVariable(value = "id") Long id,
-        @RequestParam(value = "periodType", required = false) ChartPeriodType chartPeriodType
+        @RequestParam(value = "periodType", required = false) PeriodType periodType
     ){
 
         // 대시보드
-        IndexChartDto indexChartDto = indexDataService.getChartData(id, chartPeriodType);
+        IndexChartDto indexChartDto = indexDataService.getChartData(id, periodType);
 
         return ResponseEntity
             .status(HttpStatus.OK)
@@ -142,7 +141,7 @@ public class IndexDataController implements IndexDataDoc {
     @GetMapping("/performance/rank")
     public ResponseEntity<List<RankedIndexPerformanceDto>> performanceRank(
         @RequestParam(value = "indexInfoId", required = false) long indexInfoId,
-        @RequestParam("periodType") String periodType,
+        @RequestParam("periodType") PeriodType periodType,
         @RequestParam("limit") int limit
     ){
 
@@ -159,10 +158,11 @@ public class IndexDataController implements IndexDataDoc {
      */
     @GetMapping("/performance/favorite")
     public ResponseEntity<List<IndexPerformanceDto>> performanceFavorite(
-        @RequestParam("periodType") ChartPeriodType chartPeriodType
+        @RequestParam("periodType") PeriodType periodType
     ){
 
-        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataService.performanceFavorite(chartPeriodType);
+        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataService.performanceFavorite(
+            periodType);
 
         return ResponseEntity
             .status(HttpStatus.OK)

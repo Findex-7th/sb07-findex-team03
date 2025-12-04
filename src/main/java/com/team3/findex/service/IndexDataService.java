@@ -2,11 +2,11 @@ package com.team3.findex.service;
 
 //import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.index.PeriodType;
 import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexDataExcelDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
-import com.team3.findex.dto.indexDataDto.ExportCsvRequest;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
 import com.team3.findex.dto.indexDataDto.IndexDataDto;
@@ -15,8 +15,6 @@ import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
 //import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
 //import com.team3.findex.entity.index.IndexPerformance;
 //import com.team3.findex.entity.index.RankedIndexPerformance;
-import com.team3.findex.domain.index.ChartPeriodType;
-import com.team3.findex.domain.index.IndexChart;
 import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.mapper.IndexChartMapper;
 import com.team3.findex.domain.index.mapper.IndexDataMapper;
@@ -26,10 +24,10 @@ import com.team3.findex.repository.IndexDataRepository;
 import com.team3.findex.repository.IndexInfoRepository;
 import com.team3.findex.service.Interface.IndexDataServiceInterface;
 import jakarta.transaction.Transactional;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -39,10 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.aspectj.apache.bcel.classfile.Module.Open;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
@@ -113,31 +107,32 @@ public class IndexDataService implements IndexDataServiceInterface {
         return indexDataMapper.toDTO(indexData);
     }
 
+
     @Transactional
     @Override
-    public IndexChartDto getChartData(Long id, ChartPeriodType chartPeriodType) {
+    public IndexChartDto getChartData(Long id, PeriodType periodType) {
 
         IndexInfo indexInfo = indexInfoRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("🚨indexInfo.id error!"));
 
-//        List<ChartDataPointDto> data = indexDataRepository.findChartData(id, chartPeriodType);
-//        List<ChartDataPointDto> ma5 = indexDataRepository.findMa5(id, chartPeriodType);
-//        List<ChartDataPointDto> ma20 = indexDataRepository.findMa20(id, chartPeriodType);
-//
-//        return new IndexChartDto(
-//            indexInfo.getId(),
-//            indexInfo.getIndexClassification(),
-//            indexInfo.getIndexName(),
-//            chartPeriodType.getValue(),
-//            data,
-//            ma5,
-//            ma20
-//        );
+        List<ChartDataPointDto> data = indexDataRepository.findChartData(id, periodType);
+        List<ChartDataPointDto> ma5 = indexDataRepository.findMa5(id, periodType);
+        List<ChartDataPointDto> ma20 = indexDataRepository.findMa20(id, periodType);
+
+        return new IndexChartDto(
+            indexInfo.getId(),
+            indexInfo.getIndexClassification(),
+            indexInfo.getIndexName(),
+            periodType.getValue(),
+            data,
+            ma5,
+            ma20
+        );
 
 //        IndexChart indexChart = null;
-//        return indexChartMapper.toDTO(indexChart);
-        return null;
+        return indexChartMapper.toDTO(null);
     }
+
 
 //
 //    @Override
@@ -161,20 +156,22 @@ public class IndexDataService implements IndexDataServiceInterface {
 //
 //
 //
-////        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataList
-////            .stream()
-////            .map(IndexPerformanceDto::from)
-////            .toList();
+    ////        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataList
+    ////            .stream()
+    ////            .map(IndexPerformanceDto::from)
+    ////            .toList();
 //
 //
 //        return result;
 //    }
 
-
     @Override
-    public List<RankedIndexPerformanceDto> performanceRank(long indexInfoId, String periodType, int limit) {
+    public List<RankedIndexPerformanceDto> performanceRank(long indexInfoId, PeriodType periodType, int limit) {
 
-        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataRepository.findAllPerformanceRank(indexInfoId, periodType, limit)
+        LocalDate now = LocalDate.from(LocalDateTime.now());
+        LocalDate fromData = getPeriodTypeDate(periodType);
+
+        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataRepository.findAllPerformanceRank(indexInfoId, fromData, now, limit)
             .stream()
             .map(IndexPerformanceDto::from)
             .toList();
@@ -188,10 +185,13 @@ public class IndexDataService implements IndexDataServiceInterface {
     }
 
     @Override
-    public List<IndexPerformanceDto> performanceFavorite(ChartPeriodType chartPeriodType) {
+    public List<IndexPerformanceDto> performanceFavorite(PeriodType periodType) {
         // {종가}를 기준으로 비교
 
-        return indexDataRepository.findAllPerformanceFavorite(chartPeriodType)
+        LocalDate now = LocalDate.from(LocalDateTime.now());
+        LocalDate fromData = getPeriodTypeDate(periodType);
+
+        return indexDataRepository.findAllPerformanceFavorite(fromData, now)
             .stream()
             .map(IndexPerformanceDto::from)
             .toList();
@@ -208,12 +208,14 @@ public class IndexDataService implements IndexDataServiceInterface {
 
         //?? 내 맘대로 하루치??!!
         if (startDate.isEmpty() || startDate.isBlank())
-            startDate = String.valueOf(LocalDate.now());
+            startDate = "1970-01-01";   // String.valueOf(LocalDate.now());
 
         if (endDate.isEmpty() || endDate.isBlank())
             endDate = String.valueOf(LocalDate.now());
 
-        sortField = "baseDate";
+        if (sortField.isEmpty() || sortField.isBlank()) {
+            sortField = "baseDate";
+        }
 
         Sort.Order order = (0 != sortDirection.compareTo("desc")) ? Order.desc(sortField) : Order.asc(sortField);
 
@@ -264,5 +266,18 @@ public class IndexDataService implements IndexDataServiceInterface {
         } catch (IOException e) {
             throw new RuntimeException("🚨파일 다운로드 실패");
         }
+    }
+
+
+    private LocalDate getPeriodTypeDate(PeriodType periodType) {
+        LocalDate fromData = null;
+
+        switch (periodType) {
+            case DAILY -> fromData = fromData.minusDays(1);
+            case WEEKLY -> fromData = fromData.minusWeeks(1);
+            case MONTHLY -> fromData = fromData.minusMonths(1);
+        }
+
+        return fromData;
     }
 }
