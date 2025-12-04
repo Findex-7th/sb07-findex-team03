@@ -34,7 +34,7 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
 
     // 3. Swagger UI (Spring Boot 3.x 전용 라이브러리 교체)
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
 
     // Lombok & MapStruct
     compileOnly 'org.projectlombok:lombok'
