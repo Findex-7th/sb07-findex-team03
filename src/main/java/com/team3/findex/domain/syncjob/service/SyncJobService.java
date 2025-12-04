@@ -1,7 +1,9 @@
 package com.team3.findex.domain.syncjob.service;
 
+import com.team3.findex.common.openapi.dto.IndexInfoSyncData;
 import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.index.SourceType;
 import com.team3.findex.domain.syncjob.dto.CursorPageRequestSyncJobDto;
 import com.team3.findex.domain.syncjob.dto.CursorPageResponseSyncJobDto;
 import com.team3.findex.domain.syncjob.dto.IndexDataSyncRequest;
@@ -9,6 +11,8 @@ import com.team3.findex.domain.syncjob.dto.SyncJobDto;
 import com.team3.findex.domain.syncjob.enums.JobType;
 import com.team3.findex.domain.syncjob.SyncJob;
 import com.team3.findex.domain.syncjob.mapper.SyncJobMapper;
+import com.team3.findex.domain.syncjob.openApiTester.OpenApiTester;
+import com.team3.findex.domain.syncjob.openApiTester.mapper.OpenAPIMapper;
 import com.team3.findex.repository.IndexDataRepository;
 import com.team3.findex.repository.IndexInfoRepository;
 import com.team3.findex.domain.syncjob.repository.SyncJobRepository;
@@ -30,6 +34,8 @@ public class SyncJobService {
     private final IndexInfoRepository indexInfoRepository;
     private final SyncJobMapper syncJobMapper;
     private final IndexDataRepository indexDataRepository;
+    private final OpenApiTester openApiTester;
+    private final OpenAPIMapper openAPIMapper;
 
 
     /**
@@ -45,19 +51,14 @@ public class SyncJobService {
      */
     @Transactional
     public List<SyncJobDto> syncIndexInfos(String worker){
-        List<IndexInfo> indexInfos = indexInfoRepository.findAll();
+        List<IndexInfo> indexInfos = openApiTester.fetchAllApi().getResponse().getBody().getItems().getItemList().stream()
+                .map(openAPIMapper::toIndexInfoEntity)
+                .toList();
 //        indexInfoRepository.findByIndexClassificationAndIndexName()
         return indexInfos.stream()
                 .map(indexInfo -> {
-                    if(indexInfo == null) {
-                        log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexInfo.getId(), "지수 정보를 확인 할 수 없습니다.");
-                        return createFailureLog(JobType.INDEX_INFO, worker, null, indexInfo);
-                    }
-                    if(worker == null || worker.isBlank()){
-                        log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexInfo.getId(), "작업자를 확인 할 수 없습니다.");
-                        return createFailureLog(JobType.INDEX_INFO, worker, null, indexInfo);
-                    }
-                    return createSuccessLog(JobType.INDEX_INFO, worker, null, indexInfo);
+                    IndexInfo savedIndexInfo = indexInfoRepository.save(indexInfo);
+                    return createSuccessLog(JobType.INDEX_INFO, worker, null, savedIndexInfo);
                 })
                 .map(syncJobMapper::toDto)
                 .toList();
