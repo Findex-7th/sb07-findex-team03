@@ -10,12 +10,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@MappedSuperclass
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class IndexDataBaseEntity {
+@MappedSuperclass
+public abstract class IndexDataBaseEntity {
 
     @Id
-    @Column(name = "id")
+    @Column(name = "id", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 }

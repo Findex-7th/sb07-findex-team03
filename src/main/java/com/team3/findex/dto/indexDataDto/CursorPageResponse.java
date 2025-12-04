@@ -4,15 +4,15 @@ import java.util.List;
 import jakarta.validation.constraints.NotNull;
 
 public record CursorPageResponse<T>(
-    @NotNull
+    @NotNull(message = "🚨 필수입니다.")
     String nextCursor,
-    @NotNull
+    @NotNull(message = "🚨 필수입니다.")
     String nextIdAfter,
 
     int size,
     long totalElements,
     boolean hasNext,
 
-    @NotNull
+    @NotNull(message = "🚨 필수입니다.")
     List<T> content
 ) {}
