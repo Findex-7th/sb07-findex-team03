@@ -3,9 +3,12 @@ package com.team3.findex.domain.autosync.service;
 import com.team3.findex.domain.autosync.AutoSync;
 import com.team3.findex.domain.autosync.dto.AutoSyncConfigDto;
 import com.team3.findex.domain.autosync.dto.AutoSyncConfigUpdateRequest;
+import com.team3.findex.domain.autosync.dto.CursorPageRequestAutoSyncConfigDto;
+import com.team3.findex.domain.autosync.dto.CursorPageResponseAutoSyncConfigDto;
 import com.team3.findex.domain.autosync.mapper.AutoSyncMapper;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.repository.AutoSyncRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,8 +63,44 @@ public class AutoSyncService {
     return autoSyncMapper.toDto(autoSync);
   }
 
+  public CursorPageResponseAutoSyncConfigDto getAutoSyncConfig(
+      CursorPageRequestAutoSyncConfigDto request
+  ) {
+    Long indexInfoId = request.indexInfoId();
+    boolean enabled = request.enabled();
+    Long idAfter = request.idAfter();
+    String sortField = request.sortField() != null ? request.sortField() : "id";
+    String sortDirectionValue = request.sortDirection() != null ? request.sortDirection() : "ASC";
+    int size = request.size();
 
+    List<AutoSync> results = autoSyncRepository.findWithCursor(
+        indexInfoId,
+        enabled,
+        idAfter,
+        sortField,
+        sortDirectionValue,
+        size
+    );
 
+    boolean hasNext = results.size() > size;
+    if (hasNext) {
+      results = results.subList(0, size);
+    }
+
+    Long nextIdAfter = results.isEmpty()
+        ? null : results.get(results.size() - 1).getId();
+
+    String nextCursor = nextIdAfter != null
+        ? String.valueOf(nextIdAfter)
+        : null;
+
+    List<AutoSyncConfigDto> content = autoSyncMapper.toDtoList(results);
+
+    long totalElements = autoSyncRepository.countWithFilter(indexInfoId, enabled);
+
+    return new CursorPageResponseAutoSyncConfigDto(
+        content, nextCursor, nextIdAfter, size, totalElements, hasNext);
+  }
 
 
 }
