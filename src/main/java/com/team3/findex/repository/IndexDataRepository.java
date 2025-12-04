@@ -18,29 +18,38 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
 //🍋🍋🍋🍋🍋🍋🍋🍋🍋🍋🍋🍋🍋🍋🍋
 
-    @Query("SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
-       + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.closingPrice) "
-       + "FROM IndexData d "
-       + "WHERE d.indexInfo.id = :id "
-       + "AND d.periodType = :chartPeriodType "
-       + "ORDER BY d.baseDate ASC ")
-    List<ChartDataPointDto> findChartData(Long id, PeriodType periodType);
-
-    @Query("SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
-        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.ma5) "
-        + "FROM IndexData d "
-        + "WHERE d.indexInfo.id = :id "
-        + "AND d.periodType = :chartPeriodType "
-        + "ORDER BY d.baseDate ASC ")
-    List<ChartDataPointDto> findMa5(Long id, PeriodType periodType);
-
-    @Query("SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
-        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.ma20 ) "
-        + "FROM IndexData d "
-        + "WHERE d.indexInfo.id = :id "
-        + "AND d.periodType = :chartPeriodType "
-        + "ORDER BY d.baseDate ASC ")
-    List<ChartDataPointDto> findMa20(Long id, PeriodType periodType);
+//    @Query("SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
+//       + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.closingPrice) "
+//       + "FROM IndexData d "
+//       + "WHERE d.indexInfo.id = :id "
+//        + "AND d.baseDate >= :startDate "
+//        + "AND d.baseDate <= :endDate "
+//       + "ORDER BY d.baseDate ASC ")
+//    List<ChartDataPointDto> findChartData(@Param("id") Long id,
+//                                          @Param("startDate") LocalDate startDate,
+//                                          @Param("endDate") LocalDate endDate);
+//
+//    @Query("SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
+//        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.ma5) "
+//        + "FROM IndexData d "
+//        + "WHERE d.indexInfo.id = :id "
+//        + "AND d.baseDate >= :startDate "
+//        + "AND d.baseDate <= :endDate "
+//        + "ORDER BY d.baseDate ASC ")
+//    List<ChartDataPointDto> findMa5(@Param("id")Long id,
+//                                    @Param("startDate") LocalDate startDate,
+//                                    @Param("endDate") LocalDate endDate);
+//
+//    @Query("SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
+//        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.ma20 ) "
+//        + "FROM IndexData d "
+//        + "WHERE d.indexInfo.id = :id "
+//        + "AND d.baseDate >= :startDate "
+//        + "AND d.baseDate <= :endDate "
+//        + "ORDER BY d.baseDate ASC ")
+//    List<ChartDataPointDto> findMa20(@Param("id") Long id,
+//                                     @Param("startDate") LocalDate startDate,
+//                                     @Param("endDate") LocalDate endDate);
 
 
 //    - **{즐겨찾기}**된 지수의 성과 정보를 포함합니다.
@@ -49,10 +58,10 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
         + "FROM IndexData d "
         + "JOIN FETCH d.indexInfo i "
         + "WHERE i.id = :indexInfoId "
-        + "AND d.baseDate > :startDate "
-        + "AND d.baseDate < :endDate "
+        + "AND d.baseDate >= :startDate "
+        + "AND d.baseDate <= :endDate "
         + "ORDER BY d.closingPrice DESC LIMIT :limit")
-    List<IndexData> findAllPerformanceRank( long indexInfoId,
+    List<IndexData> findAllPerformanceRank( @Param("id") long indexInfoId,
                                             @Param("startDate") LocalDate startDate,
                                             @Param("endDate") LocalDate endDate,
                                             int limit); //?? 🚨periodType
@@ -65,10 +74,10 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     @Query("SELECT d "
         + "FROM IndexDataUser f "
         + "JOIN FETCH f.indexInfo i "
-        + "JOIN FETCH IndexData d ON d.indexInfo.id = i.id "
+        + "JOIN FETCH IndexData d "
         + "WHERE f.isFavorites = true "
-        + "AND d.baseDate > :startDate "
-        + "AND d.baseDate < :endDate "
+        + "AND d.baseDate >= :startDate "
+        + "AND d.baseDate <= :endDate "
         + "ORDER BY d.closingPrice DESC")
     List<IndexData> findAllPerformanceFavorite(@Param("startDate") LocalDate startDate,
                                                @Param("endDate") LocalDate endDate); //?? 🚨periodType
@@ -80,8 +89,8 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     @Query("SELECT d FROM IndexData d "
         + "JOIN FETCH d.indexInfo i "
         + "WHERE i.id = :id "
-        + "AND d.baseDate > :startDate "
-        + "AND d.baseDate < :endDate ")
+        + "AND d.baseDate >= :startDate "
+        + "AND d.baseDate <= :endDate ")
 //        + "ORDER BY d.baseDate ASC")
     List<IndexData> findAllExportCsvData(@Param("id") Long indexInfoId,
                                          @Param("startDate") String startDate,

@@ -26,6 +26,7 @@ import com.team3.findex.service.Interface.IndexDataServiceInterface;
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -112,22 +113,25 @@ public class IndexDataService implements IndexDataServiceInterface {
     @Override
     public IndexChartDto getChartData(Long id, PeriodType periodType) {
 
-        IndexInfo indexInfo = indexInfoRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("🚨indexInfo.id error!"));
-
-        List<ChartDataPointDto> data = indexDataRepository.findChartData(id, periodType);
-        List<ChartDataPointDto> ma5 = indexDataRepository.findMa5(id, periodType);
-        List<ChartDataPointDto> ma20 = indexDataRepository.findMa20(id, periodType);
-
-        return new IndexChartDto(
-            indexInfo.getId(),
-            indexInfo.getIndexClassification(),
-            indexInfo.getIndexName(),
-            periodType.getValue(),
-            data,
-            ma5,
-            ma20
-        );
+//        IndexInfo indexInfo = indexInfoRepository.findById(id)
+//            .orElseThrow(() -> new IllegalArgumentException("🚨indexInfo.id error!"));
+//
+//        LocalDate now = LocalDate.from(LocalDateTime.now());
+//        LocalDate from = getPeriodTypeDate(periodType);
+//
+//        List<ChartDataPointDto> data = indexDataRepository.findChartData(id, from, now,);
+//        List<ChartDataPointDto> ma5 = indexDataRepository.findMa5(id, from, now,);
+//        List<ChartDataPointDto> ma20 = indexDataRepository.findMa20(id, from, now,);
+//
+//        return new IndexChartDto(
+//            indexInfo.getId(),
+//            indexInfo.getIndexClassification(),
+//            indexInfo.getIndexName(),
+//            periodType.getValue(),
+//            data,
+//            ma5,
+//            ma20
+//        );
 
 //        IndexChart indexChart = null;
         return indexChartMapper.toDTO(null);
@@ -169,9 +173,9 @@ public class IndexDataService implements IndexDataServiceInterface {
     public List<RankedIndexPerformanceDto> performanceRank(long indexInfoId, PeriodType periodType, int limit) {
 
         LocalDate now = LocalDate.from(LocalDateTime.now());
-        LocalDate fromData = getPeriodTypeDate(periodType);
+        LocalDate from = getPeriodTypeDate(periodType);
 
-        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataRepository.findAllPerformanceRank(indexInfoId, fromData, now, limit)
+        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataRepository.findAllPerformanceRank(indexInfoId, from, now, limit)
             .stream()
             .map(IndexPerformanceDto::from)
             .toList();
@@ -189,9 +193,10 @@ public class IndexDataService implements IndexDataServiceInterface {
         // {종가}를 기준으로 비교
 
         LocalDate now = LocalDate.from(LocalDateTime.now());
-        LocalDate fromData = getPeriodTypeDate(periodType);
+        LocalDate from = getPeriodTypeDate(periodType);
 
-        return indexDataRepository.findAllPerformanceFavorite(fromData, now)
+
+        return indexDataRepository.findAllPerformanceFavorite(from, now)
             .stream()
             .map(IndexPerformanceDto::from)
             .toList();
