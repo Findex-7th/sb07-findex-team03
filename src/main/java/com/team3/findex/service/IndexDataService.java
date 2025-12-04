@@ -1,6 +1,8 @@
 package com.team3.findex.service;
 
 //import com.team3.findex.dto.indexDataDto.CursorPageResponse;
+import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexDataExcelDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
@@ -21,12 +23,14 @@ import com.team3.findex.domain.index.mapper.IndexDataMapper;
 //import com.team3.findex.mapper.IndexPerformanceMapper;
 //import com.team3.findex.mapper.RankedIndexPerformanceMapper;
 import com.team3.findex.repository.IndexDataRepository;
+import com.team3.findex.repository.IndexInfoRepository;
 import com.team3.findex.service.Interface.IndexDataServiceInterface;
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 //import java.util.Optional;
@@ -35,6 +39,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
@@ -44,6 +51,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class IndexDataService implements IndexDataServiceInterface {
     private final IndexDataRepository indexDataRepository;
+    private final IndexInfoRepository indexInfoRepository;
 
 //    private  final RankedIndexPerformanceMapper rankedIndexPerformanceMapper;
 //    private final IndexPerformanceMapper indexPerformanceMapper;
@@ -106,29 +114,60 @@ public class IndexDataService implements IndexDataServiceInterface {
     @Override
     public IndexChartDto getChartData(Long id, ChartPeriodType chartPeriodType) {
 
-//        IndexData indexData = indexDataRepository.findByIdAndPeriodType(id, chartPeriodType);
+        IndexInfo indexInfo = indexInfoRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("🚨indexInfo.id error!"));
 
-        IndexChart indexChart = null;
-        return indexChartMapper.toDTO(indexChart);
-    }
+//        List<ChartDataPointDto> data = indexDataRepository.findChartData(id, chartPeriodType);
+//        List<ChartDataPointDto> ma5 = indexDataRepository.findMa5(id, chartPeriodType);
+//        List<ChartDataPointDto> ma20 = indexDataRepository.findMa20(id, chartPeriodType);
+//
+//        return new IndexChartDto(
+//            indexInfo.getId(),
+//            indexInfo.getIndexClassification(),
+//            indexInfo.getIndexName(),
+//            chartPeriodType.getValue(),
+//            data,
+//            ma5,
+//            ma20
+//        );
 
-    @Override
-    public RankedIndexPerformanceDto performanceRank(long indexInfoId, String periodType, int limit) {
-//
-////        indexDataRepository
-//
-//        IndexPerformance performance = null;
-//        RankedIndexPerformance rankedIndexPerformance = null;
-//
-//        return rankedIndexPerformanceMapper.toDTO(rankedIndexPerformance);
+//        IndexChart indexChart = null;
+//        return indexChartMapper.toDTO(indexChart);
         return null;
     }
+
+
+    @Override
+    public List<RankedIndexPerformanceDto> performanceRank(long indexInfoId, String periodType, int limit) {
+
+        Pageable pageable = PageRequest.of(0, limit);
+        Page<IndexData> indexDataPage = indexDataRepository.findAllPerformanceRank(indexInfoId,
+            periodType, pageable);
+
+        long startRank = pageable.getOffset() + 1;
+
+        List<IndexData> content = indexDataPage.getContent();
+        List<RankedIndexPerformanceDto> result = new ArrayList<>();
+
+        for (int i = 0; i < content.size(); i++) {
+            IndexData data = content.get(i);
+            IndexPerformanceDto performanceDto = IndexPerformanceDto.from(data.getIndexInfo(),
+                data);
+
+            int currentRank = (int) (startRank + i);
+            result.add(new RankedIndexPerformanceDto(performanceDto, currentRank));
+        }
+
+        return result;
+    }
+
 
     @Override
     public List<IndexPerformanceDto> performanceFavorite(ChartPeriodType chartPeriodType) {
 
-        return indexDataRepository.findAllFavoritesData(chartPeriodType);
+        return indexDataRepository.findAllPerformanceFavorite(chartPeriodType);
     }
+
 
     @Override
     public void exportCsv(  Long indexInfoId,

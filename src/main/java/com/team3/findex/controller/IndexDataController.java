@@ -140,17 +140,17 @@ public class IndexDataController implements IndexDataDoc {
      * @return
      */
     @GetMapping("/performance/rank")
-    public ResponseEntity<RankedIndexPerformanceDto> performanceRank(
-        @RequestParam("indexInfoId") long indexInfoId,
+    public ResponseEntity<List<RankedIndexPerformanceDto>> performanceRank(
+        @RequestParam(value = "indexInfoId", required = false) long indexInfoId,
         @RequestParam("periodType") String periodType,
         @RequestParam("limit") int limit
     ){
 
-        RankedIndexPerformanceDto rankedDto = indexDataService.performanceRank(indexInfoId, periodType, limit);
+        List<RankedIndexPerformanceDto> rankedDtoList = indexDataService.performanceRank(indexInfoId, periodType, limit);
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(rankedDto);
+            .body(rankedDtoList);
     }
 
     /**
@@ -166,8 +166,10 @@ public class IndexDataController implements IndexDataDoc {
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(indexPerformanceDto);
+            .body(indexPerformanceDtoList);
     }
+
+
 
     /**
      * 지수 데이터 CSV export

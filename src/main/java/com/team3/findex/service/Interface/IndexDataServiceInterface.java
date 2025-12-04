@@ -1,5 +1,6 @@
 package com.team3.findex.service.Interface;
 
+import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 
 import com.team3.findex.dto.indexDataDto.ExportCsvRequest;
@@ -20,9 +21,8 @@ public interface IndexDataServiceInterface {
     void deleteIndexData(Long id);
     IndexDataDto updateIndexData(Long id, IndexDataUpdateRequest request);
     IndexChartDto getChartData(Long id, ChartPeriodType chartPeriodType);
-    RankedIndexPerformanceDto performanceRank(long indexInfoId, String periodType, int limit);
+    List<RankedIndexPerformanceDto> performanceRank(long indexInfoId, String periodType, int limit);
     List<IndexPerformanceDto> performanceFavorite(ChartPeriodType chartPeriodType);
-//    void exportCsv(ExportCsvRequest request);
     void exportCsv( Long indexInfoId, String startDate, String endDate, String sortField, String sortDirection);
 }
 

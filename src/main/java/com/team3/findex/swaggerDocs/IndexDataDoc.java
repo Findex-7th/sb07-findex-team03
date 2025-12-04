@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -218,7 +219,7 @@ public interface IndexDataDoc {
             )
         )
     })
-    public ResponseEntity<RankedIndexPerformanceDto> performanceRank(
+    public ResponseEntity<List<RankedIndexPerformanceDto>> performanceRank(
         @RequestParam("indexInfoId") long indexInfoId,
         @RequestParam("periodType") String periodType,
         @RequestParam("limit") int limit
@@ -241,7 +242,7 @@ public interface IndexDataDoc {
             )
         )
     })
-    ResponseEntity<IndexPerformanceDto> performanceFavorite(
+    ResponseEntity<List<IndexPerformanceDto>> performanceFavorite(
         @RequestParam("periodType") ChartPeriodType chartPeriodType
     );
 
