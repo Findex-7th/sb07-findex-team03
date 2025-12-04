@@ -39,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.aspectj.apache.bcel.classfile.Module.Open;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -79,6 +80,7 @@ public class IndexDataService implements IndexDataServiceInterface {
     @Transactional
     @Override
     public IndexDataDto createIndexData(IndexDataCreateRequest request) {
+        // Open API를 활용
 
         IndexData indexData = indexDataMapper.toEntity(request);
 
@@ -101,6 +103,7 @@ public class IndexDataService implements IndexDataServiceInterface {
     @Transactional
     @Override
     public IndexDataDto updateIndexData(Long id, IndexDataUpdateRequest request) {
+        // Open API를 활용
 
         IndexData indexData = indexDataRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("🚨 error - updateIndexData.id"));
@@ -136,36 +139,62 @@ public class IndexDataService implements IndexDataServiceInterface {
         return null;
     }
 
+//
+//    @Override
+//    public List<RankedIndexPerformanceDto> performanceRank(long indexInfoId, String periodType, int limit) {
+//
+//        Pageable pageable = PageRequest.of(0, limit);
+//        List<IndexData> indexDataPage = indexDataRepository.findAllPerformanceRank(indexInfoId, periodType, limit);
+////        Page<IndexData> indexDataPage = indexDataRepository.findAllPerformanceRank(indexInfoId, periodType, pageable);
+//
+//        long startRank = pageable.getOffset() + 1;
+//
+//        List<IndexData> indexDataList = indexDataPage.getContent();
+//        List<RankedIndexPerformanceDto> result = new ArrayList<>();
+//        for (int i = 0; i < indexDataList.size(); i++) {
+//            IndexData data = indexDataList.get(i);
+//            IndexPerformanceDto performanceDto = IndexPerformanceDto.from(data);
+//
+//            int currentRank = (int) (startRank + i);
+//            result.add(new RankedIndexPerformanceDto(performanceDto, currentRank));
+//        }
+//
+//
+//
+////        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataList
+////            .stream()
+////            .map(IndexPerformanceDto::from)
+////            .toList();
+//
+//
+//        return result;
+//    }
+
 
     @Override
     public List<RankedIndexPerformanceDto> performanceRank(long indexInfoId, String periodType, int limit) {
 
-        Pageable pageable = PageRequest.of(0, limit);
-        Page<IndexData> indexDataPage = indexDataRepository.findAllPerformanceRank(indexInfoId,
-            periodType, pageable);
+        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataRepository.findAllPerformanceRank(indexInfoId, periodType, limit)
+            .stream()
+            .map(IndexPerformanceDto::from)
+            .toList();
 
-        long startRank = pageable.getOffset() + 1;
-
-        List<IndexData> content = indexDataPage.getContent();
         List<RankedIndexPerformanceDto> result = new ArrayList<>();
-
-        for (int i = 0; i < content.size(); i++) {
-            IndexData data = content.get(i);
-            IndexPerformanceDto performanceDto = IndexPerformanceDto.from(data.getIndexInfo(),
-                data);
-
-            int currentRank = (int) (startRank + i);
-            result.add(new RankedIndexPerformanceDto(performanceDto, currentRank));
+        for (int i = 0; i < indexPerformanceDtoList.size(); i++) {
+            result.add(new RankedIndexPerformanceDto(indexPerformanceDtoList.get(i), i + 1));
         }
 
         return result;
     }
 
-
     @Override
     public List<IndexPerformanceDto> performanceFavorite(ChartPeriodType chartPeriodType) {
+        // {종가}를 기준으로 비교
 
-        return indexDataRepository.findAllPerformanceFavorite(chartPeriodType);
+        return indexDataRepository.findAllPerformanceFavorite(chartPeriodType)
+            .stream()
+            .map(IndexPerformanceDto::from)
+            .toList();
     }
 
 

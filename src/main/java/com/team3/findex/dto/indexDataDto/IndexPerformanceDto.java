@@ -12,11 +12,11 @@ public record IndexPerformanceDto(
     Double currentPrice,
     Double beforePrice
 ) {
-    public static IndexPerformanceDto from(IndexInfo indexInfo, IndexData indexData) {
+    public static IndexPerformanceDto from(IndexData indexData) {
         return new IndexPerformanceDto(
-            indexInfo.getId(),
-            indexInfo.getIndexClassification(),
-            indexInfo.getIndexName(),
+            indexData.getIndexInfo().getId(),
+            indexData.getIndexInfo().getIndexClassification(),
+            indexData.getIndexInfo().getIndexName(),
             indexData.getVersus().doubleValue(),
             indexData.getFluctuationRate().doubleValue(),
             indexData.getMarketPrice().doubleValue(), //?? 시가??

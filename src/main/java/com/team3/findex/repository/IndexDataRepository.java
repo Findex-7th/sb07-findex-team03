@@ -52,23 +52,30 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 //    List<ChartDataPointDto> findMa20(Long id, ChartPeriodType chartPeriodType);
 
 
+//    - **{즐겨찾기}**된 지수의 성과 정보를 포함합니다.
+//    - 성과는 **{종가}**를 기준으로 비교합니다.
     @Query("SELECT d "
         + "FROM IndexData d "
         + "JOIN FETCH d.indexInfo i "
-        + "WHERE i.id = :indexInfoId ")
-    Page<IndexData> findAllPerformanceRank(long indexInfoId, String periodType, Pageable pageable); //?? 🚨periodType
+        + "WHERE i.id = :indexInfoId "
+        + "ORDER BY d.closingPrice DESC LIMIT :limit")
+    List<IndexData> findAllPerformanceRank(long indexInfoId, String periodType, int limit); //?? 🚨periodType
+//    Page<IndexData> findAllPerformanceRank(long indexInfoId, String periodType, Pageable pageable); //?? 🚨periodType
 
+//    - 전일/전주/전월 대비 성과 랭킹
+//    - 성과는 **{종가}**를 기준으로 비교합니다.
+    @Query("SELECT d "
+        + "FROM IndexDataUser f "
+        + "JOIN FETCH f.indexInfo i "
+        + "JOIN FETCH IndexData d ON d.indexInfo.id = i.id "
+        + "WHERE f.isFavorites = true "
+        + "ORDER BY d.closingPrice DESC")
+    List<IndexData> findAllPerformanceFavorite(@Param("id") ChartPeriodType chartPeriodType); //?? 🚨periodType
 
-    @Query("SELECT new com.team3.findex.dto.indexDataDto.IndexPerformanceDto(i, d) "
-    + "FROM IndexDataUser f "
-    + "JOIN FETCH f.indexInfo i "
-    + "JOIN FETCH IndexData d ON d.indexInfo.id = i.id "
-    + "WHERE f.isFavorites = true ")
-    List<IndexPerformanceDto> findAllPerformanceFavorite(@Param("id") ChartPeriodType chartPeriodType); //?? 🚨periodType
 
 
     @Query("SELECT d FROM IndexData d "
-        + "JOIN FETCH IndexInfo i "
+        + "JOIN FETCH d.indexInfo i "
         + "WHERE i.id = :id "
         + "AND d.baseDate > :startDate "
         + "AND d.baseDate < :endDate ")
