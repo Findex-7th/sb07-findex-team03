@@ -1,13 +1,13 @@
 package com.team3.findex.domain.index.service;
 
+import com.team3.findex.domain.autosync.AutoSync;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.SourceType;
 import com.team3.findex.domain.index.dto.request.IndexInfoCreateRequest;
 import com.team3.findex.domain.index.dto.request.IndexInfoUpdateRequest;
 import com.team3.findex.domain.index.dto.response.IndexInfoDto;
 import com.team3.findex.domain.index.mapper.IndexInfoMapper;
-import com.team3.findex.domain.index.test.AutoSyncConfig;
-import com.team3.findex.domain.index.test.AutoSyncConfigRepository;
+import com.team3.findex.repository.AutoSyncRepository;
 import com.team3.findex.repository.IndexDataRepository;
 import com.team3.findex.repository.IndexInfoRepository;
 import jakarta.transaction.Transactional;
@@ -22,7 +22,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
   private final IndexInfoMapper indexInfoMapper;
   private final IndexDataRepository indexDataRepository;
 
-  private final AutoSyncConfigRepository autoSyncConfigRepository;
+  private final AutoSyncRepository autoSyncRepository;
 
   @Override
   public IndexInfoDto create(IndexInfoCreateRequest request) {
@@ -47,13 +47,13 @@ public class IndexInfoServiceImpl implements IndexInfoService {
 
     IndexInfo saved = indexInfoRepository.save(indexInfo);
 
-    AutoSyncConfig config = new AutoSyncConfig(
-        saved.getId(),
-        saved.getIndexClassification(),
-        saved.getIndexName(),
-        true
-    );
-    autoSyncConfigRepository.save(config);
+    // 자동 연동 설정 저장
+
+    if (autoSyncRepository.existsByIndexInfo(saved)) {
+      throw new IllegalStateException("이미 해당 지수의 자동 연동 설정이 존재합니다.");
+    }
+
+    autoSyncRepository.save(new AutoSync(saved));
 
     return indexInfoMapper.toDto(saved);
 
