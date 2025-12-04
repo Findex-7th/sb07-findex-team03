@@ -23,6 +23,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     implementation 'org.springframework.boot:spring-boot-starter-batch'
 
     // 2. Logging: 버전 명시 제거 (Spring Boot 관리)
@@ -44,6 +45,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -59,8 +63,9 @@ dependencies {
     // https://mvnrepository.com/artifact/com.ibm.icu/icu4j
     implementation("com.ibm.icu:icu4j:77.1")
 
-    //  exportCsv() 함수에서 사용
-    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
+
 }
 
 tasks.named('test') {

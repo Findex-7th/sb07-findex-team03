@@ -44,6 +44,24 @@ public class IndexInfo {
   @Column(nullable = false, length = 20)
   private SourceType sourceType;
 
+  public IndexInfo(
+      String indexClassification,
+      String indexName,
+      Integer employedItemsCount,
+      LocalDate basePointInTime,
+      Double baseIndex,
+      Boolean favorite,
+      SourceType sourceType
+  ) {
+    this.indexClassification = indexClassification;
+    this.indexName = indexName;
+    this.employedItemsCount = employedItemsCount;
+    this.basePointInTime = basePointInTime;
+    this.baseIndex = baseIndex;
+    this.favorite = favorite;
+    this.sourceType = sourceType;
+  }
+
 
   public void update(
       Integer employedItemsCount,

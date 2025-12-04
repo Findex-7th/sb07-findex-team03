@@ -1,5 +1,6 @@
 package com.team3.findex.domain.syncjob;
 
+import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.syncjob.enums.JobType;
 import com.team3.findex.domain.syncjob.enums.Result;
@@ -18,7 +19,7 @@ import java.time.Instant;
 @ToString(exclude = "indexInfo")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "sync_job")
+@Table
 public class SyncJob {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,14 +30,13 @@ public class SyncJob {
     @NotNull
     private JobType jobType;
 
-    @Column(nullable = false)
-    @NotNull
+    @Column
     private String worker;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @NotNull
-    private Result result;
+    private Result result = Result.SUCCESS;
 
     @CreatedDate
     @Column( name = "created_at", updatable = false, nullable = false)
@@ -47,10 +47,18 @@ public class SyncJob {
     @JoinColumn(name = "index_info_id", insertable = false, updatable = false)
     private IndexInfo indexInfo;
 
-
-    public SyncJob(JobType jobType, String worker, Result result, IndexInfo indexInfo){
+    public SyncJob(JobType jobType, String worker, IndexInfo indexInfo, Result result){
         this.jobType = jobType;
         this.worker = worker;
         this.indexInfo = indexInfo;
+        this.result = result;
+    }
+
+    public static SyncJob ofSuccess(JobType jobType, String worker, IndexInfo indexInfo){
+        return new SyncJob(jobType, worker, indexInfo, Result.SUCCESS);
+    }
+
+    public static SyncJob ofFailure(JobType jobType, String worker, IndexInfo indexInfo){
+        return new SyncJob(jobType, worker, indexInfo, Result.FAILED);
     }
 }
