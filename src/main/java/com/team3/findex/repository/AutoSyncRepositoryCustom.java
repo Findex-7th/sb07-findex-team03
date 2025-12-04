@@ -9,6 +9,7 @@ public interface AutoSyncRepositoryCustom {
       Long indexInfoId,
       boolean enabled,
       Long idAfter,
+      String cursor,
       String sortField,
       String sortDirection,
       int size
