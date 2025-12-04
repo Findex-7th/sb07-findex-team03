@@ -6,6 +6,7 @@ import com.team3.findex.domain.index.PeriodType;
 import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexDataExcelDto;
+import com.team3.findex.dto.indexDataDto.PerformanceFavoriteDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
@@ -177,7 +178,7 @@ public class IndexDataService implements IndexDataServiceInterface {
 
         List<IndexPerformanceDto> indexPerformanceDtoList = indexDataRepository.findAllPerformanceRank(indexInfoId, from, now, limit)
             .stream()
-            .map(IndexPerformanceDto::from)
+            .map(IndexPerformanceDto::fromIndexData)
             .toList();
 
         List<RankedIndexPerformanceDto> result = new ArrayList<>();
@@ -195,12 +196,12 @@ public class IndexDataService implements IndexDataServiceInterface {
         LocalDate now = LocalDate.from(LocalDateTime.now());
         LocalDate from = getPeriodTypeDate(periodType);
 
-
         return indexDataRepository.findAllPerformanceFavorite(from, now)
             .stream()
-            .map(IndexPerformanceDto::from)
+            .map(IndexPerformanceDto::fromFavoriteDto)
             .toList();
     }
+
 
 
     @Override

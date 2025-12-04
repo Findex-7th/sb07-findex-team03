@@ -1,7 +1,6 @@
 package com.team3.findex.dto.indexDataDto;
 
 import com.team3.findex.domain.index.IndexData;
-import com.team3.findex.domain.index.IndexInfo;
 
 public record IndexPerformanceDto(
     Long indexInfoId,
@@ -12,7 +11,8 @@ public record IndexPerformanceDto(
     Double currentPrice,
     Double beforePrice
 ) {
-    public static IndexPerformanceDto from(IndexData indexData) {
+
+    public static IndexPerformanceDto fromIndexData(IndexData indexData) {
         return new IndexPerformanceDto(
             indexData.getIndexInfo().getId(),
             indexData.getIndexInfo().getIndexClassification(),
@@ -21,6 +21,17 @@ public record IndexPerformanceDto(
             indexData.getFluctuationRate().doubleValue(),
             indexData.getMarketPrice().doubleValue(), //?? 시가??
             indexData.getClosingPrice().doubleValue() //?? 종가??
+        );
+    }
+    public static IndexPerformanceDto fromFavoriteDto(PerformanceFavoriteDto favoriteDto) {
+        return new IndexPerformanceDto(
+            favoriteDto.indexInfoId(),
+            favoriteDto.indexClassification(),
+            favoriteDto.indexName(),
+            favoriteDto.versus(),
+            favoriteDto.fluctuationRate(),
+            favoriteDto.currentPrice(),
+            favoriteDto.currentPrice() - favoriteDto.versus()
         );
     }
 }

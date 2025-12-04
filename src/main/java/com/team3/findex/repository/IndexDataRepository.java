@@ -2,6 +2,8 @@ package com.team3.findex.repository;
 
 import com.team3.findex.domain.index.PeriodType;
 import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
+import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
+import com.team3.findex.dto.indexDataDto.PerformanceFavoriteDto;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Sort;
@@ -71,19 +73,33 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
 //    - 전일/전주/전월 대비 성과 랭킹
 //    - 성과는 **{종가}**를 기준으로 비교합니다.
-    @Query("SELECT d "
-        + "FROM IndexDataUser f "
-        + "JOIN FETCH f.indexInfo i "
-        + "JOIN FETCH IndexData d "
-        + "WHERE f.isFavorites = true "
+    @Query("SELECT i.id, "
+        + "i.indexClassification, "
+        + "i.indexName, "
+        + "d.versus, "
+        + "d.fluctuationRate, "
+        + "d.closingPrice "
+        + "FROM IndexDataUser u "
+        + "JOIN u.indexInfo i "
+        + "JOIN IndexData d ON d.indexInfo.id = i.id "
+        + "WHERE u.isFavorites = true "
         + "AND d.baseDate >= :startDate "
         + "AND d.baseDate <= :endDate "
         + "ORDER BY d.closingPrice DESC")
-    List<IndexData> findAllPerformanceFavorite(@Param("startDate") LocalDate startDate,
+    List<PerformanceFavoriteDto> findAllPerformanceFavorite(@Param("startDate") LocalDate startDate,
                                                @Param("endDate") LocalDate endDate); //?? 🚨periodType
 
 
-
+//    @Query("SELECT d, i "
+//        + "FROM IndexDataUser f "
+//        + "JOIN FETCH f.indexInfo i "
+//        + "JOIN FETCH IndexData d "
+//        + "WHERE f.isFavorites = true "
+//        + "AND d.baseDate >= :startDate "
+//        + "AND d.baseDate <= :endDate "
+//        + "ORDER BY d.closingPrice DESC")
+//    List<IndexData> findAllPerformanceFavorite(@Param("startDate") LocalDate startDate,
+//        @Param("endDate") LocalDate endDate); //?? 🚨periodType
 
 
     @Query("SELECT d FROM IndexData d "
