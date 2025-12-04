@@ -2,10 +2,12 @@ package com.team3.findex.domain.index.controller;
 
 import com.team3.findex.domain.index.dto.request.IndexInfoCreateRequest;
 import com.team3.findex.domain.index.dto.request.IndexInfoUpdateRequest;
+import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexInfoDto;
 import com.team3.findex.domain.index.dto.response.IndexInfoDto;
+import com.team3.findex.domain.index.dto.response.IndexInfoDtoSummaryDto;
 import com.team3.findex.domain.index.service.IndexInfoService;
-import com.team3.findex.swaggerDocs.IndexInfoDocs;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/index-infos")
-public class IndexInfoController implements IndexInfoDocs {
+public class IndexInfoController {
 
   private final IndexInfoService indexInfoService;
 
@@ -34,7 +36,7 @@ public class IndexInfoController implements IndexInfoDocs {
   public ResponseEntity<IndexInfoDto> update(
       @PathVariable Long id,
       @RequestBody @Valid IndexInfoUpdateRequest request
-      ) {
+  ) {
     IndexInfoDto dto = indexInfoService.update(
         new IndexInfoUpdateRequest(
             id,
@@ -52,4 +54,5 @@ public class IndexInfoController implements IndexInfoDocs {
     indexInfoService.delete(id);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
+
 }

@@ -1,7 +1,6 @@
 package com.team3.findex.domain.index.service;
 
 import com.team3.findex.common.openapi.OpenApiProvider;
-import com.team3.findex.domain.autosync.AutoSync;
 import com.team3.findex.domain.autosync.service.AutoSyncService;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.SourceType;
@@ -9,7 +8,6 @@ import com.team3.findex.domain.index.dto.request.IndexInfoCreateRequest;
 import com.team3.findex.domain.index.dto.request.IndexInfoUpdateRequest;
 import com.team3.findex.domain.index.dto.response.IndexInfoDto;
 import com.team3.findex.domain.index.mapper.IndexInfoMapper;
-import com.team3.findex.repository.AutoSyncRepository;
 import com.team3.findex.repository.IndexDataRepository;
 import com.team3.findex.repository.IndexInfoRepository;
 import jakarta.transaction.Transactional;
@@ -136,6 +134,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                     sync.baseIndex(),
                     existing.getFavorite()
                 );
+                indexInfoRepository.save(existing);
               },
               // 존재하지 않으면 자동 등록
               () -> {
