@@ -41,7 +41,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         request.indexClassification(),
         request.indexName(),
         request.employedItemsCount(),
-        request.basePointInTime(),
+        LocalDate.parse(request.basePointInTime()),
         request.baseIndex(),
         request.favorite() != null && request.favorite(),
         SourceType.USER
