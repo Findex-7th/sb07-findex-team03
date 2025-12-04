@@ -1,6 +1,8 @@
 package com.team3.findex.domain.index.service;
 
+import com.team3.findex.common.openapi.OpenApiProvider;
 import com.team3.findex.domain.autosync.AutoSync;
+import com.team3.findex.domain.autosync.service.AutoSyncService;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.SourceType;
 import com.team3.findex.domain.index.dto.request.IndexInfoCreateRequest;
@@ -11,6 +13,7 @@ import com.team3.findex.repository.AutoSyncRepository;
 import com.team3.findex.repository.IndexDataRepository;
 import com.team3.findex.repository.IndexInfoRepository;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,11 +21,12 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class IndexInfoServiceImpl implements IndexInfoService {
+
   private final IndexInfoRepository indexInfoRepository;
   private final IndexInfoMapper indexInfoMapper;
   private final IndexDataRepository indexDataRepository;
-
-  private final AutoSyncRepository autoSyncRepository;
+  private final AutoSyncService autoSyncService;
+  private final OpenApiProvider openApiProvider;
 
   @Override
   public IndexInfoDto create(IndexInfoCreateRequest request) {
@@ -48,13 +52,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     IndexInfo saved = indexInfoRepository.save(indexInfo);
 
     // 자동 연동 설정 저장
-
-    if (autoSyncRepository.existsByIndexInfo(saved)) {
-      throw new IllegalStateException("이미 해당 지수의 자동 연동 설정이 존재합니다.");
-    }
-
-    autoSyncRepository.save(new AutoSync(saved));
-
+    autoSyncService.create(indexInfo);
     return indexInfoMapper.toDto(saved);
 
 //    return new IndexInfoDto(
@@ -98,45 +96,62 @@ public class IndexInfoServiceImpl implements IndexInfoService {
   @Override
   public IndexInfoDto getById(Long id) {
     IndexInfo indexInfo = indexInfoRepository.findById(id)
-        .orElseThrow(()-> new IllegalArgumentException("지수 정보를 찾을 수 없습니다."));
+        .orElseThrow(() -> new IllegalArgumentException("지수 정보를 찾을 수 없습니다."));
     return indexInfoMapper.toDto(indexInfo);
-//    return new IndexInfoDto(
-//        entity.getId(),
-//        entity.getIndexClassification(),
-//        entity.getIndexName(),
-//        entity.getEmployedItemsCount(),
-//        entity.getBasePointInTime(),
-//        entity.getBaseIndex(),
-//        entity.getSourceType(),
-//        entity.getFavorite()
-//    );
   }
 
   @Override
   public List<IndexInfoDto> findAll() {
     return indexInfoMapper.toDtoList(indexInfoRepository.findAll());
 
-//    return indexInfoRepository.findAll().stream()
-//        .map(entity->new IndexInfoDto(
-//            entity.getId(),
-//            entity.getIndexClassification(),
-//            entity.getIndexName(),
-//            entity.getEmployedItemsCount(),
-//            entity.getBasePointInTime(),
-//            entity.getBaseIndex(),
-//            entity.getSourceType(),
-//            entity.getFavorite()
-//        ))
-//        .toList();
   }
 
   @Override
   @Transactional
   public void delete(Long id) {
     IndexInfo indexInfo = indexInfoRepository.findById(id)
-        .orElseThrow(()-> new IllegalArgumentException("지수 정보를 찾을 수 없습니다."));
+        .orElseThrow(() -> new IllegalArgumentException("지수 정보를 찾을 수 없습니다."));
 
     indexDataRepository.deleteById(indexInfo.getId());
     indexInfoRepository.delete(indexInfo);
+  }
+
+  @Transactional
+  public void autoSyncFromOpenApi() {
+    // Open Api에서 오늘 지수 정보 리스트 갖고 옴
+    var list = openApiProvider.getIndexInfoDataByDate(LocalDate.now());
+
+    list.forEach(sync -> {
+      indexInfoRepository
+          .findByIndexClassificationAndIndexName(
+              sync.indexClassification(),
+              sync.indexName()
+          )
+          .ifPresentOrElse(
+              // 이미 존재하면 자동 수정
+              existing -> {
+                existing.update(
+                    sync.employedItemsCount(),
+                    sync.basePointInTime(),
+                    sync.baseIndex(),
+                    existing.getFavorite()
+                );
+              },
+              // 존재하지 않으면 자동 등록
+              () -> {
+                IndexInfo info = new IndexInfo(
+                    sync.indexClassification(),
+                    sync.indexName(),
+                    sync.employedItemsCount(),
+                    sync.basePointInTime(),
+                    sync.baseIndex(),
+                    false,
+                    SourceType.OPEN_API
+                );
+                indexInfoRepository.save(info);
+                autoSyncService.create(info);
+              }
+          );
+    });
   }
 }
