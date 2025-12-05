@@ -11,15 +11,18 @@ public interface IndexInfoService {
   IndexInfoDto create(IndexInfoCreateRequest request);
   IndexInfoDto update(IndexInfoUpdateRequest request);
   IndexInfoDto getById(Long id);
-  List<IndexInfoDto> findAll();
   void delete(Long id);
   CursorPageResponseIndexInfoDto search(
       String classification,
       String name,
       Boolean favorite,
       String sort,
+      String order,
       Long cursorId,
       int size
   );
-  List<IndexInfoSummaryDto> getSummaryList();
+
+  List<IndexInfoSummaryDto> getSummaryList(String sort, String order);
+  List<IndexInfoDto> findAllSorted(String sort, String order);
+  List<IndexInfoDto> findAll();
 }

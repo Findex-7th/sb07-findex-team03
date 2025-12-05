@@ -56,24 +56,36 @@ public class IndexInfoController {
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
+  @GetMapping("/all")
+  public ResponseEntity<List<IndexInfoDto>> getAllIndexInfos(
+    @RequestParam(required = false) String sort,
+    @RequestParam(required = false, defaultValue = "asc") String order
+  ){
+    return ResponseEntity.ok(indexInfoService.findAllSorted(sort, order));
+  }
+
   // 페이지네이션
   @GetMapping
-  public ResponseEntity<CursorPageResponseIndexInfoDto> search(
+  public ResponseEntity<CursorPageResponseIndexInfoDto> searchIndexInfos(
       @RequestParam(required = false) String classification,
       @RequestParam(required = false) String name,
       @RequestParam(required = false) Boolean favorite,
       @RequestParam(required = false) String sort,
+      @RequestParam(required = false, defaultValue = "asc") String order,
       @RequestParam(required = false) Long cursorId,
-      @RequestParam(defaultValue = "20") int size
+      @RequestParam(required = false, defaultValue = "30") int size
   ) {
     CursorPageResponseIndexInfoDto response =
-        indexInfoService.search(classification, name, favorite, sort, cursorId, size);
+        indexInfoService.search(classification, name, favorite, sort, order, cursorId, size);
 
     return ResponseEntity.ok(response);
   }
   @GetMapping("/summaries")
-  public ResponseEntity<List<IndexInfoSummaryDto>> getSummaries() {
-    return ResponseEntity.ok(indexInfoService.getSummaryList());
+  public ResponseEntity<List<IndexInfoSummaryDto>> getSummaries(
+      @RequestParam(required = false) String sort,
+      @RequestParam(defaultValue = "asc") String order
+  ) {
+    return ResponseEntity.ok(indexInfoService.getSummaryList(sort, order));
   }
 
 

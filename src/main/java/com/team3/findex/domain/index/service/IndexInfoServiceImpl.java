@@ -95,6 +95,11 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     return indexInfoMapper.toDtoList(indexInfoRepository.findAll());
 
   }
+  @Override
+  public List<IndexInfoDto> findAllSorted(String sortKey, String order){
+    Sort sort = createSort(sortKey, order);
+    return indexInfoMapper.toDtoList(indexInfoRepository.findAll(sort));
+  }
 
   @Override
   @Transactional
@@ -102,8 +107,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     IndexInfo indexInfo = indexInfoRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("지수 정보를 찾을 수 없습니다."));
 
-    indexDataRepository.deleteByIndexInfoId(indexInfo.getId());
-    autoSyncRepository.deleteByIndexInfoId(indexInfo.getId());
+    indexDataRepository.deleteAllByIndexInfoId(indexInfo.getId());
     indexInfoRepository.delete(indexInfo);
   }
 
@@ -148,13 +152,16 @@ public class IndexInfoServiceImpl implements IndexInfoService {
   }
 
   // 페이지네이션(정렬 생성 메서드 추가)
-  private Sort createSort(String sortKey) {
+  private Sort createSort(String sortKey, String order) {
     if (sortKey == null) return Sort.by("id").ascending();
 
     return switch (sortKey) {
       case "indexClassification" -> Sort.by("indexClassification").ascending();
+      case "indexClassificationDesc" -> Sort.by(Sort.Direction.DESC, "indexClassification");
       case "indexName" -> Sort.by("indexName").ascending();
+      case "indexNameDesc" -> Sort.by(Sort.Direction.DESC, "indexName");
       case "employedItemsCount" -> Sort.by("employedItemsCount").ascending();
+      case "employedItemsCountDesc" -> Sort.by(Sort.Direction.DESC, "employedItemsCount");
       default -> Sort.by("id").ascending();
     };
   }
@@ -166,10 +173,11 @@ public class IndexInfoServiceImpl implements IndexInfoService {
       String name,
       Boolean favorite,
       String sortKey,
+      String order,
       Long cursorId,
       int size
   ) {
-    Sort sort = createSort(sortKey);
+    Sort sort = createSort(sortKey, order);
     Pageable pageable = PageRequest.of(0, size + 1, sort);
 
     List<IndexInfo> result = indexInfoRepository.searchWithCursor(
@@ -199,8 +207,18 @@ public class IndexInfoServiceImpl implements IndexInfoService {
   }
 
   @Override
-  public List<IndexInfoSummaryDto> getSummaryList() {
-    return indexInfoMapper.toSummaryDtoList(indexInfoRepository.findAll());
+  public List<IndexInfoSummaryDto> getSummaryList(String sortKey, String order) {
+    Sort.Direction direction = "desc".equals(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+    Sort sort;
+
+    if( sortKey == null ||sortKey.isEmpty()){
+      sort = Sort.by(direction, "id");
+    } else {
+      sort = Sort.by(direction, sortKey);
+    }
+
+    List<IndexInfo> list = indexInfoRepository.findAll(sort);
+    return indexInfoMapper.toSummaryDtoList(list);
   }
 
 
