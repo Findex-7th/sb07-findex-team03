@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record IndexDataListRequest(
 
-    @NotNull
+    @NotNull(message = "🚨indexInfoId 필수입니다.")
     Long indexInfoId,
 
     LocalDate startDate,

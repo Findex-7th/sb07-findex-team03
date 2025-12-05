@@ -7,7 +7,7 @@ public record IndexChartDto(
     String indexClassification,
     String indexName,
     String periodType,     // MONTHLY, QUARTERLY, YEARLY
-    List<ChartDataPoint> dataPoints,
-    List<ChartDataPoint> ma5DataPoints,
-    List<ChartDataPoint> ma20DataPoints
+    List<ChartDataPointDto> dataPoints,
+    List<ChartDataPointDto> ma5DataPoints,
+    List<ChartDataPointDto> ma20DataPoints
 ) {}

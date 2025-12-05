@@ -26,7 +26,7 @@ public class AutoSync {
     private boolean isEnable = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "index_info_id", insertable = false, updatable = false)
+    @JoinColumn(name = "index_info_id", nullable = false)
     private IndexInfo indexInfo;
 
     public AutoSync(IndexInfo indexInfo){
