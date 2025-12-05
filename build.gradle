@@ -41,7 +41,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     implementation 'org.mapstruct:mapstruct:1.5.5.Final' // 버전 최신화 추천
 
-    // 4. Annotation Processor (순서 중요: Lombok -> Binding -> MapStruct)
+    // 4. Annotation Processor (순서 중요: Lombok -> Binding -> MapStruct -> QueryDSL)
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
@@ -74,3 +74,17 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// Entity만 컴파일 (Q클래스 생성용)
+tasks.register('compileEntities', JavaCompile) {
+    source = fileTree('src/main/java') {
+        include '**/domain/**/*.java'
+        exclude '**/*Controller.java'
+        exclude '**/*Service*.java'
+        exclude '**/*Repository*.java'
+    }
+    classpath = configurations.compileClasspath
+    destinationDirectory = file("$buildDir/classes/java/main")
+    options.annotationProcessorPath = configurations.annotationProcessor
+}
+
