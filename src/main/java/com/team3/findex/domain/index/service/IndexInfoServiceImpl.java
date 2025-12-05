@@ -70,9 +70,14 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     IndexInfo indexInfo = indexInfoRepository.findById(request.id())
         .orElseThrow(() -> new IllegalArgumentException("지수 정보를 찾을 수 없습니다."));
 
+    LocalDate parsedDate = null;
+    if (request.basePointInTime() != null) {
+      parsedDate = LocalDate.parse(request.basePointInTime());
+    }
+
     indexInfo.update(
         request.employedItemsCount(),
-        request.basePointInTime(),
+        parsedDate,
         request.baseIndex(),
         request.favorite()
     );
