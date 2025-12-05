@@ -5,6 +5,7 @@ import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
 import com.team3.findex.dto.indexDataDto.IndexDataDto;
+import com.team3.findex.dto.indexDataDto.IndexDataExcelDto;
 import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
 import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
@@ -22,6 +23,6 @@ public interface IndexDataServiceInterface {
     IndexChartDto getChartData(Long id, PeriodType periodType);
     List<RankedIndexPerformanceDto> performanceRank(long indexInfoId,PeriodType periodType, int limit);
     List<IndexPerformanceDto> performanceFavorite(PeriodType periodType);
-    void exportCsv( Long indexInfoId, String startDate, String endDate, String sortField, String sortDirection);
+   List<IndexDataExcelDto> exportCsv( Long indexInfoId, String startDate, String endDate, String sortField, String sortDirection);
 }
 

@@ -4,13 +4,17 @@ import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
 import com.team3.findex.dto.indexDataDto.IndexDataDto;
+import com.team3.findex.dto.indexDataDto.IndexDataExcelDto;
 import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
 import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
 import com.team3.findex.domain.index.PeriodType;
 import com.team3.findex.service.Interface.IndexDataServiceInterface;
 import com.team3.findex.swaggerDocs.IndexDataDoc;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -176,17 +180,27 @@ public class IndexDataController implements IndexDataDoc {
      * @return
      */
     @GetMapping("/export/csv")
-    public ResponseEntity<Object> exportCsv(
+    public void exportCsv(
 //        @Valid @RequestParam("") ExportCsvRequest request
         @RequestParam(value = "indexInfoId")                    Long indexInfoId,
         @RequestParam(value = "startDate", required = false)    String startDate,
         @RequestParam(value = "endDate",   required = false)    String endDate,
         @RequestParam(value = "sortField", required = false)    String sortField,
-        @RequestParam(value = "sortDirection")                  String sortDirection) {
+        @RequestParam(value = "sortDirection")                  String sortDirection,
+        HttpServletResponse response) throws IOException {
 
-        indexDataService.exportCsv(indexInfoId, startDate, endDate, sortField, sortDirection);
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .build();
+      List<IndexDataExcelDto> csvDtos = indexDataService.exportCsv(indexInfoId,
+          startDate, endDate, sortField, sortDirection);
+
+      response.setContentType("text/csv; charset=UTF-8");
+      response.setHeader("Content-Disposition",
+          "attachment; filename=index-data-export-" + LocalDate.now() + ".csv");
+
+      PrintWriter writer = response.getWriter();
+      writer.println("기준일자,시가,종가,고가,저가,전일,대비 등락폭,등락률,거래량,거래대금,상장시가총액");
+
+      csvDtos.forEach(csvDto -> writer.println(csvDto.toString()));
+
+      writer.flush();
     }
 }

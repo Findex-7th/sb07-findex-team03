@@ -15,6 +15,8 @@ import org.springframework.data.repository.query.Param;
 public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
     void deleteAllByIndexInfoId(Long indexInfoId); //!! for.IndexInfo
+    void deleteByIndexInfoId(Long indexInfoId);
+
 
 //    List<IndexData> findAllByIdInAndBaseDateBetween(List<Long> indexInfoIds, String baseDateFrom, String baseDateTo); //!! for. 성연
 
@@ -63,7 +65,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
         + "AND d.baseDate >= :startDate "
         + "AND d.baseDate <= :endDate "
         + "ORDER BY d.closingPrice DESC LIMIT :limit")
-    List<IndexData> findAllPerformanceRank( @Param("id") long indexInfoId,
+    List<IndexData> findAllPerformanceRank( @Param("indexInfoId") long indexInfoId,
                                             @Param("startDate") LocalDate startDate,
                                             @Param("endDate") LocalDate endDate,
                                             int limit); //?? 🚨periodType
@@ -104,12 +106,12 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
     @Query("SELECT d FROM IndexData d "
         + "JOIN FETCH d.indexInfo i "
-        + "WHERE i.id = :id "
+        + "WHERE i.id = :indexInfoId "
         + "AND d.baseDate >= :startDate "
         + "AND d.baseDate <= :endDate ")
 //        + "ORDER BY d.baseDate ASC")
-    List<IndexData> findAllExportCsvData(@Param("id") Long indexInfoId,
-                                         @Param("startDate") String startDate,
-                                         @Param("endDate") String endDate,
+    List<IndexData> findAllExportCsvData(@Param("indexInfoId") Long indexInfoId,
+                                         @Param("startDate") LocalDate startDate,
+                                         @Param("endDate") LocalDate endDate,
                                          Sort sort );
 }
