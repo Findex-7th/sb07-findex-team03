@@ -6,7 +6,7 @@ import com.team3.findex.domain.index.dto.request.IndexInfoCreateRequest;
 import com.team3.findex.domain.index.dto.request.IndexInfoUpdateRequest;
 import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexInfoDto;
 import com.team3.findex.domain.index.dto.response.IndexInfoDto;
-import com.team3.findex.domain.index.dto.response.IndexInfoDtoSummaryDto;
+import com.team3.findex.domain.index.dto.response.IndexInfoSummaryDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -166,7 +166,7 @@ public interface IndexInfoDocs {
           responseCode = "200",
           description = "지수 정보 요약 목록 조회 성공",
           content = @Content(
-              schema = @Schema(implementation = IndexInfoDtoSummaryDto.class)
+              schema = @Schema(implementation = IndexInfoSummaryDto.class)
           )
       ),
       @ApiResponse(
@@ -177,7 +177,7 @@ public interface IndexInfoDocs {
           )
       )
   })
-  ResponseEntity<List<IndexInfoDtoSummaryDto>> getIndexInfoSummaries();
+  ResponseEntity<List<IndexInfoSummaryDto>> getIndexInfoSummaries();
 }
 
 

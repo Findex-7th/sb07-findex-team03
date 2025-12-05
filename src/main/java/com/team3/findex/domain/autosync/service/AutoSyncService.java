@@ -83,12 +83,13 @@ public class AutoSyncService {
       CursorPageRequestAutoSyncConfigDto request
   ) {
     Long indexInfoId = request.indexInfoId();
-    boolean enabled = request.enabled();
+    Boolean enabled = request.enabled();
     Long idAfter = request.idAfter();
     String cursor = request.cursor();
     String sortField = request.sortField() != null ? request.sortField() : "indexInfo.indexName";
     String sortDirectionValue = request.sortDirection() != null ? request.sortDirection() : "ASC";
-    int size = request.size();
+    Integer size = request.size() != null ? request.size() : 10;
+
 
     List<AutoSync> results = autoSyncRepository.findWithCursor(
         indexInfoId,

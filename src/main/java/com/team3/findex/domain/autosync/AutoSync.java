@@ -25,7 +25,7 @@ public class AutoSync {
     @Column(name = "is_enable", nullable = false)
     private boolean isEnable = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,  optional = false)
     @JoinColumn(name = "index_info_id", nullable = false)
     private IndexInfo indexInfo;
 

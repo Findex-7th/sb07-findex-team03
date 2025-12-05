@@ -1,6 +1,6 @@
 package com.team3.findex.domain.syncjob;
 
-import com.team3.findex.domain.index.IndexData;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.syncjob.enums.JobType;
 import com.team3.findex.domain.syncjob.enums.Result;
@@ -13,6 +13,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -33,32 +34,37 @@ public class SyncJob {
     @Column
     private String worker;
 
+    @Column
+    private LocalDate targetDate;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @NotNull
     private Result result = Result.SUCCESS;
 
     @CreatedDate
-    @Column( name = "created_at", updatable = false, nullable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     @NotNull
-    private Instant createdAt;
+    private Instant createdAt=Instant.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "index_info_id", insertable = false, updatable = false)
+    @JoinColumn(name = "index_info_id", updatable = false)
     private IndexInfo indexInfo;
 
-    public SyncJob(JobType jobType, String worker, IndexInfo indexInfo, Result result){
+
+    public SyncJob(JobType jobType, String worker, LocalDate targetDate, IndexInfo indexInfo, Result result){
         this.jobType = jobType;
         this.worker = worker;
+        this.targetDate = targetDate;
         this.indexInfo = indexInfo;
         this.result = result;
     }
 
-    public static SyncJob ofSuccess(JobType jobType, String worker, IndexInfo indexInfo){
-        return new SyncJob(jobType, worker, indexInfo, Result.SUCCESS);
+    public static SyncJob ofSuccess(JobType jobType, String worker, LocalDate targetDate, IndexInfo indexInfo){
+        return new SyncJob(jobType, worker, targetDate, indexInfo, Result.SUCCESS);
     }
 
-    public static SyncJob ofFailure(JobType jobType, String worker, IndexInfo indexInfo){
-        return new SyncJob(jobType, worker, indexInfo, Result.FAILED);
+    public static SyncJob ofFailure(JobType jobType, String worker, LocalDate targetDate, IndexInfo indexInfo){
+        return new SyncJob(jobType, worker, targetDate, indexInfo, Result.FAILED);
     }
 }
