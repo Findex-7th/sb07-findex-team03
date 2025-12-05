@@ -7,7 +7,7 @@ public interface AutoSyncRepositoryCustom {
 
   List<AutoSync> findWithCursor(
       Long indexInfoId,
-      boolean enabled,
+      Boolean enabled,
       Long idAfter,
       String cursor,
       String sortField,
@@ -15,5 +15,5 @@ public interface AutoSyncRepositoryCustom {
       int size
   );
 
-  long countWithFilter(Long indexInfoId, boolean enabled);
+  long countWithFilter(Long indexInfoId, Boolean enabled);
 }

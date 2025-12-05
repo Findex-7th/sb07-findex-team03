@@ -7,7 +7,7 @@ public record CursorPageRequestAutoSyncConfigDto(
         Long indexInfoId,
 
         @Schema(description = "활성화 여부")
-        boolean enabled,
+        Boolean enabled,
 
         @Schema(description = "이전 페이지 마지막 요소 ID")
         Long idAfter,
@@ -24,6 +24,6 @@ public record CursorPageRequestAutoSyncConfigDto(
         String sortDirection,
 
         @Schema(description = "페이지 크기", defaultValue = "10")
-        int size
+        Integer size
 ) {
 }

@@ -38,7 +38,7 @@ public class AutoSyncRepositoryImpl implements AutoSyncRepositoryCustom {
   @Override
   public List<AutoSync> findWithCursor(
       Long indexInfoId,
-      boolean enabled,
+      Boolean enabled,
       Long idAfter,
       String cursor,
       String sortField,
@@ -65,7 +65,7 @@ public class AutoSyncRepositoryImpl implements AutoSyncRepositoryCustom {
    */
 
   @Override
-  public long countWithFilter(Long indexInfoId, boolean enabled) {
+  public long countWithFilter(Long indexInfoId, Boolean enabled) {
     Long count = jpaQueryFactory
         .select(autoSync.count())
         .from(autoSync)
@@ -94,7 +94,10 @@ public class AutoSyncRepositoryImpl implements AutoSyncRepositoryCustom {
    * @param enabled 활성화 상태
    * @return BooleanExpression
    */
-  private BooleanExpression enabledEq(boolean enabled) {
+  private BooleanExpression enabledEq(Boolean enabled) {
+    if (enabled == null) {
+      return null;
+    }
     return autoSync.isEnable.eq(enabled);
   }
 
