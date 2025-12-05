@@ -4,19 +4,20 @@ import com.team3.findex.domain.index.dto.request.IndexInfoCreateRequest;
 import com.team3.findex.domain.index.dto.request.IndexInfoUpdateRequest;
 import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexInfoDto;
 import com.team3.findex.domain.index.dto.response.IndexInfoDto;
-import com.team3.findex.domain.index.dto.response.IndexInfoDtoSummaryDto;
+import com.team3.findex.domain.index.dto.response.IndexInfoSummaryDto;
 import com.team3.findex.domain.index.service.IndexInfoService;
-import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -54,5 +55,26 @@ public class IndexInfoController {
     indexInfoService.delete(id);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
+
+  // 페이지네이션
+  @GetMapping
+  public ResponseEntity<CursorPageResponseIndexInfoDto> search(
+      @RequestParam(required = false) String classification,
+      @RequestParam(required = false) String name,
+      @RequestParam(required = false) Boolean favorite,
+      @RequestParam(required = false) String sort,
+      @RequestParam(required = false) Long cursorId,
+      @RequestParam(defaultValue = "20") int size
+  ) {
+    CursorPageResponseIndexInfoDto response =
+        indexInfoService.search(classification, name, favorite, sort, cursorId, size);
+
+    return ResponseEntity.ok(response);
+  }
+  @GetMapping("/summaries")
+  public ResponseEntity<List<IndexInfoSummaryDto>> getSummaries() {
+    return ResponseEntity.ok(indexInfoService.getSummaryList());
+  }
+
 
 }
