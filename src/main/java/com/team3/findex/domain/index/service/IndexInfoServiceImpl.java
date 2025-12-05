@@ -166,17 +166,12 @@ public class IndexInfoServiceImpl implements IndexInfoService {
 
   // 페이지네이션(정렬 생성 메서드 추가)
   private Sort createSort(String sortKey, String order) {
-    if (sortKey == null) return Sort.by("id").ascending();
+    if (sortKey == null || sortKey.isBlank()) {
+      return Sort.by("id").ascending();
+    }
 
-    return switch (sortKey) {
-      case "indexClassification" -> Sort.by("indexClassification").ascending();
-      case "indexClassificationDesc" -> Sort.by(Sort.Direction.DESC, "indexClassification");
-      case "indexName" -> Sort.by("indexName").ascending();
-      case "indexNameDesc" -> Sort.by(Sort.Direction.DESC, "indexName");
-      case "employedItemsCount" -> Sort.by("employedItemsCount").ascending();
-      case "employedItemsCountDesc" -> Sort.by(Sort.Direction.DESC, "employedItemsCount");
-      default -> Sort.by("id").ascending();
-    };
+    Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+    return Sort.by(direction, sortKey);
   }
 
   // 페이지네이션(search 메서드 전체)
@@ -190,34 +185,101 @@ public class IndexInfoServiceImpl implements IndexInfoService {
       Long cursorId,
       int size
   ) {
-    Sort sort = createSort(sortKey, order);
-    Pageable pageable = PageRequest.of(0, size + 1, sort);
-
     List<IndexInfo> result = indexInfoRepository.searchWithCursor(
-        classification,
-        name,
-        favorite,
-        cursorId,
-        pageable
+        classification, name, favorite, cursorId
     );
 
-    boolean hasNext = false;
+    // ✨ 정렬 적용
+    result.sort((a, b) -> {
+      Comparable aValue = extractComparable(a, sortKey);
+      Comparable bValue = extractComparable(b, sortKey);
 
-    if (result.size() > size) {
-      hasNext = true;
-      result.remove(size);
-    }
+      if (aValue == null || bValue == null) return 0;
 
-    List<IndexInfoDto> dtoList = result.stream()
+      int cmp = aValue.compareTo(bValue);
+      return "desc".equalsIgnoreCase(order) ? -cmp : cmp;
+    });
+
+    // ✨ 페이징
+    boolean hasNext = result.size() > size;
+    List<IndexInfo> pageResult = hasNext ? result.subList(0, size) : result;
+
+    List<IndexInfoDto> dtoList = pageResult.stream()
         .map(indexInfoMapper::toDto)
         .toList();
 
-    Long nextCursor = result.isEmpty()
-        ? null
-        : result.get(result.size() - 1).getId();
+    Long nextCursor = pageResult.isEmpty() ? null : pageResult.get(pageResult.size() - 1).getId();
 
     return new CursorPageResponseIndexInfoDto(dtoList, nextCursor, hasNext);
   }
+
+  // ✨ 정렬 필드 추출 유틸
+  private Comparable extractComparable(IndexInfo index, String sortKey) {
+
+    if (sortKey == null || sortKey.isBlank()) {
+      return index.getId();   // 기본 정렬 기준
+    }
+
+    switch (sortKey) {
+      case "indexClassification":
+        return index.getIndexClassification();
+      case "indexName":
+        return index.getIndexName();
+      case "employedItemsCount":
+        return index.getEmployedItemsCount();
+      case "baseIndex":
+        return index.getBaseIndex();
+      case "basePointInTime":
+        return index.getBasePointInTime();
+      case "favorite":
+        return index.getFavorite();
+      case "id":
+      default:
+        return index.getId();
+    }
+  }
+
+
+
+
+//  @Override
+//  public CursorPageResponseIndexInfoDto search(
+//      String classification,
+//      String name,
+//      Boolean favorite,
+//      String sortKey,
+//      String order,
+//      Long cursorId,
+//      int size
+//  ) {
+//    Sort sort = createSort(sortKey, order);
+//    Pageable pageable = PageRequest.of(0, size + 1, sort);
+//
+//    List<IndexInfo> result = indexInfoRepository.searchWithCursor(
+//        classification,
+//        name,
+//        favorite,
+//        cursorId,
+//        pageable
+//    );
+//
+//    boolean hasNext = false;
+//
+//    if (result.size() > size) {
+//      hasNext = true;
+//      result.remove(size);
+//    }
+//
+//    List<IndexInfoDto> dtoList = result.stream()
+//        .map(indexInfoMapper::toDto)
+//        .toList();
+//
+//    Long nextCursor = result.isEmpty()
+//        ? null
+//        : result.get(result.size() - 1).getId();
+//
+//    return new CursorPageResponseIndexInfoDto(dtoList, nextCursor, hasNext);
+//  }
 
   @Override
   public List<IndexInfoSummaryDto> getSummaryList(String sortKey, String order) {

@@ -23,8 +23,7 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
       @Param("classification") String classification,
       @Param("name") String name,
       @Param("favorite") Boolean favorite,
-      @Param("cursorId") Long cursorId,
-      Pageable pageable
+      @Param("cursorId") Long cursorId
   );
 
 }
