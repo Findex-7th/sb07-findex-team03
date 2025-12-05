@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AutoSyncRepository extends JpaRepository<AutoSync, Long>, AutoSyncRepositoryCustom {
 
   boolean existsByIndexInfo(IndexInfo IndexInfo);
+  void deleteByIndexInfoId(Long indexInfoId);
 
 }
