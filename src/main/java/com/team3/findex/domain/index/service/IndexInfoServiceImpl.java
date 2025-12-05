@@ -10,6 +10,7 @@ import com.team3.findex.domain.index.mapper.IndexInfoMapper;
 import com.team3.findex.repository.IndexInfoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,7 +77,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         indexInfoRepository.deleteById(id);
     }
 
-
+    // TODO 이하 Cursor 추후 주석 삭제할 것
 
 
 }
