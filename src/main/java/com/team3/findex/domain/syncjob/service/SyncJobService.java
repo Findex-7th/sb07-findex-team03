@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -91,15 +92,20 @@ public class SyncJobService {
         boolean hasNext = false;
         String nextCursor = null;
         Long nextIdAfter = null;
-        if(syncJobs.size() > request.size()){
-            hasNext = true;
-            syncJobs.remove(request.size());
-        }
-
         if(!syncJobs.isEmpty()){
             SyncJob lastJob = syncJobs.get(syncJobs.size() - 1);
-            nextCursor = String.valueOf(lastJob.getTargetDate());
-            nextIdAfter = lastJob.getId();
+            if(syncJobs.size() > request.size()){
+                hasNext = true;
+                syncJobs.remove(request.size());
+                nextIdAfter = lastJob.getId();
+                log.info("nextIdAfter: {}", nextIdAfter);
+            }
+            nextCursor = String.valueOf(lastJob.getCreatedAt());
+            if ("targetDate".equals(request.sortField())) {
+                nextCursor = null;
+            } else if ("jobTime".equals(request.sortField())) {
+                nextCursor = lastJob.getCreatedAt().toString();
+            }
         }
 
         List<SyncJobDto> content = syncJobs.stream()

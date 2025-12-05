@@ -63,6 +63,8 @@ public class OpenApiTester {
                             .path("/1160100/service/GetMarketIndexInfoService/getStockMarketIndex")
                             .queryParam("serviceKey", serviceKey)
                             .queryParam("resultType", "json")
+                            .queryParam("pageNo", 1)
+                            .queryParam("numOfRows", 200)
                             .build();
                 })
                 .retrieve()

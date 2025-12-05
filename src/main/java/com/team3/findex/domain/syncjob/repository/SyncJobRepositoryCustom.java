@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface SyncJobRepositoryCustom {
     List<SyncJob> findAllByCursor(CursorPageRequestSyncJobDto request);
+    Long countByCursorFilter(CursorPageRequestSyncJobDto request);
 }

@@ -8,8 +8,10 @@ import com.team3.findex.domain.syncjob.SyncJob;
 import com.team3.findex.domain.syncjob.dto.CursorPageRequestSyncJobDto;
 import com.team3.findex.domain.syncjob.enums.Result;
 import com.team3.findex.domain.syncjob.repository.SyncJobRepositoryCustom;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.util.StringUtils;
 
 
@@ -23,65 +25,67 @@ import static com.team3.findex.domain.syncjob.QSyncJob.syncJob;
 @RequiredArgsConstructor
 public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
-    public List<SyncJob> findAllByCursor(CursorPageRequestSyncJobDto dto) {
+    public List<SyncJob> findAllByCursor(CursorPageRequestSyncJobDto request) {
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         QSyncJob syncJob = QSyncJob.syncJob;
 
-        LocalDate targetDateFrom = StringUtils.hasText(dto.baseDateFrom()) ? LocalDate.parse(dto.baseDateFrom()) : null;
-        LocalDate targetDateTo = StringUtils.hasText(dto.baseDateTo()) ? LocalDate.parse(dto.baseDateTo()) : null;
+        LocalDate targetDateFrom = StringUtils.hasText(request.baseDateFrom()) ? LocalDate.parse(request.baseDateFrom()) : null;
+        LocalDate targetDateTo = StringUtils.hasText(request.baseDateTo()) ? LocalDate.parse(request.baseDateTo()) : null;
 
-        Instant jobTimeFrom = StringUtils.hasText(dto.jobTimeFrom()) ? Instant.parse(dto.jobTimeFrom()) : null;
-        Instant jobTimeTo = StringUtils.hasText(dto.jobTimeTo()) ? Instant.parse(dto.jobTimeTo()) : null;
+        Instant jobTimeFrom = StringUtils.hasText(request.jobTimeFrom()) ? Instant.parse(request.jobTimeFrom()) : null;
+        Instant jobTimeTo = StringUtils.hasText(request.jobTimeTo()) ? Instant.parse(request.jobTimeTo()) : null;
 
         Result resultStatus = null;
-        if (StringUtils.hasText(dto.status())) {
+        if (StringUtils.hasText(request.status())) {
             try {
-                resultStatus = Result.valueOf(dto.status());
+                resultStatus = Result.valueOf(request.status());
             } catch (IllegalArgumentException ignored) {}
         }
 
         List<OrderSpecifier<?>> orders = new ArrayList<>();
         BooleanExpression cursorCondition = null;
-        boolean isAsc = "ASC".equalsIgnoreCase(dto.sortDirection());
+        boolean isAsc = "ASC".equalsIgnoreCase(request.sortDirection());
 
-        if ("targetDate".equals(dto.sortField())) {
-            orders.add(isAsc ? syncJob.targetDate.asc() : syncJob.targetDate.desc());
-            orders.add(syncJob.id.asc()); // 2차 정렬 (ID)
+        if ("targetDate".equals(request.sortField())) {
+            orders.add(syncJob.id.desc());
+            orders.add(isAsc ? syncJob.targetDate.desc() : syncJob.targetDate.asc());
 
-            if (StringUtils.hasText(dto.cursor()) && dto.idAfter() != null) {
-                LocalDate cursorDate = LocalDate.parse(dto.cursor());
+            if (StringUtils.hasText(request.cursor()) && request.idAfter() != null) {
+                LocalDate cursorDate = LocalDate.parse(request.cursor());
                 cursorCondition = isAsc
-                        ? syncJob.targetDate.gt(cursorDate).or(syncJob.targetDate.eq(cursorDate).and(syncJob.id.gt(dto.idAfter())))
-                        : syncJob.targetDate.lt(cursorDate).or(syncJob.targetDate.eq(cursorDate).and(syncJob.id.gt(dto.idAfter())));
+                        ? syncJob.targetDate.gt(cursorDate).or(syncJob.targetDate.eq(cursorDate).and(syncJob.id.gt(request.idAfter())))
+                        : syncJob.targetDate.lt(cursorDate).or(syncJob.targetDate.eq(cursorDate).and(syncJob.id.gt(request.idAfter())));
             }
         }
-        else if ("jobTime".equals(dto.sortField())) {
-            orders.add(isAsc ? syncJob.createdAt.asc() : syncJob.createdAt.desc());
-            orders.add(syncJob.id.asc());
+        else if ("jobTime".equals(request.sortField())) {
+            orders.add(syncJob.id.desc());
+            orders.add(isAsc ? syncJob.createdAt.desc() : syncJob.createdAt.asc());
 
-            if (StringUtils.hasText(dto.cursor()) && dto.idAfter() != null) {
-                Instant cursorTime = Instant.parse(dto.cursor());
+            if (StringUtils.hasText(request.cursor()) && request.idAfter() != null) {
+                Instant cursorTime = Instant.parse(request.cursor());
                 cursorCondition = isAsc
-                        ? syncJob.createdAt.gt(cursorTime).or(syncJob.createdAt.eq(cursorTime).and(syncJob.id.gt(dto.idAfter())))
-                        : syncJob.createdAt.lt(cursorTime).or(syncJob.createdAt.eq(cursorTime).and(syncJob.id.gt(dto.idAfter())));
+                        ? syncJob.createdAt.gt(cursorTime).or(syncJob.createdAt.eq(cursorTime).and(syncJob.id.gt(request.idAfter())))
+                        : syncJob.createdAt.lt(cursorTime).or(syncJob.createdAt.eq(cursorTime).and(syncJob.id.gt(request.idAfter())));
             }
         }
         else {
-            orders.add(syncJob.id.asc());
-            if (dto.idAfter() != null) {
-                cursorCondition = syncJob.id.gt(dto.idAfter());
-            }
+            orders.add(syncJob.id.desc());
+        }
+        if (request.idAfter() != null) {
+            cursorCondition = syncJob.id.goe(request.idAfter());
         }
         return queryFactory
                 .selectFrom(syncJob)
                 .where(
-                        dto.jobType() != null ? syncJob.jobType.eq(dto.jobType()) : null,
+                        request.jobType() != null ? syncJob.jobType.eq(request.jobType()) : null,
 
-                        dto.indexInfoId() != null ? syncJob.indexInfo.id.eq(dto.indexInfoId()) : null,
+                        request.indexInfoId() != null ? syncJob.indexInfo.id.eq(request.indexInfoId()) : null,
 
-                        StringUtils.hasText(dto.worker()) ? syncJob.worker.eq(dto.worker()) : null,
+                        StringUtils.hasText(request.worker()) ? syncJob.worker.eq(request.worker()) : null,
 
                         resultStatus != null ? syncJob.result.eq(resultStatus) : null,
 
@@ -96,7 +100,47 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
                         cursorCondition
                 )
                 .orderBy(orders.toArray(new OrderSpecifier[0]))
-                .limit(dto.size())
+                .limit(request.size() + 1)
                 .fetch();
+    }
+
+    @Override
+    public Long countByCursorFilter(CursorPageRequestSyncJobDto request) {
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        QSyncJob syncJob = QSyncJob.syncJob;
+
+        LocalDate targetDateFrom = StringUtils.hasText(request.baseDateFrom()) ? LocalDate.parse(request.baseDateFrom()) : null;
+        LocalDate targetDateTo = StringUtils.hasText(request.baseDateTo()) ? LocalDate.parse(request.baseDateTo()) : null;
+
+        Instant jobTimeFrom = StringUtils.hasText(request.jobTimeFrom()) ? Instant.parse(request.jobTimeFrom()) : null;
+        Instant jobTimeTo = StringUtils.hasText(request.jobTimeTo()) ? Instant.parse(request.jobTimeTo()) : null;
+
+        Result resultStatus = null;
+        if (StringUtils.hasText(request.status())) {
+            try {
+                resultStatus = Result.valueOf(request.status());
+            } catch (IllegalArgumentException ignored) {}
+        }
+
+        return queryFactory
+                .selectFrom(syncJob)
+                .where(
+                        request.jobType() != null ? syncJob.jobType.eq(request.jobType()) : null,
+
+                        request.indexInfoId() != null ? syncJob.indexInfo.id.eq(request.indexInfoId()) : null,
+
+                        StringUtils.hasText(request.worker()) ? syncJob.worker.eq(request.worker()) : null,
+
+                        resultStatus != null ? syncJob.result.eq(resultStatus) : null,
+
+                        (targetDateFrom != null && targetDateTo != null) ? syncJob.targetDate.between(targetDateFrom, targetDateTo) :
+                                (targetDateFrom != null ? syncJob.targetDate.goe(targetDateFrom) :
+                                        (targetDateTo != null ? syncJob.targetDate.loe(targetDateTo) : null)),
+
+                        (jobTimeFrom != null && jobTimeTo != null) ? syncJob.createdAt.between(jobTimeFrom, jobTimeTo) :
+                                (jobTimeFrom != null ? syncJob.createdAt.goe(jobTimeFrom) :
+                                        (jobTimeTo != null ? syncJob.createdAt.loe(jobTimeTo) : null))
+                )
+                .stream().count();
     }
 }
