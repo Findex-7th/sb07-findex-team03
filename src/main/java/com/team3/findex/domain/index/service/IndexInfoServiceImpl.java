@@ -10,6 +10,7 @@ import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexInfoDto
 import com.team3.findex.domain.index.dto.response.IndexInfoDto;
 import com.team3.findex.domain.index.dto.response.IndexInfoSummaryDto;
 import com.team3.findex.domain.index.mapper.IndexInfoMapper;
+import com.team3.findex.repository.AutoSyncRepository;
 import com.team3.findex.repository.IndexDataRepository;
 import com.team3.findex.repository.IndexInfoRepository;
 import jakarta.transaction.Transactional;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+
 @Service
 @RequiredArgsConstructor
 public class IndexInfoServiceImpl implements IndexInfoService {
@@ -30,6 +32,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
   private final IndexDataRepository indexDataRepository;
   private final AutoSyncService autoSyncService;
   private final OpenApiProvider openApiProvider;
+  private final AutoSyncRepository autoSyncRepository;
 
   @Override
   public IndexInfoDto create(IndexInfoCreateRequest request) {
@@ -99,7 +102,8 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     IndexInfo indexInfo = indexInfoRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("지수 정보를 찾을 수 없습니다."));
 
-    indexDataRepository.deleteById(indexInfo.getId());
+    indexDataRepository.deleteByIndexInfoId(indexInfo.getId());
+    autoSyncRepository.deleteByIndexInfoId(indexInfo.getId());
     indexInfoRepository.delete(indexInfo);
   }
 
