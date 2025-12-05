@@ -240,47 +240,6 @@ public class IndexInfoServiceImpl implements IndexInfoService {
   }
 
 
-
-
-//  @Override
-//  public CursorPageResponseIndexInfoDto search(
-//      String classification,
-//      String name,
-//      Boolean favorite,
-//      String sortKey,
-//      String order,
-//      Long cursorId,
-//      int size
-//  ) {
-//    Sort sort = createSort(sortKey, order);
-//    Pageable pageable = PageRequest.of(0, size + 1, sort);
-//
-//    List<IndexInfo> result = indexInfoRepository.searchWithCursor(
-//        classification,
-//        name,
-//        favorite,
-//        cursorId,
-//        pageable
-//    );
-//
-//    boolean hasNext = false;
-//
-//    if (result.size() > size) {
-//      hasNext = true;
-//      result.remove(size);
-//    }
-//
-//    List<IndexInfoDto> dtoList = result.stream()
-//        .map(indexInfoMapper::toDto)
-//        .toList();
-//
-//    Long nextCursor = result.isEmpty()
-//        ? null
-//        : result.get(result.size() - 1).getId();
-//
-//    return new CursorPageResponseIndexInfoDto(dtoList, nextCursor, hasNext);
-//  }
-
   @Override
   public List<IndexInfoSummaryDto> getSummaryList(String sortKey, String order) {
     Sort.Direction direction = "desc".equals(order) ? Sort.Direction.DESC : Sort.Direction.ASC;

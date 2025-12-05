@@ -69,34 +69,10 @@ public class IndexInfoController {
     return ResponseEntity.ok(indexInfoService.findAllSorted(finalSortKey, finalOrder));
   }
 
-
-  //   페이지네이션
-//  @GetMapping
-//  public ResponseEntity<CursorPageResponseIndexInfoDto> searchIndexInfos(
-//      @RequestParam(required = false) String classification,
-//      @RequestParam(required = false) String name,
-//      @RequestParam(required = false) Boolean favorite,
-//      @RequestParam(name = "sortField", required = false) String sortField,
-//      @RequestParam(name = "sortDirection", required = false, defaultValue = "asc") String sortDirection,
-//      @RequestParam(required = false) Long cursorId,
-//      @RequestParam(required = false, defaultValue = "30") int size
-//  ) {
-//    CursorPageResponseIndexInfoDto response =
-//        indexInfoService.search(classification, name, favorite, sortField, sortDirection, cursorId, size);
-//
-//    return ResponseEntity.ok(response);
-//  }
-//  @GetMapping("/summaries")
-//  public ResponseEntity<List<IndexInfoSummaryDto>> getSummaries(
-//      @RequestParam(name = "sortField", required = false) String sortField,
-//      @RequestParam(name = "sortDirection", required = false, defaultValue = "asc") String sortDirection
-//  ) {
-//    return ResponseEntity.ok(indexInfoService.getSummaryList(sortField, sortDirection));
-//  }
   @GetMapping
   public ResponseEntity<CursorPageResponseIndexInfoDto> searchIndexInfos(
-      @RequestParam(required = false) String classification,
-      @RequestParam(required = false) String name,
+      @RequestParam(name = "indexClassification", required = false) String classification,
+      @RequestParam(name = "indexName", required = false) String name,
       @RequestParam(required = false) Boolean favorite,
 
       @RequestParam(name = "sortField", required = false) String sortField,
