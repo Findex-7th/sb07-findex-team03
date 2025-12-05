@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public record IndexInfoUpdateRequest(
     Long id,
     Integer employedItemsCount,
-    LocalDate basePointInTime,
+    String basePointInTime,
     Double baseIndex,
     Boolean favorite
 ) {}
