@@ -73,8 +73,15 @@ public class SyncJobService {
                         );
                         return existing;
                     }).orElseGet(() -> {
-                        return indexInfoRepository.save(indexInfo);
+                        IndexInfo saveIndexInfo = indexInfoRepository.save(indexInfo);
+
+                        if (!autoSyncRepository.existsByIndexInfo(saveIndexInfo)){
+                            autoSyncRepository.save(new AutoSync(indexInfo));
+                        }
+
+                        return saveIndexInfo;
                     });
+
                     return createSuccessLog(JobType.INDEX_INFO, worker, null, savedIndexInfo);
                 })
                 .map(syncJobMapper::toDto)
