@@ -8,7 +8,7 @@ public record IndexInfoCreateRequest(
     String indexClassification,
     String indexName,
     Integer employedItemsCount,
-    LocalDate basePointInTime,
+    String basePointInTime,
     Double baseIndex,
     Boolean favorite,
     SourceType sourceType
