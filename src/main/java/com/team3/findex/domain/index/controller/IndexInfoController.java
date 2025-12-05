@@ -64,7 +64,7 @@ public class IndexInfoController {
     return ResponseEntity.ok(indexInfoService.findAllSorted(sort, order));
   }
 
-  // 페이지네이션
+//   페이지네이션
   @GetMapping
   public ResponseEntity<CursorPageResponseIndexInfoDto> searchIndexInfos(
       @RequestParam(required = false) String classification,

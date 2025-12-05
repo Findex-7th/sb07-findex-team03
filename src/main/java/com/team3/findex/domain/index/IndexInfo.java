@@ -1,13 +1,7 @@
 package com.team3.findex.domain.index;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
 import lombok.*;
@@ -17,7 +11,12 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "index_info")
+@Table(name = "index_info", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_index_classification_name",
+                columnNames = {"index_classification", "index_name"}
+        )
+})
 public class IndexInfo {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

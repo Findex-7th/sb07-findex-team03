@@ -52,7 +52,7 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
 
         if ("targetDate".equals(request.sortField())) {
             orders.add(syncJob.id.desc());
-            orders.add(isAsc ? syncJob.targetDate.desc() : syncJob.targetDate.asc());
+            orders.add(isAsc ? syncJob.targetDate.asc() : syncJob.targetDate.desc());
 
             if (StringUtils.hasText(request.cursor()) && request.idAfter() != null) {
                 LocalDate cursorDate = LocalDate.parse(request.cursor());
@@ -63,7 +63,7 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
         }
         else if ("jobTime".equals(request.sortField())) {
             orders.add(syncJob.id.desc());
-            orders.add(isAsc ? syncJob.createdAt.desc() : syncJob.createdAt.asc());
+            orders.add(isAsc ? syncJob.createdAt.asc() : syncJob.createdAt.desc());
 
             if (StringUtils.hasText(request.cursor()) && request.idAfter() != null) {
                 Instant cursorTime = Instant.parse(request.cursor());
