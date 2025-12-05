@@ -96,10 +96,22 @@ public class IndexInfoServiceImpl implements IndexInfoService {
 
   }
   @Override
-  public List<IndexInfoDto> findAllSorted(String sortKey, String order){
-    Sort sort = createSort(sortKey, order);
-    return indexInfoMapper.toDtoList(indexInfoRepository.findAll(sort));
+  public List<IndexInfoDto> findAllSorted(String sortKey, String order) {
+    Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+    Sort sort;
+
+    if (sortKey == null || sortKey.isBlank()) {
+      sort = Sort.by(direction, "id");
+    } else {
+      sort = Sort.by(direction, sortKey);
+    }
+
+    List<IndexInfo> result = indexInfoRepository.findAll(sort);
+    return result.stream()
+        .map(indexInfoMapper::toDto)
+        .toList();
   }
+
 
   @Override
   @Transactional
