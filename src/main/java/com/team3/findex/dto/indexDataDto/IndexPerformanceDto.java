@@ -1,15 +1,16 @@
 package com.team3.findex.dto.indexDataDto;
 
 import com.team3.findex.domain.index.IndexData;
+import java.math.BigDecimal;
 
 public record IndexPerformanceDto(
     Long indexInfoId,
     String indexClassification,
     String indexName,
-    Double versus,
-    Double fluctuationRate,
-    Double currentPrice,
-    Double beforePrice
+    BigDecimal versus,
+    BigDecimal fluctuationRate,
+    BigDecimal currentPrice,
+    BigDecimal beforePrice
 ) {
 
     public static IndexPerformanceDto fromIndexData(IndexData indexData) {
@@ -17,10 +18,10 @@ public record IndexPerformanceDto(
             indexData.getIndexInfo().getId(),
             indexData.getIndexInfo().getIndexClassification(),
             indexData.getIndexInfo().getIndexName(),
-            indexData.getVersus().doubleValue(),
-            indexData.getFluctuationRate().doubleValue(),
-            indexData.getMarketPrice().doubleValue(), //?? 시가??
-            indexData.getClosingPrice().doubleValue() //?? 종가??
+            indexData.getVersus(),
+            indexData.getFluctuationRate(),
+            indexData.getMarketPrice(), //?? 시가??
+            indexData.getClosingPrice() //?? 종가??
         );
     }
     public static IndexPerformanceDto fromFavoriteDto(PerformanceFavoriteDto favoriteDto) {
@@ -31,7 +32,7 @@ public record IndexPerformanceDto(
             favoriteDto.versus(),
             favoriteDto.fluctuationRate(),
             favoriteDto.currentPrice(),
-            favoriteDto.currentPrice() - favoriteDto.versus()
+            favoriteDto.currentPrice().subtract(favoriteDto.versus())
         );
     }
 }

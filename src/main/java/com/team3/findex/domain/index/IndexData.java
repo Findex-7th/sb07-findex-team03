@@ -25,27 +25,27 @@ import lombok.NoArgsConstructor;
 public class IndexData extends IndexDataBaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "index_info_id", unique = true)
+    @JoinColumn(name = "index_info_id")
     @NotNull(message = "🚨indexInfo 필수입니다.")
     private IndexInfo indexInfo; // 지수ID
 
-    @Column(name = "marke_price", precision = 6, scale = 2, nullable = false)
+    @Column(name = "marke_price", precision = 10, scale = 4, nullable = false)
     @NotNull(message = "🚨marketPrice 필수입니다.")
     private BigDecimal marketPrice; // 시가
 
-    @Column(name = "closing_price", precision = 6, scale = 2, nullable = false)
+    @Column(name = "closing_price", precision = 10, scale = 4, nullable = false)
     @NotNull(message = "🚨closingPrice 필수입니다.")
     private BigDecimal closingPrice; //	종가
 
-    @Column(name = "high_price", precision = 6, scale = 2, nullable = false)
+    @Column(name = "high_price", precision = 10, scale = 4, nullable = false)
     @NotNull(message = "🚨highPrice 필수입니다.")
     private BigDecimal highPrice; //	고가
 
-    @Column(name = "low_price", precision = 6, scale = 2, nullable = false)
+    @Column(name = "low_price", precision = 10, scale = 4, nullable = false)
     @NotNull(message = "🚨lowPrice 필수입니다.")
     private BigDecimal lowPrice; //	저가
 
-    @Column(name = "trading_quantity", nullable = false)
+    @Column(name = "trading_quantity", precision = 20, nullable = false)
     @NotNull(message = "🚨tradingQuantity 필수입니다.")
     private BigDecimal tradingQuantity; // 거래량
 
@@ -65,11 +65,11 @@ public class IndexData extends IndexDataBaseEntity {
     @NotNull(message = "🚨baseDate 필수입니다.")
     private LocalDate baseDate; // 기준일자
 
-    @Column(name = "trading_price", nullable = false)
+    @Column(name = "trading_price", precision = 20, nullable = false)
     @NotNull(message = "🚨tradingPrice 필수입니다.")
     private BigDecimal tradingPrice; // 거래대금
 
-    @Column(name = "market_total_amount", nullable = false)
+    @Column(name = "market_total_amount", precision = 20, nullable = false)
     @NotNull(message = "🚨marketTotalAmount 필수입니다.")
     private BigDecimal marketTotalAmount; // 상장시가총액
 

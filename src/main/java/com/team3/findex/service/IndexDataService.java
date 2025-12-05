@@ -1,7 +1,11 @@
 package com.team3.findex.service;
 
 //import com.team3.findex.dto.indexDataDto.CursorPageResponse;
+import com.team3.findex.common.exception.CustomException;
+import com.team3.findex.common.exception.ErrorCode;
+import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.PeriodType;
+import com.team3.findex.domain.index.SourceType;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexDataExcelDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
@@ -24,6 +28,7 @@ import com.team3.findex.service.Interface.IndexDataServiceInterface;
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,7 +51,7 @@ public class IndexDataService implements IndexDataServiceInterface {
     private final IndexDataRepository indexDataRepository;
     private final IndexInfoRepository indexInfoRepository;
 
-//    private  final RankedIndexPerformanceMapper rankedIndexPerformanceMapper;
+//    private final RankedIndexPerformanceMapper rankedIndexPerformanceMapper;
 //    private final IndexPerformanceMapper indexPerformanceMapper;
     private final IndexDataMapper indexDataMapper;
     private final IndexChartMapper indexChartMapper;
@@ -72,14 +77,28 @@ public class IndexDataService implements IndexDataServiceInterface {
     @Transactional
     @Override
     public IndexDataDto createIndexData(IndexDataCreateRequest request) {
-        // Open API를 활용
+      IndexInfo indexInfo = indexInfoRepository.findById(request.indexInfoId())
+          .orElseThrow(() -> new CustomException(ErrorCode.INDEX_INFO_NOT_FOUND));
 
-        IndexData indexData = indexDataMapper.toEntity(request);
+      IndexData indexData = new IndexData(
+          indexInfo,
+          request.marketPrice(),
+          request.closingPrice(),
+          request.highPrice(),
+          request.lowPrice(),
+          request.tradingQuantity(),
+          request.versus(),
+          request.fluctuationRate(),
+          SourceType.USER,
+          LocalDate.parse(request.baseDate()),
+          request.tradingPrice(),
+          request.marketTotalAmount()
+      );
 
         IndexData saveIndexData = indexDataRepository.save(indexData);
-
         return indexDataMapper.toDTO(saveIndexData);
     }
+
 
     @Transactional
     @Override
@@ -201,77 +220,45 @@ public class IndexDataService implements IndexDataServiceInterface {
 
 
     @Override
-    public void exportCsv(  Long indexInfoId,
+    public List<IndexDataExcelDto> exportCsv(  Long indexInfoId,
                             String startDate,
                             String endDate,
                             String sortField,
                             String sortDirection
                         ) {
 
-        if (startDate.isEmpty() || startDate.isBlank())
-            startDate = "1970-01-01";   // String.valueOf(LocalDate.now());
+      if (startDate == null || startDate.isBlank())
+        startDate = "1970-01-01";
 
-        if (endDate.isEmpty() || endDate.isBlank())
-            endDate = String.valueOf(LocalDate.now());
+      if (endDate == null || endDate.isBlank())
+        endDate = String.valueOf(LocalDate.now());
 
-        if (sortField.isEmpty() || sortField.isBlank()) {
-            sortField = "baseDate";
-        }
+      if (sortField == null || sortField.isBlank()) {
+        sortField = "baseDate";
+      }
 
-        Sort.Order order = (0 != sortDirection.compareTo("desc")) ? Order.desc(sortField) : Order.asc(sortField);
+      LocalDate startLocalDate = LocalDate.parse(startDate);
+      LocalDate endLocalDate = LocalDate.parse(endDate);
 
-        List<IndexData> indexDataList = indexDataRepository.findAllExportCsvData(indexInfoId,
-                                                            startDate,
-                                                            endDate,
-                                                            Sort.by(order));
+      Sort.Order order =
+          (0 != sortDirection.compareTo("desc")) ? Order.desc(sortField) : Order.asc(sortField);
 
-        if (indexDataList.isEmpty()) throw new NoSuchElementException("🚨해당하는 엑셀 자료 없음");
+      List<IndexData> indexDataList = indexDataRepository.findAllExportCsvData(indexInfoId,
+          startLocalDate,
+          endLocalDate,
+          Sort.by(order));
 
-        List<IndexDataExcelDto> excelDtos = indexDataList.stream()
-            .map(indexDataMapper::toExcelDto)
-            .toList();
+      if (indexDataList.isEmpty())
+        throw new NoSuchElementException("해당하는 CSV 자료 없음");
 
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-
-            XSSFSheet sheet = workbook.createSheet("index-data");
-
-            Row header = sheet.createRow(0);
-            header.createCell(0).setCellValue("기준일자");
-            header.createCell(1).setCellValue("시가");
-            header.createCell(2).setCellValue("종가");
-            header.createCell(3).setCellValue("고가");
-            header.createCell(4).setCellValue("저가");
-            header.createCell(5).setCellValue("전일 대비 등락폭");
-            header.createCell(6).setCellValue("등락률");
-            header.createCell(7).setCellValue("거래량");
-            header.createCell(8).setCellValue("거래대금");
-            header.createCell(9).setCellValue("상장시가총액");
-
-            int rowIdx = 1;
-            for (IndexDataExcelDto dto : excelDtos) {
-                Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(dto.baseDate().toString());
-                row.createCell(1).setCellValue(dto.marketPrice().doubleValue());
-                row.createCell(2).setCellValue(dto.closingPrice().doubleValue());
-                row.createCell(3).setCellValue(dto.highPrice().doubleValue());
-                row.createCell(4).setCellValue(dto.lowPrice().doubleValue());
-                row.createCell(5).setCellValue(dto.versus().doubleValue());
-                row.createCell(6).setCellValue(dto.fluctuationRate().doubleValue());
-                row.createCell(7).setCellValue(dto.tradingQuantity().doubleValue());
-                row.createCell(8).setCellValue(dto.tradingPrice().doubleValue());
-                row.createCell(9).setCellValue(dto.marketTotalAmount().doubleValue());
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            workbook.write(out);
-        } catch (IOException e) {
-            throw new RuntimeException("🚨파일 다운로드 실패");
-        }
+      return indexDataList.stream()
+          .map(indexDataMapper::toExcelDto)
+          .toList();
     }
 
 
     private LocalDate getPeriodTypeDate(PeriodType periodType) {
-        LocalDate fromData = null;
+        LocalDate fromData = LocalDate.now();
 
         switch (periodType) {
             case DAILY -> fromData = fromData.minusDays(1);

@@ -14,7 +14,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -270,11 +272,12 @@ public interface IndexDataDoc {
             )
         )
     })
-    ResponseEntity<Object> exportCsv(
+    void exportCsv(
 //        @Valid @RequestParam("") ExportCsvRequest request
         @RequestParam(value = "indexInfoId")                    Long indexInfoId,
         @RequestParam(value = "startDate", required = false)    String startDate,
         @RequestParam(value = "endDate",   required = false)    String endDate,
         @RequestParam(value = "sortField", required = false)    String sortField,
-        @RequestParam(value = "sortDirection")                  String sortDirection);
+        @RequestParam(value = "sortDirection")                  String sortDirection,
+        HttpServletResponse httpServletResponse) throws IOException;
 }
