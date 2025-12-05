@@ -29,7 +29,7 @@ public class OpenApiTester {
     private final RestClient restClient;
 
     public ApiResponseDto fetchApiByOptions(String indexName, String baseDate, int pageNo, int numOfRows) {
-        return restClient.get()
+        ApiResponseDto dto = restClient.get()
                 .uri(uriBuilder -> {
                     URI uri = uriBuilder
                             .scheme("https")
@@ -52,10 +52,11 @@ public class OpenApiTester {
                     throw new RuntimeException("서버 에러: " + response.getStatusCode());
                 })
                 .body(ApiResponseDto.class);
+        return dto;
     }
 
     public ApiResponseDto fetchAllApi() {
-        return restClient.get()
+        ApiResponseDto dto = restClient.get()
                 .uri(uriBuilder -> {
                     return uriBuilder
                             .scheme("https")
@@ -64,7 +65,7 @@ public class OpenApiTester {
                             .queryParam("serviceKey", serviceKey)
                             .queryParam("resultType", "json")
                             .queryParam("pageNo", 1)
-                            .queryParam("numOfRows", 200)
+                            .queryParam("numOfRows", 163)
                             .build();
                 })
                 .retrieve()
@@ -75,6 +76,8 @@ public class OpenApiTester {
                     throw new RuntimeException("서버 에러: " + response.getStatusCode());
                 })
                 .body(ApiResponseDto.class);
+        dto.getResponse().getBody().getItems().getItemList().forEach(item -> log.info("item: {}", item));
+        return dto;
     }
 
 

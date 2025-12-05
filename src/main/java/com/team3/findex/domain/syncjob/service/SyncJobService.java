@@ -1,6 +1,7 @@
 package com.team3.findex.domain.syncjob.service;
 
 import com.team3.findex.common.openapi.dto.IndexInfoSyncData;
+import com.team3.findex.domain.autosync.AutoSync;
 import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.SourceType;
@@ -13,6 +14,7 @@ import com.team3.findex.domain.syncjob.SyncJob;
 import com.team3.findex.domain.syncjob.mapper.SyncJobMapper;
 import com.team3.findex.domain.syncjob.openApiTester.OpenApiTester;
 import com.team3.findex.domain.syncjob.openApiTester.mapper.OpenAPIMapper;
+import com.team3.findex.repository.AutoSyncRepository;
 import com.team3.findex.repository.IndexDataRepository;
 import com.team3.findex.repository.IndexInfoRepository;
 import com.team3.findex.domain.syncjob.repository.SyncJobRepository;
@@ -37,6 +39,7 @@ public class SyncJobService {
     private final IndexDataRepository indexDataRepository;
     private final OpenApiTester openApiTester;
     private final OpenAPIMapper openAPIMapper;
+    private final AutoSyncRepository autoSyncRepository;
 
 
     /**
@@ -58,7 +61,20 @@ public class SyncJobService {
 //        indexInfoRepository.findByIndexClassificationAndIndexName()
         return indexInfos.stream()
                 .map(indexInfo -> {
-                    IndexInfo savedIndexInfo = indexInfoRepository.save(indexInfo);
+                    IndexInfo savedIndexInfo = indexInfoRepository.findByIndexClassificationAndIndexName(
+                            indexInfo.getIndexClassification(),
+                            indexInfo.getIndexName()
+                    ).map(existing -> {
+                        existing.update(
+                                indexInfo.getEmployedItemsCount(),
+                                indexInfo.getBasePointInTime(),
+                                indexInfo.getBaseIndex(),
+                                indexInfo.getFavorite()
+                        );
+                        return existing;
+                    }).orElseGet(() -> {
+                        return indexInfoRepository.save(indexInfo);
+                    });
                     return createSuccessLog(JobType.INDEX_INFO, worker, null, savedIndexInfo);
                 })
                 .map(syncJobMapper::toDto)
@@ -98,7 +114,6 @@ public class SyncJobService {
                 hasNext = true;
                 syncJobs.remove(request.size());
                 nextIdAfter = lastJob.getId();
-                log.info("nextIdAfter: {}", nextIdAfter);
             }
             nextCursor = String.valueOf(lastJob.getCreatedAt());
             if ("targetDate".equals(request.sortField())) {
