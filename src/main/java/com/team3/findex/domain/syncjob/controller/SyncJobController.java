@@ -19,6 +19,13 @@ public class SyncJobController {
 
     private final SyncJobService syncJobService;
 
+    @PostMapping("/test")
+    public ResponseEntity<List<SyncJobDto>> test(HttpServletRequest request){
+        String worker = ipIntercept(request);
+        List<SyncJobDto> indexInfos = syncJobService.syncIndexInfos(worker);
+        return ResponseEntity.ok(indexInfos);
+    }
+
 
     @PostMapping("/index-infos")
     public ResponseEntity<List<SyncJobDto>> getIndexInfo(HttpServletRequest request){
@@ -36,12 +43,12 @@ public class SyncJobController {
         return null;
     }
 
-    @GetMapping("/index-infos/{id}")
+    @GetMapping
     public ResponseEntity<CursorPageResponseSyncJobDto> cursorPageResponse(
-            @RequestBody CursorPageRequestSyncJobDto cursorPageRequestSyncJobDto
+            @ModelAttribute CursorPageRequestSyncJobDto cursorPageRequestSyncJobDto
             ){
-
-        return null;
+        System.out.println("cursorPageRequestSyncJobDto = " + cursorPageRequestSyncJobDto.toString());
+        return ResponseEntity.ok(syncJobService.getSyncJobsByCursor(cursorPageRequestSyncJobDto));
     }
 
 

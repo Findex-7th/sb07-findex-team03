@@ -12,6 +12,8 @@ import com.team3.findex.domain.index.IndexData;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
     void deleteAllByIndexInfoId(Long indexInfoId); //!! for.IndexInfo
