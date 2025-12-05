@@ -27,7 +27,7 @@ public class IndexInfoController {
   private final IndexInfoService indexInfoService;
 
   @PostMapping
-  public ResponseEntity<IndexInfoDto> create(@RequestBody @Valid IndexInfoCreateRequest request) {
+  public ResponseEntity<IndexInfoDto> create(@RequestBody IndexInfoCreateRequest request) {
     IndexInfoDto dto = indexInfoService.create(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(dto);
   }
