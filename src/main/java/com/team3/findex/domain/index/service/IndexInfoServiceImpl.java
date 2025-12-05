@@ -119,7 +119,8 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     IndexInfo indexInfo = indexInfoRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("지수 정보를 찾을 수 없습니다."));
 
-    indexDataRepository.deleteAllByIndexInfoId(indexInfo.getId());
+    indexDataRepository.deleteByIndexInfoId(indexInfo.getId());
+    autoSyncRepository.deleteByIndexInfoId(indexInfo.getId());
     indexInfoRepository.delete(indexInfo);
   }
 
