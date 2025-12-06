@@ -25,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import static com.team3.findex.common.util.CursorEncodingUtil.encodeId;
+
 
 @Service
 @RequiredArgsConstructor
@@ -256,8 +258,8 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                 ));
         return new CursorPageResponseIndexInfoDto(
                 indexInfoMapper.toDtoList(results.subList(0, results.size() - 1)),
-                CursorEncodingUtil.encodeId(results.get(results.size() - 1).getId()),
-                CursorEncodingUtil.encodeId(results.get(results.size() - 2).getId()),
+                encodeId(results.get(results.size() - 1).getId()),
+                encodeId(results.get(results.size() - 2).getId()),
                 results.size() - 1,
                 indexInfoRepository.count(),
                 results.size() > request.size()
