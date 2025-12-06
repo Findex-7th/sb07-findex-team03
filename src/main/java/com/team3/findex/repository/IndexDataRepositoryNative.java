@@ -73,7 +73,7 @@ public interface IndexDataRepositoryNative extends JpaRepository<IndexData, Long
     //🧊🧊🧊지수 성과 분석 랭킹 ⭕️⭕️⭕️
     //    - 전일/전주/전월 대비 성과 랭킹
     //    - 성과는 **{종가}**를 기준으로 비교합니다.
-    @Query(value = "select i.id, i.indexClassification, i.indexName, d.versus, d.fluctuationRate, d.closingPrice, d.marketPrice "
+    @Query(value = "select i.id, i.indexClassification, i.indexName, d.versus, d.fluctuationRate, d.closingPrice, d.closingPrice "
         + "from indexData d join indexInfo i on d.indexInfoId = i.id "
         + "where i.id = :indexInfoId "
         + "and d.baseDate >= :startDate "
