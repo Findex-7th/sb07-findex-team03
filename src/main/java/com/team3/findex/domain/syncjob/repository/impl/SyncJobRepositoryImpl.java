@@ -5,13 +5,13 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.team3.findex.domain.syncjob.QSyncJob;
 import com.team3.findex.domain.syncjob.SyncJob;
-import com.team3.findex.domain.syncjob.dto.CursorPageRequestSyncJobDto;
+import com.team3.findex.domain.syncjob.dto.request.CursorPageRequestSyncJobDto;
 import com.team3.findex.domain.syncjob.enums.Result;
+import com.team3.findex.domain.syncjob.repository.SyncJobRepository;
 import com.team3.findex.domain.syncjob.repository.SyncJobRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.util.StringUtils;
 
 
@@ -20,19 +20,20 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.team3.findex.domain.syncjob.QSyncJob.syncJob;
-
 @RequiredArgsConstructor
 public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
 
     @PersistenceContext
-    private EntityManager em;
+    private final EntityManager em;
+
+    private final QSyncJob syncJob = QSyncJob.syncJob;
+
+    private JPAQueryFactory getQueryFactory(){
+        return new JPAQueryFactory(em);
+    }
 
     @Override
     public List<SyncJob> findAllByCursor(CursorPageRequestSyncJobDto request) {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
-        QSyncJob syncJob = QSyncJob.syncJob;
-
         LocalDate targetDateFrom = StringUtils.hasText(request.baseDateFrom()) ? LocalDate.parse(request.baseDateFrom()) : null;
         LocalDate targetDateTo = StringUtils.hasText(request.baseDateTo()) ? LocalDate.parse(request.baseDateTo()) : null;
 
@@ -51,8 +52,8 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
         boolean isAsc = "ASC".equalsIgnoreCase(request.sortDirection());
 
         if ("targetDate".equals(request.sortField())) {
-            orders.add(syncJob.id.desc());
             orders.add(isAsc ? syncJob.targetDate.asc() : syncJob.targetDate.desc());
+            orders.add(syncJob.id.desc());
 
             if (StringUtils.hasText(request.cursor()) && request.idAfter() != null) {
                 LocalDate cursorDate = LocalDate.parse(request.cursor());
@@ -62,8 +63,8 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
             }
         }
         else if ("jobTime".equals(request.sortField())) {
-            orders.add(syncJob.id.desc());
             orders.add(isAsc ? syncJob.createdAt.asc() : syncJob.createdAt.desc());
+            orders.add(syncJob.id.desc());
 
             if (StringUtils.hasText(request.cursor()) && request.idAfter() != null) {
                 Instant cursorTime = Instant.parse(request.cursor());
@@ -76,9 +77,9 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
             orders.add(syncJob.id.desc());
         }
         if (request.idAfter() != null) {
-            cursorCondition = syncJob.id.goe(request.idAfter());
+            cursorCondition = syncJob.id.lt(request.idAfter());
         }
-        return queryFactory
+        return getQueryFactory()
                 .selectFrom(syncJob)
                 .where(
                         request.jobType() != null ? syncJob.jobType.eq(request.jobType()) : null,
@@ -106,8 +107,6 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
 
     @Override
     public Long countByCursorFilter(CursorPageRequestSyncJobDto request) {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
-        QSyncJob syncJob = QSyncJob.syncJob;
 
         LocalDate targetDateFrom = StringUtils.hasText(request.baseDateFrom()) ? LocalDate.parse(request.baseDateFrom()) : null;
         LocalDate targetDateTo = StringUtils.hasText(request.baseDateTo()) ? LocalDate.parse(request.baseDateTo()) : null;
@@ -122,8 +121,9 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
             } catch (IllegalArgumentException ignored) {}
         }
 
-        return queryFactory
-                .selectFrom(syncJob)
+        return getQueryFactory()
+                .select(syncJob.count())
+                .from(syncJob)
                 .where(
                         request.jobType() != null ? syncJob.jobType.eq(request.jobType()) : null,
 
@@ -141,6 +141,6 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
                                 (jobTimeFrom != null ? syncJob.createdAt.goe(jobTimeFrom) :
                                         (jobTimeTo != null ? syncJob.createdAt.loe(jobTimeTo) : null))
                 )
-                .stream().count();
+                .fetchOne();
     }
 }

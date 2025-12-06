@@ -1,19 +1,17 @@
 package com.team3.findex.domain.syncjob.service;
 
-import com.team3.findex.common.openapi.dto.IndexInfoSyncData;
 import com.team3.findex.domain.autosync.AutoSync;
 import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.IndexInfo;
-import com.team3.findex.domain.index.SourceType;
-import com.team3.findex.domain.syncjob.dto.CursorPageRequestSyncJobDto;
-import com.team3.findex.domain.syncjob.dto.CursorPageResponseSyncJobDto;
-import com.team3.findex.domain.syncjob.dto.IndexDataSyncRequest;
-import com.team3.findex.domain.syncjob.dto.SyncJobDto;
+import com.team3.findex.domain.syncjob.dto.request.CursorPageRequestSyncJobDto;
+import com.team3.findex.domain.syncjob.dto.response.CursorPageResponseSyncJobDto;
+import com.team3.findex.domain.syncjob.dto.request.IndexDataSyncRequest;
+import com.team3.findex.domain.syncjob.dto.response.SyncJobDto;
 import com.team3.findex.domain.syncjob.enums.JobType;
 import com.team3.findex.domain.syncjob.SyncJob;
 import com.team3.findex.domain.syncjob.mapper.SyncJobMapper;
-import com.team3.findex.domain.syncjob.openApiTester.OpenApiTester;
-import com.team3.findex.domain.syncjob.openApiTester.mapper.OpenAPIMapper;
+import com.team3.findex.domain.syncjob.openapitester.OpenApiTester;
+import com.team3.findex.domain.syncjob.openapitester.mapper.OpenAPIMapper;
 import com.team3.findex.repository.AutoSyncRepository;
 import com.team3.findex.repository.IndexDataRepository;
 import com.team3.findex.repository.IndexInfoRepository;
@@ -23,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -58,7 +55,6 @@ public class SyncJobService {
         List<IndexInfo> indexInfos = openApiTester.fetchAllApi().getResponse().getBody().getItems().getItemList().stream()
                 .map(openAPIMapper::toIndexInfoEntity)
                 .toList();
-//        indexInfoRepository.findByIndexClassificationAndIndexName()
         return indexInfos.stream()
                 .map(indexInfo -> {
                     IndexInfo savedIndexInfo = indexInfoRepository.findByIndexClassificationAndIndexName(
@@ -82,7 +78,7 @@ public class SyncJobService {
                         return saveIndexInfo;
                     });
 
-                    return createSuccessLog(JobType.INDEX_INFO, worker, null, savedIndexInfo);
+                    return createSuccessLog(JobType.INDEX_INFO, worker, savedIndexInfo.getBasePointInTime(), savedIndexInfo);
                 })
                 .map(syncJobMapper::toDto)
                 .toList();
@@ -94,27 +90,19 @@ public class SyncJobService {
             String worker
             ){
         List<Long> indexInfoIds = indexDataSyncRequest.indexInfoIds();
-        List<IndexData> indexDataList = indexDataRepository.findAll(); /*indexDataRepository.findAllByIdInAndBaseDateBetween(indexInfoIds, indexDataSyncRequest.baseDateFrom(), indexDataSyncRequest.baseDateTo());*/
-        return indexDataList.stream().map(indexData -> {
-            if(indexData.getIndexInfo() == null) {
-                log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexData.getIndexInfo().getId(), "지수 정보를 확인 할 수 없습니다.");
-                return createFailureLog(JobType.INDEX_INFO, worker, indexData.getBaseDate(), indexData.getIndexInfo());
-            }
-            if(worker == null || worker.isBlank()){
-                log.error("SyncJob 생성 실패 - IndexInfo ID: {}, 에러: {}", indexData.getIndexInfo().getId(), "작업자를 확인 할 수 없습니다.");
-                return createFailureLog(JobType.INDEX_INFO, worker, indexData.getBaseDate(), indexData.getIndexInfo());
-            }
-            return createSuccessLog(JobType.INDEX_INFO, worker, indexData.getBaseDate(), indexData.getIndexInfo());
-        })
-                .map(syncJobMapper::toDto)
-                .toList();
+
+
+
+        return null;
     }
 
     public CursorPageResponseSyncJobDto getSyncJobsByCursor(CursorPageRequestSyncJobDto request){
         List<SyncJob> syncJobs = syncJobRepository.findAllByCursor(request);
+        System.out.println(syncJobs.toString());
+
         boolean hasNext = false;
-        String nextCursor = null;
-        Long nextIdAfter = null;
+        String nextCursor = request.cursor() != null ? request.cursor() : null;
+        Long nextIdAfter = request.idAfter() != null ? request.idAfter() : null;
         if(!syncJobs.isEmpty()){
             SyncJob lastJob = syncJobs.get(syncJobs.size() - 1);
             if(syncJobs.size() > request.size()){
@@ -138,7 +126,7 @@ public class SyncJobService {
                 nextCursor,
                 nextIdAfter,
                 request.size(),
-                (long) content.size(),
+                (long) request.size(),
                 hasNext);
     }
 
