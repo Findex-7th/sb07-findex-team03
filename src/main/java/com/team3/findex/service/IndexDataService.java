@@ -22,7 +22,6 @@ import com.team3.findex.domain.index.mapper.IndexDataMapper;
 //import com.team3.findex.mapper.IndexPerformanceMapper;
 //import com.team3.findex.mapper.RankedIndexPerformanceMapper;
 import com.team3.findex.repository.IndexDataRepository;
-import com.team3.findex.repository.IndexDataRepositoryNative;
 import com.team3.findex.repository.IndexInfoRepository;
 import com.team3.findex.service.Interface.IndexDataServiceInterface;
 import jakarta.servlet.annotation.WebServlet;
@@ -50,7 +49,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @WebServlet(name = "responseHtmlServlet", urlPatterns = "/response-html")
 public class IndexDataService extends HttpServlet implements IndexDataServiceInterface {
-    private final IndexDataRepositoryNative usingNativeQuery;
+
     private final IndexDataRepository indexDataRepository;
     private final IndexInfoRepository indexInfoRepository;
 
@@ -168,16 +167,9 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
         LocalDate end = LocalDate.from(LocalDateTime.now());
         LocalDate start = getPeriodTypeDate(periodType);
 
-        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = usingNativeQuery.findAllPerformanceRank_Native(indexInfoId, start, end, PageRequest.of(0, limit));
-//            .forEach(dto -> log.info("✅ allPerformanceRank" + dto.toString()));
-
-//        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = usingNativeQuery.findAllPerformanceRank_Native(
-//            indexInfoId, start, end, PageRequest.of(0, limit));
-//        log.info("🚨🚨performanceRank = " + String.valueOf(indexDataWithInfoDtoList.size()));
-
-//        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataRepository.findAllPerformanceRank(
-//            indexInfoId, start, end, PageRequest.of(0, limit));
-//        log.info("🚨🚨performanceRank = " + String.valueOf(indexDataWithInfoDtoList.size()));
+        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataRepository.findAllPerformanceRank(
+            indexInfoId, start, end, PageRequest.of(0, limit));
+        log.info("🚨🚨performanceRank = " + String.valueOf(indexDataWithInfoDtoList.size()));
 
         List<RankedIndexPerformanceDto> rankedDto = new ArrayList<>();
 
@@ -225,10 +217,6 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
         // {종가}를 기준으로 비교
         LocalDate now = LocalDate.from(LocalDateTime.now());
         LocalDate from = getPeriodTypeDate(periodType);
-
-//        List<IndexDataWithInfoDto> dooList = usingNativeQuery.findAllFavoriteIndex_Native(from, now);
-//        log.info("🚨 favoriteIndex = " + String.valueOf(dooList.size()));
-//        return dooList; // 값 없음!
 
         List<IndexDataWithInfoDto> dooList = indexDataRepository.findAllFavoriteIndex(from, now);
         log.info("🚨 favoriteIndex = " + String.valueOf(dooList.size()));

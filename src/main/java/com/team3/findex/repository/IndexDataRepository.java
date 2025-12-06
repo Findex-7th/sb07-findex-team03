@@ -35,38 +35,38 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
         Pageable pageable);
 
 
-    @Query(value = "SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
-        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.closingPrice) "
-        + "FROM IndexData d "
-        + "WHERE d.indexInfo.id = :id "
-        + "AND d.baseDate >= :startDate "
-        + "AND d.baseDate <= :endDate "
-        + "ORDER BY d.baseDate ASC ", nativeQuery = true)
-    List<ChartDataPointDto> findChartData(@Param("id") Long id,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate);
-
-    @Query(value = "SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
-        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.ma5) "
-        + "FROM IndexData d "
-        + "WHERE d.indexInfo.id = :id "
-        + "AND d.baseDate >= :startDate "
-        + "AND d.baseDate <= :endDate "
-        + "ORDER BY d.baseDate ASC ", nativeQuery = true)
-    List<ChartDataPointDto> findMa5(@Param("id")Long id,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate);
-
-    @Query(value = "SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
-        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.ma20 ) "
-        + "FROM IndexData d "
-        + "WHERE d.indexInfo.id = :id "
-        + "AND d.baseDate >= :startDate "
-        + "AND d.baseDate <= :endDate "
-        + "ORDER BY d.baseDate ASC ", nativeQuery = true)
-    List<ChartDataPointDto> findMa20(@Param("id") Long id,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate);
+//    @Query(value = "SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
+//        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.closingPrice) "
+//        + "FROM IndexData d "
+//        + "WHERE d.indexInfo.id = :id "
+//        + "AND d.baseDate >= :startDate "
+//        + "AND d.baseDate <= :endDate "
+//        + "ORDER BY d.baseDate ASC ")
+//    List<ChartDataPointDto> findChartData(@Param("id") Long id,
+//        @Param("startDate") LocalDate startDate,
+//        @Param("endDate") LocalDate endDate);
+//
+//    @Query(value = "SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
+//        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.ma5) "
+//        + "FROM IndexData d "
+//        + "WHERE d.indexInfo.id = :id "
+//        + "AND d.baseDate >= :startDate "
+//        + "AND d.baseDate <= :endDate "
+//        + "ORDER BY d.baseDate ASC ")
+//    List<ChartDataPointDto> findMa5(@Param("id")Long id,
+//        @Param("startDate") LocalDate startDate,
+//        @Param("endDate") LocalDate endDate);
+//
+//    @Query(value = "SELECT new com.team3.findex.dto.indexDataDto.ChartDataPointDto( "
+//        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.ma20 ) "
+//        + "FROM IndexData d "
+//        + "WHERE d.indexInfo.id = :id "
+//        + "AND d.baseDate >= :startDate "
+//        + "AND d.baseDate <= :endDate "
+//        + "ORDER BY d.baseDate ASC ")
+//    List<ChartDataPointDto> findMa20(@Param("id") Long id,
+//        @Param("startDate") LocalDate startDate,
+//        @Param("endDate") LocalDate endDate);
 
 
     //🐠🐠🐠주요 지수⭕️⭕️⭕️
