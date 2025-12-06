@@ -22,6 +22,7 @@ import com.team3.findex.domain.index.mapper.IndexDataMapper;
 //import com.team3.findex.mapper.IndexPerformanceMapper;
 //import com.team3.findex.mapper.RankedIndexPerformanceMapper;
 import com.team3.findex.repository.IndexDataRepository;
+import com.team3.findex.repository.IndexDataRepositoryNative;
 import com.team3.findex.repository.IndexInfoRepository;
 import com.team3.findex.service.Interface.IndexDataServiceInterface;
 import jakarta.servlet.annotation.WebServlet;
@@ -49,7 +50,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @WebServlet(name = "responseHtmlServlet", urlPatterns = "/response-html")
 public class IndexDataService extends HttpServlet implements IndexDataServiceInterface {
-
+    private final IndexDataRepositoryNative usingNativeQuery;
     private final IndexDataRepository indexDataRepository;
     private final IndexInfoRepository indexInfoRepository;
 
