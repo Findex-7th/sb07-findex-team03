@@ -156,16 +156,37 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
     }
 
 
-    //🐠🐠🐠주요 지수🐠🐠🐠
+    /**
+     * *지수 성과 분석 랭킹** 전일/전주/전월 대비 성과 랭킹 성과는 **{종가}**를 기준으로 비교합니다. 🧊🧊🧊지수 성과 분석 랭킹 🧊🧊🧊🧊
+     *
+     * @return
+     */
     @Override
-    public List<IndexDataWithInfoDto> favoriteIndex(PeriodType periodType) {
-        // {종가}를 기준으로 비교
-        LocalDate now = LocalDate.from(LocalDateTime.now());
-        LocalDate from = getPeriodTypeDate(periodType);
+    public List<RankedIndexPerformanceDto> performanceRank(Long indexInfoId, PeriodType periodType,
+        int limit) {
 
-        List<IndexDataWithInfoDto> dooList = indexDataRepository.findAllFavoriteIndex(from, now);
-        log.info("🚨 favoriteIndex = " + String.valueOf(dooList.size()));
-        return dooList;
+        LocalDate end = LocalDate.from(LocalDateTime.now());
+        LocalDate start = getPeriodTypeDate(periodType);
+
+        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = usingNativeQuery.findAllPerformanceRank_Native(indexInfoId, start, end, PageRequest.of(0, limit));
+//            .forEach(dto -> log.info("✅ allPerformanceRank" + dto.toString()));
+
+//        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = usingNativeQuery.findAllPerformanceRank_Native(
+//            indexInfoId, start, end, PageRequest.of(0, limit));
+//        log.info("🚨🚨performanceRank = " + String.valueOf(indexDataWithInfoDtoList.size()));
+
+//        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataRepository.findAllPerformanceRank(
+//            indexInfoId, start, end, PageRequest.of(0, limit));
+//        log.info("🚨🚨performanceRank = " + String.valueOf(indexDataWithInfoDtoList.size()));
+
+        List<RankedIndexPerformanceDto> rankedDto = new ArrayList<>();
+
+        for (int i = 0; i < indexDataWithInfoDtoList.size(); i++) {
+
+            rankedDto.add(new RankedIndexPerformanceDto(indexDataWithInfoDtoList.get(i), i + 1));
+        }
+
+        return rankedDto;
     }
 
 
@@ -198,30 +219,20 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
     }
 
 
-    /**
-     * *지수 성과 분석 랭킹** 전일/전주/전월 대비 성과 랭킹 성과는 **{종가}**를 기준으로 비교합니다. 🧊🧊🧊지수 성과 분석 랭킹 🧊🧊🧊🧊
-     *
-     * @return
-     */
+    //🐠🐠🐠주요 지수🐠🐠🐠
     @Override
-    public List<RankedIndexPerformanceDto> performanceRank(Long indexInfoId, PeriodType periodType,
-        int limit) {
+    public List<IndexDataWithInfoDto> favoriteIndex(PeriodType periodType) {
+        // {종가}를 기준으로 비교
+        LocalDate now = LocalDate.from(LocalDateTime.now());
+        LocalDate from = getPeriodTypeDate(periodType);
 
-        LocalDate end = LocalDate.from(LocalDateTime.now());
-        LocalDate start = getPeriodTypeDate(periodType);
+//        List<IndexDataWithInfoDto> dooList = usingNativeQuery.findAllFavoriteIndex_Native(from, now);
+//        log.info("🚨 favoriteIndex = " + String.valueOf(dooList.size()));
+//        return dooList; // 값 없음!
 
-        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataRepository.findAllPerformanceRank(
-            indexInfoId, start, end, PageRequest.of(0, limit));
-        log.info("🚨🚨performanceRank = " + String.valueOf(indexDataWithInfoDtoList.size()));
-
-        List<RankedIndexPerformanceDto> rankedDto = new ArrayList<>();
-
-        for (int i = 0; i < indexDataWithInfoDtoList.size(); i++) {
-
-            rankedDto.add(new RankedIndexPerformanceDto(indexDataWithInfoDtoList.get(i), i + 1));
-        }
-
-        return rankedDto;
+        List<IndexDataWithInfoDto> dooList = indexDataRepository.findAllFavoriteIndex(from, now);
+        log.info("🚨 favoriteIndex = " + String.valueOf(dooList.size()));
+        return dooList;
     }
 
 

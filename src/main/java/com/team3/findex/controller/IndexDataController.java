@@ -116,43 +116,6 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     * 🐠🐠🐠주요 지수 ⭕️🎉
-     * 관심 지수 성과 조회
-     * @return
-     */
-    @GetMapping("/performance/favorite")
-    public ResponseEntity<List<IndexDataWithInfoDto>> favoriteIndex(
-        @RequestParam("periodType") PeriodType periodType
-    ){
-
-        log.info("🐠🐠🐠 주요 지수 = " + periodType.getValue());
-        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataService.favoriteIndex(
-            periodType);
-
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(indexDataWithInfoDtoList);
-    }
-
-    /**
-     * 지수 차트 조회
-     * @return
-     */
-    @GetMapping("/{id}/chart")
-    public ResponseEntity<IndexChartDto> getChartData(
-        @Valid @PathVariable(value = "id") Long id,
-        @RequestParam(value = "periodType", required = false) PeriodType periodType
-    ){
-
-        // 대시보드
-        IndexChartDto indexChartDto = indexDataService.getChartData(id, periodType);
-
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(indexChartDto);
-    }
-
-    /**
      **지수 성과 분석 랭킹 ⭕️🎉**
      * 전일/전주/전월 대비 성과 랭킹
      * 성과는 **{종가}**를 기준으로 비교합니다.
@@ -173,6 +136,43 @@ public class IndexDataController implements IndexDataDoc {
             .body(rankedDtoList);
     }
 
+    /**
+     * 지수 차트 조회
+     * @return
+     */
+    @GetMapping("/{id}/chart")
+    public ResponseEntity<IndexChartDto> getChartData(
+        @Valid @PathVariable(value = "id") Long id,
+        @RequestParam(value = "periodType", required = false) PeriodType periodType
+    ){
+
+        // 대시보드
+        IndexChartDto indexChartDto = indexDataService.getChartData(id, periodType);
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(indexChartDto);
+    }
+
+
+    /**
+     * 🐠🐠🐠주요 지수 ⭕️🎉
+     * 관심 지수 성과 조회
+     * @return
+     */
+    @GetMapping("/performance/favorite")
+    public ResponseEntity<List<IndexDataWithInfoDto>> favoriteIndex(
+        @RequestParam("periodType") PeriodType periodType
+    ){
+
+        log.info("🐠🐠🐠 주요 지수 = " + periodType.getValue());
+        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataService.favoriteIndex(
+            periodType);
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(indexDataWithInfoDtoList);
+    }
 
 
     /**

@@ -5,6 +5,7 @@ import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
 import com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto;
 import java.time.LocalDate;
 import java.util.List;
+import org.antlr.v4.runtime.atn.SemanticContext.AND;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -69,56 +70,36 @@ public interface IndexDataRepositoryNative extends JpaRepository<IndexData, Long
         @Param("endDate") LocalDate endDate);
 
 
+    //🧊🧊🧊지수 성과 분석 랭킹 ⭕️⭕️⭕️
+    //    - 전일/전주/전월 대비 성과 랭킹
+    //    - 성과는 **{종가}**를 기준으로 비교합니다.
+    @Query(value = "select i.id, i.indexClassification, d.indexName, d.versus, d.fluctuationRate, d.closingPrice, d.closingPrice "
+        + "from indexData d join indexInfo i on d.indexInfoId = i.id "
+        + "where i.id = :indexInfoId "
+        + "and d.baseDate >= :startDate "
+        + "and d.baseDate <= :endDate "
+        + "ORDER BY d.closingPrice DESC " , nativeQuery = true)
+    List<IndexDataWithInfoDto> findAllPerformanceRank_Native( @Param("indexInfoId") Long indexInfoId,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        Pageable pageable); //?? 🚨periodType
+
+
+
     //🐠🐠🐠주요 지수⭕️⭕️⭕️
     //    - **{즐겨찾기}**된 지수의 성과 정보를 포함합니다.
     //    - 성과는 **{종가}**를 기준으로 비교합니다.
-    @Query("""
-SELECT new com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto(
-    i.id,
-    i.indexClassification,
-    i.indexName,
-    d.versus,
-    d.fluctuationRate,
-    d.closingPrice,
-    d.closingPrice
-)
-FROM IndexData d
-JOIN d.indexInfo i
-WHERE i.favorite = true
-  AND d.baseDate >= :startDate
-  AND d.baseDate <= :endDate
-ORDER BY d.closingPrice DESC
-""")
-    List<IndexDataWithInfoDto> findAllFavoriteIndex(@Param("startDate") LocalDate startDate,
+    @Query(value = "select i.id, i.indexClassification, d.indexName, d.versus, d.fluctuationRate, d.closingPrice, d.closingPrice "
+        + "from indexData d join indexInfo i on d.indexInfoId = i.id "
+    + "WHERE i.favorite = true "
+    + "AND d.baseDate >= :startDate "
+    + "AND d.baseDate <= :endDate "
+    + "ORDER BY d.closingPrice DESC ", nativeQuery = true)
+    List<IndexDataWithInfoDto> findAllFavoriteIndex_Native(@Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate); //?? 🚨periodType
 
 
 
-
-    //🧊🧊🧊지수 성과 분석 랭킹 ⭕️⭕️⭕️
-    //    - 전일/전주/전월 대비 성과 랭킹
-    //    - 성과는 **{종가}**를 기준으로 비교합니다.
-    @Query("""
-SELECT new com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto(
-i.id,
-i.indexClassification,
-i.indexName,
-d.versus,
-d.fluctuationRate,
-d.closingPrice,
-d.closingPrice
-)
-FROM IndexData d
-JOIN d.indexInfo i
-WHERE d.indexInfo.id = :indexInfoId
-AND d.baseDate >= :startDate
-AND d.baseDate <= :endDate
-ORDER BY d.closingPrice DESC
-""")
-    List<IndexDataWithInfoDto> findAllPerformanceRank( @Param("indexInfoId") Long indexInfoId,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        Pageable pageable); //?? 🚨periodType
 
 
     @Query("SELECT d FROM IndexData d "
