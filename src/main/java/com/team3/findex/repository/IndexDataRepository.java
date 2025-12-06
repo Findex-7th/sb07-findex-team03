@@ -99,20 +99,21 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     //    - 성과는 **{종가}**를 기준으로 비교합니다.
     @Query("""
     SELECT new com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto(
-        i.id,
-        i.indexClassification,
-        i.indexName,
-        d.versus,
-        d.fluctuationRate,
-        d.closingPrice,
-        d.closingPrice
+         MIN(i.id),
+         i.indexClassification,
+         i.indexName,
+         SUM(d.versus),
+         SUM(d.fluctuationRate),
+         SUM(d.closingPrice),
+         SUM(d.closingPrice - d.versus)
     )
     FROM IndexData d
     JOIN d.indexInfo i
     WHERE i.favorite = true
       AND d.baseDate >= :startDate
       AND d.baseDate <= :endDate
-    ORDER BY d.closingPrice DESC
+    GROUP BY i.indexClassification, i.indexName
+    ORDER BY SUM(d.closingPrice) DESC
 """)
     List<IndexDataWithInfoDto> findAllPerformanceRank( @Param("indexInfoId") Long indexInfoId,
         @Param("startDate") LocalDate startDate,
