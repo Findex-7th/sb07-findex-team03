@@ -30,6 +30,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -167,8 +168,15 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
         LocalDate end = LocalDate.from(LocalDateTime.now());
         LocalDate start = getPeriodTypeDate(periodType);
 
-        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataRepository.findAllPerformanceRank(
-            indexInfoId, start, end, PageRequest.of(0, limit));
+        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataRepository
+            .findAllPerformanceRank(indexInfoId, start, end, PageRequest.of(0, limit))
+            .stream()
+            .map(dto ->  {
+                double value = dto.currentPrice().doubleValue() - dto.versus().doubleValue();
+                return IndexDataWithInfoDto.fixCurrentPriceDto(dto, value);
+            })
+            .toList();
+
         log.info("🚨🚨performanceRank = " + String.valueOf(indexDataWithInfoDtoList.size()));
 
         List<RankedIndexPerformanceDto> rankedDto = new ArrayList<>();
