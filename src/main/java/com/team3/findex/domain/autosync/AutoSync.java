@@ -25,16 +25,16 @@ public class AutoSync {
     @Column(name = "is_enable", nullable = false)
     private boolean isEnable = false;
 
-    @ManyToOne(fetch = FetchType.LAZY,  optional = false)
-    @JoinColumn(name = "index_info_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "index_info_id", nullable = false, unique = true)
     private IndexInfo indexInfo;
 
-    public AutoSync(IndexInfo indexInfo){
-      this.indexInfo = indexInfo;
-      this.isEnable = false;
+    public AutoSync(IndexInfo indexInfo) {
+        this.indexInfo = indexInfo;
+        this.isEnable = false;
     }
 
-    public void updateEnable(boolean isEnable){
+    public void updateEnable(boolean isEnable) {
         this.isEnable = isEnable;
     }
 

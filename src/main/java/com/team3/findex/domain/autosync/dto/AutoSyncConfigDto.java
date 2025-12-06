@@ -9,6 +9,4 @@ public record AutoSyncConfigDto(
         String indexClassification,
         String indexName,
         boolean enabled
-){
-
-}
+) {}
