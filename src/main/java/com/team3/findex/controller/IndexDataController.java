@@ -4,9 +4,8 @@ import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
 import com.team3.findex.dto.indexDataDto.IndexDataDto;
-import com.team3.findex.dto.indexDataDto.IndexDataExcelDto;
 import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
-import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
+import com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
 import com.team3.findex.domain.index.PeriodType;
 import com.team3.findex.service.Interface.IndexDataServiceInterface;
@@ -14,7 +13,6 @@ import com.team3.findex.swaggerDocs.IndexDataDoc;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -54,8 +52,15 @@ public class IndexDataController implements IndexDataDoc {
         @Valid @RequestParam(value = "sortDirection")          String sortDirection,
         @Valid @RequestParam(value = "size")                   Integer size
     ){
-
-        CursorPageResponse<IndexDataDto> responseDto  = indexDataService.getAllIndexData(sortField, sortDirection, size);
+        CursorPageResponse<IndexDataDto> responseDto  = indexDataService.getAllIndexData(
+            indexInfoId,
+            startDate,
+            endDate,
+            idAfter,
+            cursor,
+            sortField,
+            sortDirection,
+            size);
 
         return ResponseEntity
             .status(HttpStatus.OK)
@@ -63,7 +68,7 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     * 지수 데이터 등록
+     * 지수 데이터 등록 ⭕️🎉
      * @return
      */
     @PostMapping
@@ -78,7 +83,7 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     * 지수 데이터 삭제
+     * 지수 데이터 삭제 ⭕️🎉
      * @return
      */
     @DeleteMapping("/{id}")
@@ -94,7 +99,7 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     * 지수 데이터 수정
+     * 지수 데이터 수정 ⭕️🎉
      * @return
      */
     @PatchMapping("/{id}")
@@ -108,6 +113,25 @@ public class IndexDataController implements IndexDataDoc {
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(indexDataDto);
+    }
+
+    /**
+     * 🐠🐠🐠주요 지수 ⭕️🎉
+     * 관심 지수 성과 조회
+     * @return
+     */
+    @GetMapping("/performance/favorite")
+    public ResponseEntity<List<IndexDataWithInfoDto>> favoriteIndex(
+        @RequestParam("periodType") PeriodType periodType
+    ){
+
+        log.info("🐠🐠🐠 주요 지수 = " + periodType.getValue());
+        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataService.favoriteIndex(
+            periodType);
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(indexDataWithInfoDtoList);
     }
 
     /**
@@ -129,26 +153,19 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     * 지수 성과 랭킹 조회
-     * http://api/index-data/performance/rank?indexInfoId=123&periodType=WEEKLY&limit=10'
-     * 200
-     * Response body = []
-     * Response headers = [
-     *     connection: keep-alive
-     *     content-type: application/json
-     *     date: Mon,01 Dec 2025 09:18:14 GMT
-     *     server: nginx/1.27.5
-     *     transfer-encoding: chunked
-     *  ]
+     **지수 성과 분석 랭킹 ⭕️🎉**
+     * 전일/전주/전월 대비 성과 랭킹
+     * 성과는 **{종가}**를 기준으로 비교합니다.
+     * 🧊🧊🧊지수 성과 🧊🧊🧊🧊
      * @return
      */
     @GetMapping("/performance/rank")
     public ResponseEntity<List<RankedIndexPerformanceDto>> performanceRank(
-        @RequestParam(value = "indexInfoId", required = false) long indexInfoId,
+        @RequestParam(value = "indexInfoId", required = false) Long indexInfoId,
         @RequestParam("periodType") PeriodType periodType,
         @RequestParam("limit") int limit
     ){
-
+        log.info("🧊🧊🧊지수 성과 분석 랭킹");
         List<RankedIndexPerformanceDto> rankedDtoList = indexDataService.performanceRank(indexInfoId, periodType, limit);
 
         return ResponseEntity
@@ -156,32 +173,14 @@ public class IndexDataController implements IndexDataDoc {
             .body(rankedDtoList);
     }
 
-    /**
-     * 관심 지수 성과 조회
-     * @return
-     */
-    @GetMapping("/performance/favorite")
-    public ResponseEntity<List<IndexPerformanceDto>> performanceFavorite(
-        @RequestParam("periodType") PeriodType periodType
-    ){
-
-        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataService.performanceFavorite(
-            periodType);
-
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(indexPerformanceDtoList);
-    }
-
 
 
     /**
-     * 지수 데이터 CSV export
+     * 지수 데이터 CSV export ⭕️🎉
      * @return
      */
     @GetMapping("/export/csv")
     public void exportCsv(
-//        @Valid @RequestParam("") ExportCsvRequest request
         @RequestParam(value = "indexInfoId")                    Long indexInfoId,
         @RequestParam(value = "startDate", required = false)    String startDate,
         @RequestParam(value = "endDate",   required = false)    String endDate,
@@ -189,18 +188,6 @@ public class IndexDataController implements IndexDataDoc {
         @RequestParam(value = "sortDirection")                  String sortDirection,
         HttpServletResponse response) throws IOException {
 
-      List<IndexDataExcelDto> csvDtos = indexDataService.exportCsv(indexInfoId,
-          startDate, endDate, sortField, sortDirection);
-
-      response.setContentType("text/csv; charset=UTF-8");
-      response.setHeader("Content-Disposition",
-          "attachment; filename=index-data-export-" + LocalDate.now() + ".csv");
-
-      PrintWriter writer = response.getWriter();
-      writer.println("기준일자,시가,종가,고가,저가,전일,대비 등락폭,등락률,거래량,거래대금,상장시가총액");
-
-      csvDtos.forEach(csvDto -> writer.println(csvDto.toString()));
-
-      writer.flush();
+        indexDataService.exportCsv(indexInfoId, startDate, endDate, sortField, sortDirection, response);
     }
 }

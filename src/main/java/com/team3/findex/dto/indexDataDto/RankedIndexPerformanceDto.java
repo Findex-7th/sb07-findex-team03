@@ -1,6 +1,6 @@
 package com.team3.findex.dto.indexDataDto;
 
 public record RankedIndexPerformanceDto(
-    IndexPerformanceDto performance,
+    IndexDataWithInfoDto performance,
     Integer rank
 ) {}

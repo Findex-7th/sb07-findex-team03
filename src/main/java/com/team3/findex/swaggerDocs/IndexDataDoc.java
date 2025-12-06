@@ -5,7 +5,7 @@ import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
 import com.team3.findex.dto.indexDataDto.IndexDataDto;
 import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
-import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
+import com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
 import com.team3.findex.domain.index.PeriodType;
 import io.swagger.v3.oas.annotations.Operation;
@@ -159,6 +159,27 @@ public interface IndexDataDoc {
     );
 
 
+    @Operation(summary = "관심 지수 성과 조회")
+    @ApiResponses(value = {@ApiResponse(
+        responseCode = "500",
+        description = "서버 오류",
+        content = @Content(
+            schema = @Schema(implementation = IndexDataDoc.class)
+        )
+    ),
+        @ApiResponse(
+            responseCode = "200",
+            description =  "관심 지수 성과 조회 성공",
+            content = @Content(
+                schema = @Schema(implementation = IndexDataDoc.class)
+            )
+        )
+    })
+    ResponseEntity<List<IndexDataWithInfoDto>> favoriteIndex(
+        @RequestParam("periodType") PeriodType periodType
+    );
+
+
     @Operation(summary = "지수 차트 조회")
     @ApiResponses(value = {
         @ApiResponse(
@@ -221,30 +242,9 @@ public interface IndexDataDoc {
         )
     })
     public ResponseEntity<List<RankedIndexPerformanceDto>> performanceRank(
-        @RequestParam("indexInfoId") long indexInfoId,
+        @RequestParam("indexInfoId") Long indexInfoId,
         @RequestParam("periodType") PeriodType periodType,
         @RequestParam("limit") int limit
-    );
-
-
-    @Operation(summary = "관심 지수 성과 조회")
-    @ApiResponses(value = {@ApiResponse(
-            responseCode = "500",
-            description = "서버 오류",
-            content = @Content(
-                schema = @Schema(implementation = IndexDataDoc.class)
-            )
-        ),
-        @ApiResponse(
-            responseCode = "200",
-            description =  "관심 지수 성과 조회 성공",
-            content = @Content(
-                schema = @Schema(implementation = IndexDataDoc.class)
-            )
-        )
-    })
-    ResponseEntity<List<IndexPerformanceDto>> performanceFavorite(
-        @RequestParam("periodType") PeriodType periodType
     );
 
 
