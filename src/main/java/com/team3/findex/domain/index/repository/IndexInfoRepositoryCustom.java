@@ -1,27 +1,23 @@
 package com.team3.findex.domain.index.repository;
 
-import com.querydsl.core.QueryFactory;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.dto.IndexInfoFindCondition;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Repository;
+import com.team3.findex.domain.index.dto.IndexInfoFindSort;
 
-import java.awt.print.Pageable;
+import java.util.List;
 
-@RequiredArgsConstructor
-@Repository
-public class IndexInfoRepositoryCustom {
+/**
+ * IndexInfo Custom Repository
+ * <p>
+ * QueryDSL을 사용한 동적 쿼리를 제공합니다.
+ * </p>
+ */
+public interface IndexInfoRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+    List<IndexInfo> findWithCursor(Long cursor, int size, IndexInfoFindSort sort);
 
-    public Page<IndexInfo> findByCondition(Long cursorId, IndexInfoFindCondition condition, Pageable pageable) {
-
-        return null;
-    }
-
-    private BooleanExpression cursorId(Long cursorId){
-        return cursorId == null ? null : club.id.gt(cursorId);
-    }
+    List<IndexInfo> findByCondition(Long cursor,
+                                    IndexInfoFindCondition condition,
+                                    int size,
+                                    IndexInfoFindSort sort);
 }
