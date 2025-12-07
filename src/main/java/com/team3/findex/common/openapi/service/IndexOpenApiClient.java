@@ -14,10 +14,10 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class IndexOpenApiClient {
 
-    @Value("${open-api.key}")
+    @Value("${OPEN_API_KEY")
     protected String serviceKey;
 
-    @Value("${open-api.url}")
+    @Value("${OPEN_API_URL}")
     protected String url;
 
     private final RestTemplate restTemplate;
