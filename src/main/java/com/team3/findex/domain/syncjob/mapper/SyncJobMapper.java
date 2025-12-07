@@ -16,15 +16,11 @@ import java.time.temporal.ChronoUnit;
 public interface SyncJobMapper {
 
     @Mapping(source = "indexInfo.id", target = "indexInfoId")
-    @Mapping(source = "createdAt", target = "jobTime", qualifiedByName = "korTime")
+    @Mapping(source = "createdAt", target = "jobTime")
     SyncJobDto toDto(SyncJob syncJob);
 
 
     SyncJobCursorSearch toCursorSearch(CursorPageRequestSyncJobDto dto);
 
-    @Named("korTime")
-    default String stringToLocalDate(Instant createdAt) {
-        return createdAt.plus(9, ChronoUnit.HOURS).toString();
-    }
 
 }

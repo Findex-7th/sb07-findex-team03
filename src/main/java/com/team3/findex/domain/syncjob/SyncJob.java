@@ -1,6 +1,7 @@
 package com.team3.findex.domain.syncjob;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.team3.findex.common.converter.UtcInstantConverter;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.syncjob.enums.JobType;
 import com.team3.findex.domain.syncjob.enums.Result;
@@ -45,7 +46,8 @@ public class SyncJob {
     @CreatedDate
     @Column(name = "created_at", updatable = false, nullable = false)
     @NotNull
-    private Instant createdAt=Instant.now();
+    @Convert(converter = UtcInstantConverter.class)
+    private Instant createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "index_info_id", updatable = false)

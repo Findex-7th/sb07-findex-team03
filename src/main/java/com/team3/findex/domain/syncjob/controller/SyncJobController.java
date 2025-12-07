@@ -47,7 +47,6 @@ public class SyncJobController {
     public ResponseEntity<CursorPageResponseSyncJobDto> cursorPageResponse(
             @ModelAttribute CursorPageRequestSyncJobDto cursorPageRequestSyncJobDto
             ){
-        System.out.println("cursorPageRequestSyncJobDto = " + cursorPageRequestSyncJobDto.toString());
         return ResponseEntity.ok(syncJobService.getSyncJobsByCursor(cursorPageRequestSyncJobDto));
     }
 

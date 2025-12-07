@@ -21,7 +21,6 @@ public class AutoSyncRepositoryImpl implements AutoSyncRepositoryCustom {
 
   private final JPAQueryFactory jpaQueryFactory;
 
-
   /**
    *  AutoSync 목록 조회
    *  <p>필터, 정렬 조건 적용하여 지정된 크기 만큼 데이터 조회</p>
