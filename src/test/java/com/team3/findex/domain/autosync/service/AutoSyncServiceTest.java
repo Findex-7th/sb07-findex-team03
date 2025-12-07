@@ -1,12 +1,12 @@
 package com.team3.findex.domain.autosync.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+
 import com.team3.findex.domain.autosync.dto.AutoSyncConfigDto;
 import com.team3.findex.domain.index.IndexInfo;
-import com.team3.findex.domain.index.SourceType;
-import com.team3.findex.repository.AutoSyncRepository;
-import com.team3.findex.repository.IndexInfoRepository;
+import com.team3.findex.domain.index.enums.SourceType;
+import com.team3.findex.domain.autosync.repository.AutoSyncRepository;
+import com.team3.findex.domain.index.repository.IndexInfoRepository;
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

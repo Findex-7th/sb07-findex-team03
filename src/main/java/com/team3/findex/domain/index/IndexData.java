@@ -1,7 +1,8 @@
 package com.team3.findex.domain.index;
 
-import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
-import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
+import com.team3.findex.domain.index.enums.SourceType;
+import com.team3.findex.domain.index.dto.request.IndexDataCreateRequest;
+import com.team3.findex.domain.index.dto.request.IndexDataUpdateRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
