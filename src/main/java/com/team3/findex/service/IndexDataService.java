@@ -9,6 +9,11 @@ import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.PeriodType;
 import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
+import com.team3.findex.domain.index.dto.IndexDataFindCondition;
+import com.team3.findex.domain.index.dto.IndexDataFindSort;
+import com.team3.findex.domain.index.dto.request.IndexDataCursorRequest;
+import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexDataDto;
+import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexInfoDto;
 import com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
@@ -32,7 +37,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -45,6 +49,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
+
+import static com.team3.findex.common.util.CursorEncodingUtil.encodeId;
 
 
 @Slf4j
@@ -87,53 +93,6 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
 
         return fromData;
     }
-
-
-    @Override
-    public CursorPageResponse<IndexDataDto> getAllIndexData(
-        Long indexInfoId,
-        LocalDate startDate,
-        LocalDate endDate,
-        Long idAfter,
-        String strCursor,
-        String sortField,
-        String sortDirection,
-        Integer size) {
-
-        if (null == sortField)
-            throw new IllegalArgumentException("🚨sortField is null");
-        if (null == sortDirection)
-            throw new IllegalArgumentException("🚨 sortDirection is null");
-        if (null == size)
-            throw new IllegalArgumentException("🚨size is null");
-
-//        Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
-//        Pageable pageable = PageRequest.of(idAfter.intValue(),
-//            size,
-//            Sort.by(direction, sortField));
-//
-//        LocalDate cursor = LocalDate.parse(strCursor);
-//
-//        // 커서 페이지
-//        Slice<IndexDataDto> slice = indexDataRepository.findAllIndexDataWithIndexInfo(
-//                indexInfoId,
-//                startDate,
-//                endDate,
-//                Optional.ofNullable(cursor).orElse(LocalDate.now().toString()),
-//                pageable)
-//            .stream()
-//            .map(indexDataMapper::toDTO);
-//
-//        Instant nextCursor = null;
-//        if (!slice.getContent().isEmpty()) {
-//            nextCursor = slice.getContent().get(slice.getContent().size() - 1)
-//                .createdAt();
-//        }
-//
-//        return pageResponseMapper.fromSlice(slice, nextCursor);
-        return null;
-    }
-
 
     @Transactional
     @Override
@@ -345,5 +304,39 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
                 writer.println(line);
             });
         writer.flush();
+    }
+
+    /**
+     * 커서 기반 페이지네이션으로 IndexData 목록을 조회합니다.
+     * <p>
+     * 지수 선택, 날짜 범위, 정렬 조건을 기반으로 데이터를 필터링하고 정렬하여 반환합니다.
+     * </p>
+     *
+     * @param request 커서, 지수 ID, 날짜 범위(시작/종료), 페이지 크기, 정렬 필드 및 방향을 포함하는 요청 객체
+     * @return 페이지네이션된 IndexData 목록, 다음 커서, 총 개수, 다음 페이지 존재 여부를 포함하는 응답 DTO
+     */
+    @Override
+    public CursorPageResponseIndexDataDto getAllIndexData(IndexDataCursorRequest request) {
+        List<IndexData> results = indexDataRepository.findByCondition(
+                request.cursor(),
+                new IndexDataFindCondition(
+                        request.indexInfoId(),
+                        request.startDate(),
+                        request.endDate()
+                ),
+                request.size(),
+                new IndexDataFindSort(
+                        request.sortField(),
+                        request.order()
+                )
+        );
+        return new CursorPageResponseIndexDataDto(
+                indexDataMapper.toDtoList(results.subList(0, results.size() - 1)),
+                encodeId(results.get(results.size() - 1).getId()),
+                encodeId(results.get(results.size() - 2).getId()),
+                results.size() - 1,
+                indexInfoRepository.count(),
+                results.size() > request.size()
+        );
     }
 }

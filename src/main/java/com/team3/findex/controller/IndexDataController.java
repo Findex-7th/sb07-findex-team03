@@ -1,6 +1,10 @@
 package com.team3.findex.controller;
 
 import com.team3.findex.domain.index.ChartPeriodType;
+import com.team3.findex.common.util.CursorEncodingUtil;
+import com.team3.findex.domain.index.dto.request.IndexDataCursorRequest;
+import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexDataDto;
+import com.team3.findex.domain.index.enums.IndexDataSortField;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
@@ -18,6 +22,8 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,34 +44,42 @@ public class IndexDataController implements IndexDataDoc {
     private final IndexDataServiceInterface indexDataService;
 
     /**
-     * 지수 데이터 목록 조회
-     * @return
-     */
+         * 주어진 필터링 및 페이지네이션 매개변수를 기반으로 지수 데이터의 페이지를 조회합니다.
+         *
+         * @param indexInfoId 필터링할 지수 정보의 ID (선택)
+         * @param startDate 날짜 필터의 시작일 (선택)
+         * @param endDate 날짜 필터의 종료일 (선택)
+         * @param idAfter 페이지네이션을 시작할 지수 데이터의 ID (선택)
+         * @param cursor 페이지네이션 상태를 디코딩하기 위한 커서 문자열 (선택)
+         * @param sortField 지수 데이터를 정렬할 필드 (선택)
+         * @param order 정렬 순서, 오름차순 또는 내림차순 (기본: 내림차순)
+         * @param size 응답에 포함될 최대 항목 수 (기본: 10)
+         * @return 요청된 지수 데이터를 포함한 {@link CursorPageResponseIndexDataDto}를 담은 {@link ResponseEntity}
+         *         또는 필터와 일치하는 데이터가 없는 경우 빈 결과
+         */
     @GetMapping
-    public ResponseEntity<CursorPageResponse<IndexDataDto>> getAllIndexData(
-//        @Valid @RequestParam IndexDataListRequest request){ //??
-        @RequestParam(value = "indexInfoId", required = false) Long indexInfoId,
-        @RequestParam(value = "startDate",   required = false) LocalDate startDate,
-        @RequestParam(value = "endDate",     required = false) LocalDate endDate,
-        @RequestParam(value = "idAfter",     required = false) Long idAfter,
-        @RequestParam(value = "cursor",      required = false) String cursor,
-        @Valid @RequestParam(value = "sortField")              String sortField,
-        @Valid @RequestParam(value = "sortDirection")          String sortDirection,
-        @Valid @RequestParam(value = "size")                   Integer size
-    ){
-        CursorPageResponse<IndexDataDto> responseDto  = indexDataService.getAllIndexData(
-            indexInfoId,
-            startDate,
-            endDate,
-            idAfter,
-            cursor,
-            sortField,
-            sortDirection,
-            size);
-
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(responseDto);
+    public ResponseEntity<CursorPageResponseIndexDataDto> getIndexDatas(
+            @RequestParam(required = false) Long indexInfoId,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) LocalDate startDate,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Long idAfter,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false, defaultValue = "desc") String order,
+            @RequestParam(required = false, defaultValue = "10") Integer size
+    ) {
+        return ResponseEntity.ok(indexDataService.getAllIndexData(
+                new IndexDataCursorRequest(
+                        indexInfoId,
+                        startDate,
+                        endDate,
+                        idAfter,
+                        CursorEncodingUtil.decodeId(cursor),
+                        IndexDataSortField.fromString(sortField),
+                        Sort.Direction.fromString(order.toUpperCase()),
+                        size
+                ))
+        );
     }
 
     /**
