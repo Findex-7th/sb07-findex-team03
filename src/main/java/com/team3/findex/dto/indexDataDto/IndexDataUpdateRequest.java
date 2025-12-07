@@ -12,7 +12,7 @@ public record IndexDataUpdateRequest(
     Double highPrice,
     @NotNull(message = "🚨lowPrice 필수입니다.")
     Double lowPrice,
-    @NotNull(message = "🚨versus 필수입니다.")
+    @NotNull(message = "🚨🚨🚨versus 필수입니다.")
     Double versus,
     @NotNull(message = "🚨fluctuationRate 필수입니다.")
     Double fluctuationRate,

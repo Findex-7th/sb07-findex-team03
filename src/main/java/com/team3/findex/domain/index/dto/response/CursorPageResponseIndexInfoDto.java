@@ -4,6 +4,9 @@ import java.util.List;
 
 public record CursorPageResponseIndexInfoDto(
     List<IndexInfoDto> content,
-    Long nextCursor,
+    String nextCursor,
+    String newtIdAfter,
+    int size,
+    Long totalElements,
     boolean hasNext
 ) {}

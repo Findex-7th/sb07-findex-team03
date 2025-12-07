@@ -4,9 +4,16 @@ package com.team3.findex.service;
 import com.team3.findex.common.exception.CustomException;
 import com.team3.findex.common.exception.ErrorCode;
 import com.team3.findex.common.util.ReflectionUtil;
+import com.team3.findex.domain.index.ChartPeriodType;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.PeriodType;
+import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
+import com.team3.findex.domain.index.dto.IndexDataFindCondition;
+import com.team3.findex.domain.index.dto.IndexDataFindSort;
+import com.team3.findex.domain.index.dto.request.IndexDataCursorRequest;
+import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexDataDto;
+import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexInfoDto;
 import com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
@@ -44,6 +51,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 
+import static com.team3.findex.common.util.CursorEncodingUtil.encodeId;
+
 
 @Slf4j
 @Service
@@ -60,6 +69,19 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
     private final IndexChartMapper indexChartMapper;
 
 
+    private LocalDate getChartPeriodTypeDate(ChartPeriodType periodType) {
+        LocalDate fromData = LocalDate.now();
+
+        switch (periodType) {
+            case MONTHLY -> fromData = fromData.minusMonths(1);
+            case QUARTERLY -> fromData = fromData.minusMonths(3);
+            case YEARLY -> fromData = fromData.minusYears(1);
+            default -> throw new IllegalArgumentException("🚨getPeriodTypeDate.periodType error! ");
+        }
+
+        return fromData;
+    }
+
     private LocalDate getPeriodTypeDate(PeriodType periodType) {
         LocalDate fromData = LocalDate.now();
 
@@ -67,57 +89,11 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
             case DAILY -> fromData = fromData.minusDays(1);
             case WEEKLY -> fromData = fromData.minusWeeks(1);
             case MONTHLY -> fromData = fromData.minusMonths(1);
+            default -> throw new IllegalArgumentException("🚨getPeriodTypeDate.periodType error! ");
         }
 
         return fromData;
     }
-
-
-    @Override
-    public CursorPageResponse<IndexDataDto> getAllIndexData(
-        Long indexInfoId,
-        LocalDate startDate,
-        LocalDate endDate,
-        Long idAfter,
-        String strCursor,
-        String sortField,
-        String sortDirection,
-        Integer size) {
-
-        if (null == sortField)
-            throw new IllegalArgumentException("🚨sortField is null");
-        if (null == sortDirection)
-            throw new IllegalArgumentException("🚨 sortDirection is null");
-        if (null == size)
-            throw new IllegalArgumentException("🚨size is null");
-
-//        Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
-//        Pageable pageable = PageRequest.of(idAfter.intValue(),
-//            size,
-//            Sort.by(direction, sortField));
-//
-//        LocalDate cursor = LocalDate.parse(strCursor);
-//
-//        // 커서 페이지
-//        Slice<IndexDataDto> slice = indexDataRepository.findAllIndexDataWithIndexInfo(
-//                indexInfoId,
-//                startDate,
-//                endDate,
-//                Optional.ofNullable(cursor).orElse(LocalDate.now().toString()),
-//                pageable)
-//            .stream()
-//            .map(indexDataMapper::toDTO);
-//
-//        Instant nextCursor = null;
-//        if (!slice.getContent().isEmpty()) {
-//            nextCursor = slice.getContent().get(slice.getContent().size() - 1)
-//                .createdAt();
-//        }
-//
-//        return pageResponseMapper.fromSlice(slice, nextCursor);
-        return null;
-    }
-
 
     @Transactional
     @Override
@@ -192,30 +168,75 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
 
     @Transactional
     @Override
-    public IndexChartDto getChartData(Long id, PeriodType periodType) {
+    public IndexChartDto getChartData(Long id, ChartPeriodType periodType) {
 
-//        IndexInfo indexInfo = indexInfoRepository.findById(id)
-//            .orElseThrow(() -> new IllegalArgumentException("🚨indexInfo.id error!"));
-//
-//        LocalDate now = LocalDate.from(LocalDateTime.now());
-//        LocalDate from = getPeriodTypeDate(periodType);
-//
+        IndexInfo indexInfo = indexInfoRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("🚨indexInfo.id error!"));
+
+        LocalDateTime now = LocalDate.from(LocalDateTime.now()).atStartOfDay();
+        LocalDateTime from = getChartPeriodTypeDate(periodType).atStartOfDay();
 //        List<ChartDataPointDto> data = indexDataRepository.findChartData(id, from, now);
-//        List<ChartDataPointDto> ma5 = indexDataRepository.findMa5(id, from, now);
-//        List<ChartDataPointDto> ma20 = indexDataRepository.findMa20(id, from, now);
-//
-//        return new IndexChartDto(
-//            indexInfo.getId(),
-//            indexInfo.getIndexClassification(),
-//            indexInfo.getIndexName(),
-//            periodType.getValue(),
-//            data,
-//            ma5,
-//            ma20
-//        );
+        List<ChartDataPointDto> ma5 = indexDataRepository.findMa5(id, from, now)
+            .stream()
+            .map(row -> new ChartDataPointDto(
+                (String) row[0],                     // date
+                ((BigDecimal) row[1]).doubleValue()  // value
+            ))
+            .toList();
 
-//        IndexChart indexChart = null;
-        return indexChartMapper.toDTO(null);
+        log.info("🐳 ma5 = " + String.valueOf(ma5.size()));
+
+        List<ChartDataPointDto> ma20 = indexDataRepository.findMa20(id, from, now)
+            .stream()
+            .map(row -> new ChartDataPointDto(
+                (String) row[0],                     // date
+                ((BigDecimal) row[1]).doubleValue()  // value
+            ))
+            .toList();
+
+        log.info("🐳 ma20 = " + String.valueOf(ma20.size()));
+
+        List<ChartDataPointDto> pointDtoList = new ArrayList<>();
+        switch (periodType) {
+            case MONTHLY  -> pointDtoList = indexDataRepository.findMonthlySeries(id, from, now)
+                .stream()
+                .map(row -> new ChartDataPointDto(
+                    (String) row[0],                     // date
+                    ((BigDecimal) row[1]).doubleValue()  // value
+                ))
+                .toList();
+            case QUARTERLY -> pointDtoList = indexDataRepository.findQuarterlySeries(id, from, now)
+                .stream()
+                .map(row -> new ChartDataPointDto(
+                    (String) row[0],                     // date
+                    ((BigDecimal) row[1]).doubleValue()  // value
+                ))
+                .toList();
+            case YEARLY -> pointDtoList = indexDataRepository.findYearlySeries(id, from, now)
+                .stream()
+                .map(row -> new ChartDataPointDto(
+                    (String) row[0],                     // date
+                    ((BigDecimal) row[1]).doubleValue()  // value
+                ))
+                .toList();
+            default -> throw new IllegalArgumentException("🚨getPeriodTypeDate.periodType error! ");
+        }
+
+        log.info("🐳 pointDtoList = " + String.valueOf(pointDtoList.size()));
+
+        IndexChartDto indexChartDto = new IndexChartDto(
+            indexInfo.getId(),
+            indexInfo.getIndexClassification(),
+            indexInfo.getIndexName(),
+            periodType,
+            pointDtoList,
+            ma5,
+            ma20
+        );
+
+        log.info("🐳 pointDtoList = " + indexChartDto.toString());
+
+        return indexChartDto;
     }
 
 
@@ -284,5 +305,39 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
                 writer.println(line);
             });
         writer.flush();
+    }
+
+    /**
+     * 커서 기반 페이지네이션으로 IndexData 목록을 조회합니다.
+     * <p>
+     * 지수 선택, 날짜 범위, 정렬 조건을 기반으로 데이터를 필터링하고 정렬하여 반환합니다.
+     * </p>
+     *
+     * @param request 커서, 지수 ID, 날짜 범위(시작/종료), 페이지 크기, 정렬 필드 및 방향을 포함하는 요청 객체
+     * @return 페이지네이션된 IndexData 목록, 다음 커서, 총 개수, 다음 페이지 존재 여부를 포함하는 응답 DTO
+     */
+    @Override
+    public CursorPageResponseIndexDataDto getAllIndexData(IndexDataCursorRequest request) {
+        List<IndexData> results = indexDataRepository.findByCondition(
+                request.cursor(),
+                new IndexDataFindCondition(
+                        request.indexInfoId(),
+                        request.startDate(),
+                        request.endDate()
+                ),
+                request.size(),
+                new IndexDataFindSort(
+                        request.sortField(),
+                        request.order()
+                )
+        );
+        return new CursorPageResponseIndexDataDto(
+                indexDataMapper.toDtoList(results.subList(0, results.size() - 1)),
+                encodeId(results.get(results.size() - 1).getId()),
+                encodeId(results.get(results.size() - 2).getId()),
+                results.size() - 1,
+                indexInfoRepository.count(),
+                results.size() > request.size()
+        );
     }
 }

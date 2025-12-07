@@ -1,0 +1,86 @@
+package com.team3.findex.domain.index.repository;
+
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.index.dto.IndexInfoFindCondition;
+import com.team3.findex.domain.index.dto.IndexInfoFindSort;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+import static com.team3.findex.domain.index.QIndexInfo.indexInfo;
+
+@RequiredArgsConstructor
+@Repository
+public class IndexInfoRepositoryCustomImpl implements IndexInfoRepositoryCustom {
+
+    private final JPAQueryFactory queryFactory;
+
+    @Override
+    public List<IndexInfo> findWithCursor(Long cursor, int size, IndexInfoFindSort sort) {
+        return queryFactory.selectFrom(indexInfo)
+                .where(cursorIdGt(cursor))
+                .orderBy(orderSpecifier(sort))
+                .limit(size + 1)
+                .fetch();
+    }
+
+    @Override
+    public List<IndexInfo> findByCondition(Long cursor, IndexInfoFindCondition condition, int size, IndexInfoFindSort sort) {
+        return queryFactory.selectFrom(indexInfo)
+                .where(
+                        cursorIdGt(cursor),
+                        indexClassificationContains(condition.indexClassification()),
+                        indexNameEq(condition.indexName()),
+                        favoriteEq(condition.isFavorite())
+                )
+                .orderBy(orderSpecifier(sort))
+                .limit(size + 1)
+                .fetch();
+    }
+
+    private OrderSpecifier<?> orderSpecifier(IndexInfoFindSort sort) {
+        boolean isAsc = sort.sortDirection().isAscending();
+
+        return switch (sort.indexInfoSortField()) {
+            case INDEX_CLASSIFICATION -> isAsc ? indexInfo.indexClassification.asc() : indexInfo.indexClassification.desc();
+            case INDEX_NAME -> isAsc ? indexInfo.indexName.asc() : indexInfo.indexName.desc();
+            case EMPLOYED_ITEMS_COUNT -> isAsc ? indexInfo.employedItemsCount.asc() : indexInfo.employedItemsCount.desc();
+            case ID -> isAsc ? indexInfo.id.asc() : indexInfo.id.desc();
+            default -> indexInfo.indexClassification.asc();
+        };
+    }
+
+
+    private BooleanExpression cursorIdGt(Long cursorId) {
+        return cursorId == null ? null : indexInfo.id.gt(cursorId);
+    }
+
+    private BooleanExpression indexClassificationContains(String indexClassification) {
+        return indexClassification == null ? null : indexInfo.indexClassification.containsIgnoreCase(indexClassification);
+    }
+
+    private BooleanExpression indexClassificationEq(String indexClassification) {
+        if (indexClassification == null) {
+            return null;
+        }
+        return indexInfo.indexClassification.eq(indexClassification);
+    }
+
+    private BooleanExpression indexNameEq(String indexName) {
+        if (indexName == null) {
+            return null;
+        }
+        return indexInfo.indexName.eq(indexName);
+    }
+
+    private BooleanExpression favoriteEq(Boolean isFavorite) {
+        if (isFavorite == null) {
+            return null;
+        }
+        return indexInfo.favorite.eq(isFavorite);
+    }
+}
