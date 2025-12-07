@@ -1,6 +1,7 @@
 package com.team3.findex.service;
 
 //import com.team3.findex.dto.indexDataDto.CursorPageResponse;
+
 import com.team3.findex.common.exception.CustomException;
 import com.team3.findex.common.exception.ErrorCode;
 import com.team3.findex.common.util.ReflectionUtil;
@@ -35,6 +36,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
@@ -44,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -100,7 +103,7 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
     public IndexDataDto createIndexData(IndexDataCreateRequest request) {
 
         IndexInfo indexInfo = indexInfoRepository.findById(request.indexInfoId())
-            .orElseThrow(() -> new CustomException(ErrorCode.INDEX_INFO_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.INDEX_INFO_NOT_FOUND));
 
         IndexData indexData = IndexData.from(indexInfo, request);
         IndexData saveIndexData = indexDataRepository.save(indexData);
@@ -113,8 +116,8 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
     public void deleteIndexData(Long id) {
 
         indexDataRepository
-            .findById(id)
-            .orElseThrow(() -> new NoSuchElementException("🚨 error - deleteIndexData.id"));
+                .findById(id)
+                .orElseThrow(() -> new NoSuchElementException("🚨 error - deleteIndexData.id"));
 
         indexDataRepository.deleteById(id);
     }
@@ -124,7 +127,7 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
     public IndexDataDto updateIndexData(Long id, IndexDataUpdateRequest request) {
 
         IndexData indexData = indexDataRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("🚨 error - updateIndexData.id"));
+                .orElseThrow(() -> new NoSuchElementException("🚨 error - updateIndexData.id"));
 
         indexData.setUpdateIndexData(request);
 
@@ -139,19 +142,19 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
      */
     @Override
     public List<RankedIndexPerformanceDto> performanceRank(Long indexInfoId, PeriodType periodType,
-        int limit) {
+                                                           int limit) {
 
         LocalDate end = LocalDate.from(LocalDateTime.now());
         LocalDate start = getPeriodTypeDate(periodType);
 
         List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataRepository
-            .findAllPerformanceRank(indexInfoId, start, end, PageRequest.of(0, limit))
-            .stream()
-            .map(dto ->  {
-                double value = dto.currentPrice().doubleValue() - dto.versus().doubleValue();
-                return IndexDataWithInfoDto.fixCurrentPriceDto(dto, value);
-            })
-            .toList();
+                .findAllPerformanceRank(indexInfoId, start, end, PageRequest.of(0, limit))
+                .stream()
+                .map(dto -> {
+                    double value = dto.currentPrice().doubleValue() - dto.versus().doubleValue();
+                    return IndexDataWithInfoDto.fixCurrentPriceDto(dto, value);
+                })
+                .toList();
 
         log.info("🚨🚨performanceRank = " + String.valueOf(indexDataWithInfoDtoList.size()));
 
@@ -171,67 +174,67 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
     public IndexChartDto getChartData(Long id, ChartPeriodType periodType) {
 
         IndexInfo indexInfo = indexInfoRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("🚨indexInfo.id error!"));
+                .orElseThrow(() -> new IllegalArgumentException("🚨indexInfo.id error!"));
 
         LocalDateTime now = LocalDate.from(LocalDateTime.now()).atStartOfDay();
         LocalDateTime from = getChartPeriodTypeDate(periodType).atStartOfDay();
 //        List<ChartDataPointDto> data = indexDataRepository.findChartData(id, from, now);
         List<ChartDataPointDto> ma5 = indexDataRepository.findMa5(id, from, now)
-            .stream()
-            .map(row -> new ChartDataPointDto(
-                (String) row[0],                     // date
-                ((BigDecimal) row[1]).doubleValue()  // value
-            ))
-            .toList();
+                .stream()
+                .map(row -> new ChartDataPointDto(
+                        (String) row[0],                     // date
+                        ((BigDecimal) row[1]).doubleValue()  // value
+                ))
+                .toList();
 
         log.info("🐳 ma5 = " + String.valueOf(ma5.size()));
 
         List<ChartDataPointDto> ma20 = indexDataRepository.findMa20(id, from, now)
-            .stream()
-            .map(row -> new ChartDataPointDto(
-                (String) row[0],                     // date
-                ((BigDecimal) row[1]).doubleValue()  // value
-            ))
-            .toList();
+                .stream()
+                .map(row -> new ChartDataPointDto(
+                        (String) row[0],                     // date
+                        ((BigDecimal) row[1]).doubleValue()  // value
+                ))
+                .toList();
 
         log.info("🐳 ma20 = " + String.valueOf(ma20.size()));
 
         List<ChartDataPointDto> pointDtoList = new ArrayList<>();
         switch (periodType) {
-            case MONTHLY  -> pointDtoList = indexDataRepository.findMonthlySeries(id, from, now)
-                .stream()
-                .map(row -> new ChartDataPointDto(
-                    (String) row[0],                     // date
-                    ((BigDecimal) row[1]).doubleValue()  // value
-                ))
-                .toList();
+            case MONTHLY -> pointDtoList = indexDataRepository.findMonthlySeries(id, from, now)
+                    .stream()
+                    .map(row -> new ChartDataPointDto(
+                            (String) row[0],                     // date
+                            ((BigDecimal) row[1]).doubleValue()  // value
+                    ))
+                    .toList();
             case QUARTERLY -> pointDtoList = indexDataRepository.findQuarterlySeries(id, from, now)
-                .stream()
-                .map(row -> new ChartDataPointDto(
-                    (String) row[0],                     // date
-                    ((BigDecimal) row[1]).doubleValue()  // value
-                ))
-                .toList();
+                    .stream()
+                    .map(row -> new ChartDataPointDto(
+                            (String) row[0],                     // date
+                            ((BigDecimal) row[1]).doubleValue()  // value
+                    ))
+                    .toList();
             case YEARLY -> pointDtoList = indexDataRepository.findYearlySeries(id, from, now)
-                .stream()
-                .map(row -> new ChartDataPointDto(
-                    (String) row[0],                     // date
-                    ((BigDecimal) row[1]).doubleValue()  // value
-                ))
-                .toList();
+                    .stream()
+                    .map(row -> new ChartDataPointDto(
+                            (String) row[0],                     // date
+                            ((BigDecimal) row[1]).doubleValue()  // value
+                    ))
+                    .toList();
             default -> throw new IllegalArgumentException("🚨getPeriodTypeDate.periodType error! ");
         }
 
         log.info("🐳 pointDtoList = " + String.valueOf(pointDtoList.size()));
 
         IndexChartDto indexChartDto = new IndexChartDto(
-            indexInfo.getId(),
-            indexInfo.getIndexClassification(),
-            indexInfo.getIndexName(),
-            periodType,
-            pointDtoList,
-            ma5,
-            ma20
+                indexInfo.getId(),
+                indexInfo.getIndexClassification(),
+                indexInfo.getIndexName(),
+                periodType,
+                pointDtoList,
+                ma5,
+                ma20
         );
 
         log.info("🐳 pointDtoList = " + indexChartDto.toString());
@@ -255,11 +258,11 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
 
     @Override
     public void exportCsv(Long indexInfoId,
-        String startDate,
-        String endDate,
-        String sortField,
-        String sortDirection,
-        HttpServletResponse response) throws IOException {
+                          String startDate,
+                          String endDate,
+                          String sortField,
+                          String sortDirection,
+                          HttpServletResponse response) throws IOException {
 
         if (startDate == null || startDate.isBlank())
             startDate = "1970-01-01";
@@ -275,12 +278,12 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
         LocalDate endLocalDate = LocalDate.parse(endDate);
 
         Sort.Order order =
-            (0 != sortDirection.compareTo("desc")) ? Order.desc(sortField) : Order.asc(sortField);
+                (0 != sortDirection.compareTo("desc")) ? Order.desc(sortField) : Order.asc(sortField);
 
         List<IndexData> indexDataList = indexDataRepository.findAllExportCsvData(indexInfoId,
-            startLocalDate,
-            endLocalDate,
-            Sort.by(order));
+                startLocalDate,
+                endLocalDate,
+                Sort.by(order));
 
         if (indexDataList.isEmpty())
             throw new NoSuchElementException("해당하는 CSV 자료 없음");
@@ -289,7 +292,7 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
         response.setContentType("text/html");
         response.setCharacterEncoding("utf-8");
         response.setHeader("Content-Disposition",
-            "attachment; filename=index-data-export-" + LocalDate.now() + ".csv");
+                "attachment; filename=index-data-export-" + LocalDate.now() + ".csv");
         response.setStatus(HttpServletResponse.SC_OK); // 200 OK
 
         PrintWriter writer = response.getWriter();
@@ -297,13 +300,13 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
         writer.println("기준일자, 시가, 종가, 고가, 저가, 전일 대비 등락폭, 등락률, 거래량, 거래대금, 상장시가총액");
 
         indexDataList.stream()
-            .map(indexDataMapper::toExcelDto)
-            .forEach(excelDto -> {
-                String line = ReflectionUtil.dtoToValueList(excelDto).stream()
-                    .map(String::valueOf)  // Object → Strin
-                    .collect(Collectors.joining(",")); // 쉼표로 연결
-                writer.println(line);
-            });
+                .map(indexDataMapper::toExcelDto)
+                .forEach(excelDto -> {
+                    String line = ReflectionUtil.dtoToValueList(excelDto).stream()
+                            .map(String::valueOf)  // Object → Strin
+                            .collect(Collectors.joining(",")); // 쉼표로 연결
+                    writer.println(line);
+                });
         writer.flush();
     }
 
@@ -318,29 +321,28 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
      */
     @Override
     public CursorPageResponseIndexDataDto getAllIndexData(IndexDataCursorRequest request) {
-        int requestSize = request.size() == null ? 10 : request.size();
+        int pageSize = request.size() == null ? 10 : request.size();
 
         List<IndexData> results = indexDataRepository.findByCondition(
-                request.cursor(),
+                request.idAfter(),
                 new IndexDataFindCondition(
                         request.indexInfoId(),
                         request.startDate(),
                         request.endDate()
                 ),
-                requestSize,
+                pageSize,
                 new IndexDataFindSort(
                         request.sortField(),
                         request.order()
                 )
         );
 
-        boolean hasNext = results.size() > requestSize;
-        List<IndexData> pageContent = hasNext ? results.subList(0, requestSize) : results;
+        boolean hasNext = results.size() > pageSize;
+        List<IndexData> pageContent = hasNext ? results.subList(0, pageSize) : results;
 
         String nextCursor = hasNext ? encodeId(results.get(results.size() - 1).getId()) : null;
-        String nextIdAfter = pageContent.isEmpty()
-                ? null
-                : encodeId(pageContent.get(pageContent.size() - 1).getId());
+        Long nextIdAfter = pageContent.isEmpty() ? null
+                : pageContent.get(pageContent.size() - 1).getId();
 
         return new CursorPageResponseIndexDataDto(
                 indexDataMapper.toDtoList(pageContent),
