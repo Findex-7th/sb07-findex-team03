@@ -21,15 +21,15 @@ public class IndexDataRepositoryCustomImpl implements IndexDataRepositoryCustom 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<IndexData> findByCondition(Long cursor, IndexDataFindCondition condition, int size, IndexDataFindSort sort) {
+    public List<IndexData> findByCondition(Long idAfter, IndexDataFindCondition condition, int size, IndexDataFindSort sort) {
         return queryFactory.selectFrom(indexData)
                 .where(
-                        cursorIdGt(cursor),
                         indexInfoIdEq(condition.indexInfoId()),
                         baseDateGoe(condition.startDate()),
                         baseDateLoe(condition.endDate())
                 )
                 .orderBy(createOrderSpecifier(sort))
+                .offset(idAfter == null ? 0 : idAfter)
                 .limit(size + 1)
                 .fetch();
     }

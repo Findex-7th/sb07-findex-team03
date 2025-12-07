@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface IndexDataRepositoryCustom {
-    List<IndexData> findByCondition(Long cursor,
+    List<IndexData> findByCondition(Long idAfter,
                                     IndexDataFindCondition condition,
                                     int size,
                                     IndexDataFindSort sort);

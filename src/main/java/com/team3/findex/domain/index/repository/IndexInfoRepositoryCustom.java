@@ -14,9 +14,7 @@ import java.util.List;
  */
 public interface IndexInfoRepositoryCustom {
 
-    List<IndexInfo> findWithCursor(Long cursor, int size, IndexInfoFindSort sort);
-
-    List<IndexInfo> findByCondition(Long cursor,
+    List<IndexInfo> findByCondition(Long idAfter,
                                     IndexInfoFindCondition condition,
                                     int size,
                                     IndexInfoFindSort sort);

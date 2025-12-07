@@ -4,6 +4,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.index.QIndexInfo;
 import com.team3.findex.domain.index.dto.IndexInfoFindCondition;
 import com.team3.findex.domain.index.dto.IndexInfoFindSort;
 import lombok.RequiredArgsConstructor;
@@ -19,36 +20,44 @@ public class IndexInfoRepositoryCustomImpl implements IndexInfoRepositoryCustom 
 
     private final JPAQueryFactory queryFactory;
 
-    @Override
-    public List<IndexInfo> findWithCursor(Long cursor, int size, IndexInfoFindSort sort) {
-        return queryFactory.selectFrom(indexInfo)
-                .where(cursorIdGt(cursor))
-                .orderBy(orderSpecifier(sort))
-                .limit(size + 1)
-                .fetch();
+
+    private BooleanExpression cursorCondition(Long cursorId, IndexInfoFindSort sort) {
+        if (cursorId == null) {
+            return null;
+        }
+
+        // 커서 기반 페이지네이션은 id 기반으로 단순화하거나,
+        // 정렬 필드 값과 id를 조합한 복합 커서가 필요합니다
+        return indexInfo.id.gt(cursorId);
     }
 
     @Override
-    public List<IndexInfo> findByCondition(Long cursor, IndexInfoFindCondition condition, int size, IndexInfoFindSort sort) {
+    public List<IndexInfo> findByCondition(Long idAfter, IndexInfoFindCondition condition, int size, IndexInfoFindSort sort) {
         return queryFactory.selectFrom(indexInfo)
                 .where(
-                        cursorIdGt(cursor),
                         indexClassificationContains(condition.indexClassification()),
                         indexNameEq(condition.indexName()),
                         favoriteEq(condition.isFavorite())
                 )
-                .orderBy(orderSpecifier(sort))
+                .orderBy(orderSpecifier(sort), indexInfo.id.asc())
+                .offset(idAfter == null ? 0 : idAfter)
                 .limit(size + 1)
                 .fetch();
     }
 
     private OrderSpecifier<?> orderSpecifier(IndexInfoFindSort sort) {
+        if (sort == null) {
+            return indexInfo.indexClassification.asc();
+        }
+
         boolean isAsc = sort.sortDirection().isAscending();
 
         return switch (sort.indexInfoSortField()) {
-            case INDEX_CLASSIFICATION -> isAsc ? indexInfo.indexClassification.asc() : indexInfo.indexClassification.desc();
+            case INDEX_CLASSIFICATION ->
+                    isAsc ? indexInfo.indexClassification.asc() : indexInfo.indexClassification.desc();
             case INDEX_NAME -> isAsc ? indexInfo.indexName.asc() : indexInfo.indexName.desc();
-            case EMPLOYED_ITEMS_COUNT -> isAsc ? indexInfo.employedItemsCount.asc() : indexInfo.employedItemsCount.desc();
+            case EMPLOYED_ITEMS_COUNT ->
+                    isAsc ? indexInfo.employedItemsCount.asc() : indexInfo.employedItemsCount.desc();
             case ID -> isAsc ? indexInfo.id.asc() : indexInfo.id.desc();
             default -> indexInfo.indexClassification.asc();
         };
