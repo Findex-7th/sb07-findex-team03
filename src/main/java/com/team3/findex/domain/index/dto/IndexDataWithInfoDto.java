@@ -39,4 +39,13 @@ public record IndexDataWithInfoDto(
                 new BigDecimal(fixedCurrentPrice));
     }
 
+    public static IndexDataWithInfoDto fromBeforeDto(IndexDataBeforeDto dto, double fixedCurrentPrice) {
+        return new IndexDataWithInfoDto(dto.indexInfoId(),
+            dto.indexClassification(),
+            dto.indexName(),
+            new BigDecimal(dto.versusAvg()),
+            new BigDecimal(dto.fluctuationRateAvg()),
+            new BigDecimal(dto.closingPriceAvg()),
+            new BigDecimal(fixedCurrentPrice));
+    }
 }

@@ -126,7 +126,8 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
 
 
     /**
-     * *지수 성과 분석 랭킹** 전일/전주/전월 대비 성과 랭킹 성과는 **{종가}**를 기준으로 비교합니다. 🧊🧊🧊지수 성과 분석 랭킹 🧊🧊🧊🧊
+     * *지수 성과 분석 랭킹** 전일/전주/전월 대비 성과 랭킹 성과는 **{종가}**를 기준으로 비교합니다.
+     * 🧊🧊🧊지수 성과 분석 랭킹 🧊🧊🧊🧊
      *
      * @return
      */
@@ -253,10 +254,26 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
     @Override
     public List<IndexDataWithInfoDto> favoriteIndex(PeriodType periodType) {
         // {종가}를 기준으로 비교
-        LocalDate now = LocalDate.from(LocalDateTime.now());
-        LocalDate from = getPeriodTypeDate(periodType);
+        LocalDate end = LocalDate.from(LocalDateTime.now());
+        LocalDate start = getPeriodTypeDate(periodType);
 
-        List<IndexDataWithInfoDto> dooList = indexDataRepository.findAllFavoriteIndex(from, now);
+
+        List<IndexDataWithInfoDto> dooList = indexDataRepository.findAllFavoriteIndex(start, end)
+            .stream()
+            .map(dto -> {
+                double value = dto.closingPriceAvg().doubleValue() - dto.versusAvg().doubleValue();
+                return IndexDataWithInfoDto.fromBeforeDto(dto, value);
+            })
+            .toList();
+
+
+
+//        List<IndexDataWithInfoDto> dooList = indexDataRepository.findAllFavoriteIndex(from,
+//            now)
+//            .stream()
+//            .map(dto -> IndexDataWithInfoDto.from(dto, 0))
+//            .toList();
+
         log.info("🚨 favoriteIndex = " + String.valueOf(dooList.size()));
         return dooList;
     }
