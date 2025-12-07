@@ -36,8 +36,10 @@ out/
 ### VS Code ###
 .vscode/
 /src/main/resources/application-local.yml
+/src/main/resources/application-prod.yml
 
 /.gitignore.local
+/.gitignore.prod
 
 ### ai ###
 /CLAUDE.md
