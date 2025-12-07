@@ -164,8 +164,6 @@ public class IndexDataController implements IndexDataDoc {
     public ResponseEntity<List<IndexDataWithInfoDto>> favoriteIndex(
         @RequestParam("periodType") PeriodType periodType
     ){
-
-        log.info("🐠🐠🐠 주요 지수 = " + periodType.getValue());
         List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataService.favoriteIndex(
             periodType);
 

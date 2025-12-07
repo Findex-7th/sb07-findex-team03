@@ -68,6 +68,142 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 //        @Param("startDate") LocalDate startDate,
 //        @Param("endDate") LocalDate endDate);
 
+//    @Query(value =
+//        "SELECT DATE_FORMAT(t.base_date, '%Y-%m-%d') AS baseDate, " +
+//            "       t.ma5 AS value " +
+//            "FROM ( " +
+//            "    SELECT d.base_date, " +
+//            "           AVG(d2.closing_price) AS ma5 " +
+//            "    FROM index_data d " +
+//            "    JOIN index_data d2 " +
+//            "      ON d2.index_info_id = d.index_info_id " +
+//            "     AND d2.base_date BETWEEN DATE_SUB(d.base_date, INTERVAL 4 DAY) AND d.base_date " +
+//            "    WHERE d.index_info_id = :id " +
+//            "      AND d.base_date BETWEEN :startDate AND :endDate " +
+//            "    GROUP BY d.base_date " +
+//            ") t " +
+//            "ORDER BY t.base_date ASC",
+//        nativeQuery = true)
+//    List<ChartDataPointDto> findMa5(
+//        @Param("id") Long id,
+//        @Param("startDate") LocalDate startDate,
+//        @Param("endDate") LocalDate endDate);
+
+    @Query(value =
+        "SELECT DATE_FORMAT(t.base_date, '%Y-%m-%d') AS baseDate, " +
+            "       t.ma5 AS value " +
+            "FROM ( " +
+            "    SELECT d.base_date, " +
+            "           AVG(d2.closing_price) AS ma5 " +
+            "    FROM index_data d " +
+            "    JOIN index_data d2 " +
+            "      ON d2.index_info_id = d.index_info_id " +
+            "     AND d2.base_date BETWEEN DATE_SUB(d.base_date, INTERVAL 4 DAY) AND d.base_date " +
+            "    WHERE d.index_info_id = :id " +
+            "      AND d.base_date BETWEEN :startDate AND :endDate " +
+            "    GROUP BY d.base_date " +
+            ") t " +
+            "ORDER BY t.base_date ASC",
+        nativeQuery = true)
+    List<ChartDataPointDto> findMa5(
+        @Param("id") Long id,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate);
+
+
+
+    @Query(value =
+        "SELECT DATE_FORMAT(t.base_date, '%Y-%m-%d') AS baseDate, " +
+            "       t.ma20 AS value " +
+            "FROM ( " +
+            "    SELECT d.base_date, " +
+            "           AVG(d2.closing_price) AS ma20 " +
+            "    FROM index_data d " +
+            "    JOIN index_data d2 " +
+            "      ON d2.index_info_id = d.index_info_id " +
+            "     AND d2.base_date BETWEEN DATE_SUB(d.base_date, INTERVAL 19 DAY) AND d.base_date " +
+            "    WHERE d.index_info_id = :id " +
+            "      AND d.base_date BETWEEN :startDate AND :endDate " +
+            "    GROUP BY d.base_date " +
+            ") t " +
+            "ORDER BY t.base_date ASC",
+        nativeQuery = true)
+    List<ChartDataPointDto> findMa20(
+        @Param("id") Long id,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate);
+
+    @Query(value =
+        "SELECT DATE_FORMAT(d.base_date, '%Y-%m') AS period, " +
+            "       d.closing_price AS value " +
+            "FROM index_data d " +
+            "JOIN ( " +
+            "       SELECT index_info_id, DATE_FORMAT(base_date, '%Y-%m') AS ym, " +
+            "              MAX(base_date) AS last_day " +
+            "       FROM index_data " +
+            "       WHERE index_info_id = :id " +
+            "         AND base_date BETWEEN :startDate AND :endDate " +
+            "       GROUP BY index_info_id, ym " +
+            ") x " +
+            "  ON d.index_info_id = x.index_info_id " +
+            " AND d.base_date = x.last_day " +
+            "ORDER BY d.base_date ASC",
+        nativeQuery = true)
+    List<ChartDataPointDto> findMonthlySeries(
+        @Param("id") Long id,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate);
+
+
+    @Query(value =
+        "SELECT DATE_FORMAT(d.base_date, '%Y-Q%q') AS period, " +
+            "       d.closing_price AS value " +
+            "FROM ( " +
+            "    SELECT d1.*, " +
+            "           CONCAT(YEAR(d1.base_date), '-', QUARTER(d1.base_date)) AS period_key " +
+            "    FROM index_data d1 " +
+            "    WHERE d1.index_info_id = :id " +
+            "      AND d1.base_date BETWEEN :startDate AND :endDate " +
+            ") d " +
+            "JOIN ( " +
+            "       SELECT index_info_id, CONCAT(YEAR(base_date), '-', QUARTER(base_date)) AS period_key, " +
+            "              MAX(base_date) AS last_day " +
+            "       FROM index_data " +
+            "       WHERE index_info_id = :id " +
+            "         AND base_date BETWEEN :startDate AND :endDate " +
+            "       GROUP BY index_info_id, period_key " +
+            ") x " +
+            "  ON d.index_info_id = x.index_info_id " +
+            " AND d.base_date = x.last_day " +
+            "ORDER BY d.base_date ASC",
+        nativeQuery = true)
+    List<ChartDataPointDto> findQuarterlySeries(
+        @Param("id") Long id,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate);
+
+
+    @Query(value =
+        "SELECT YEAR(d.base_date) AS period, " +
+            "       d.closing_price AS value " +
+            "FROM index_data d " +
+            "JOIN ( " +
+            "       SELECT index_info_id, YEAR(base_date) AS yr, MAX(base_date) AS last_day " +
+            "       FROM index_data " +
+            "       WHERE index_info_id = :id " +
+            "         AND base_date BETWEEN :startDate AND :endDate " +
+            "       GROUP BY index_info_id, yr " +
+            ") x " +
+            "  ON d.index_info_id = x.index_info_id " +
+            " AND d.base_date = x.last_day " +
+            "ORDER BY d.base_date ASC",
+        nativeQuery = true)
+    List<ChartDataPointDto> findYearlySeries(
+        @Param("id") Long id,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate);
+
+
 
     //🐠🐠🐠주요 지수⭕️⭕️⭕️
     //    - **{즐겨찾기}**된 지수의 성과 정보를 포함합니다.
