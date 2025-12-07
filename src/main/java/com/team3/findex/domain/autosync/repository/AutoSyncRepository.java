@@ -14,4 +14,5 @@ public interface AutoSyncRepository extends JpaRepository<AutoSync, Long>, AutoS
 
     List<AutoSync> findByIsEnableTrue();
 
+    List<AutoSync> findByIndexInfoIn(List<IndexInfo> allProcessedInfos);
 }

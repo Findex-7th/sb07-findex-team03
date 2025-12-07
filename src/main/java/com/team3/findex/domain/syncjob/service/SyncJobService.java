@@ -18,17 +18,19 @@ import com.team3.findex.domain.syncjob.infrastructure.openapitester.OpenApiTeste
 import com.team3.findex.domain.syncjob.repository.SyncJobRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
 public class SyncJobService {
 
     private final SyncJobRepository syncJobRepository;
@@ -37,78 +39,173 @@ public class SyncJobService {
     private final IndexDataRepository indexDataRepository;
     private final OpenApiTester openApiTester;
     private final AutoSyncRepository autoSyncRepository;
+    private final SyncLogService syncLogService;
+
+    @Autowired
+    @Lazy
+    private SyncJobService self;
 
 
-    /**
-     * 전체 지수 정보(Index Info)에 대한 동기화 작업을 수행하고 이력을 저장합니다.
-     * <p>
-     * 등록된 모든 지수 정보를 조회하여 순차적으로 연동 작업을 시도합니다.
-     * 특정 지수 정보 처리 중 오류가 발생하거나 유효성 검증에 실패할 경우,
-     * 전체 프로세스를 중단하지 않고 해당 건에 대해 '실패' 로그를 저장한 후 다음 작업을 계속 진행합니다.
-     * </p>
-     *
-     * @param worker 작업을 수행하는 주체 (사용자의 Ip주소)
-     * @return 수행된 모든 연동 작업의 결과 로그(SyncJobDto) 리스트 (성공 및 실패 포함)
-     */
-    @Transactional
-    public List<SyncJobDto> syncIndexInfos(String worker){
-        List<IndexInfo> indexInfos = openApiTester.fetchAllApiToIndexInfo();
-        return indexInfos.stream()
-                .map(indexInfo -> {
-                    IndexInfo savedIndexInfo = indexInfoRepository.findByIndexClassificationAndIndexName(
-                            indexInfo.getIndexClassification(),
-                            indexInfo.getIndexName()
-                    ).map(existing -> {
-                        existing.update(
-                                indexInfo.getEmployedItemsCount(),
-                                indexInfo.getBasePointInTime(),
-                                indexInfo.getBaseIndex(),
-                                null
-                        );
-                        return existing;
-                    }).orElseGet(() -> indexInfoRepository.save(indexInfo));
-                    if (!autoSyncRepository.existsByIndexInfo(savedIndexInfo)) {
-                        autoSyncRepository.save(new AutoSync(savedIndexInfo));
-                    }
-                    return createSuccessLog(JobType.INDEX_INFO, worker, savedIndexInfo.getBasePointInTime(), savedIndexInfo);
-                })
-                .map(syncJobMapper::toDto)
-                .toList();
+    public List<SyncJobDto> syncIndexInfos(String worker) {
+        List<IndexInfo> fetchedIndexInfos = openApiTester.fetchAllApiToIndexInfo();
+
+        List<SyncJobDto> resultLogs = new ArrayList<>();
+
+        if (fetchedIndexInfos.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        try {
+            return self.bulkSaveIndexInfosAndLog(fetchedIndexInfos, worker);
+
+        } catch (Exception e) {
+            log.error("지수 정보 일괄 동기화 실패", e);
+
+            return Collections.emptyList();
+        }
     }
 
-    @Transactional
+@Transactional
+public List<SyncJobDto> bulkSaveIndexInfosAndLog(List<IndexInfo> fetchedInfos, String worker) {
+    List<IndexInfo> existingInfos = indexInfoRepository.findAll();
+
+    Map<String, IndexInfo> existingMap = existingInfos.stream()
+            .collect(Collectors.toMap(
+                    info -> info.getIndexClassification() + "|" + info.getIndexName(),
+                    Function.identity()
+            ));
+
+    List<IndexInfo> newInfosToSave = new ArrayList<>();
+    List<IndexInfo> allProcessedInfos = new ArrayList<>();
+
+    for (IndexInfo fetched : fetchedInfos) {
+        String key = fetched.getIndexClassification() + "|" + fetched.getIndexName();
+        if (existingMap.containsKey(key)) {
+            IndexInfo existing = existingMap.get(key);
+            existing.update(
+                    fetched.getEmployedItemsCount(),
+                    fetched.getBasePointInTime(),
+                    fetched.getBaseIndex(),
+                    null
+            );
+            allProcessedInfos.add(existing);
+        } else {
+            newInfosToSave.add(fetched);
+            allProcessedInfos.add(fetched);
+        }
+    }
+    if (!newInfosToSave.isEmpty()) {
+        indexInfoRepository.saveAll(newInfosToSave);
+    }
+
+    List<AutoSync> existingAutoSyncs = autoSyncRepository.findByIndexInfoIn(allProcessedInfos);
+
+    Set<Long> linkedIndexInfoIds = existingAutoSyncs.stream()
+            .map(autoSync -> autoSync.getIndexInfo().getId())
+            .collect(Collectors.toSet());
+
+    List<AutoSync> newAutoSyncs = new ArrayList<>();
+
+    for (IndexInfo info : allProcessedInfos) {
+        if (!linkedIndexInfoIds.contains(info.getId())) {
+            newAutoSyncs.add(new AutoSync(info));
+        }
+    }
+    if (!newAutoSyncs.isEmpty()) {
+        autoSyncRepository.saveAll(newAutoSyncs);
+    }
+
+
+    List<SyncJob> logsToSave = allProcessedInfos.stream()
+            .map(info -> SyncJob.ofSuccess(
+                    JobType.INDEX_INFO,
+                    worker,
+                    info.getBasePointInTime(),
+                    info
+            ))
+            .collect(Collectors.toList());
+    syncLogService.saveAllSuccessLogs(logsToSave);
+
+    return logsToSave.stream()
+            .map(syncJobMapper::toDto)
+            .collect(Collectors.toList());
+}
+
     public List<SyncJobDto> syncIndexData(
             IndexDataSyncRequest indexDataSyncRequest,
             String worker
-            ){
+    ) {
+        List<IndexInfo> indexInfos = indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
+        if (indexInfos.isEmpty()) throw new IllegalArgumentException("지수 정보가 존재하지 않습니다.");
 
-        return indexDataSyncRequest.indexInfoIds().stream()
-                .map(indexInfoId -> indexInfoRepository.findById(indexInfoId)
-                        .orElseThrow(() -> new IllegalArgumentException("지수 정보가 존재하지 않습니다.")))
-                .flatMap(indexInfo -> {
-                    // 외부 API 호출
-                    List<IndexData> fetchedDataList = openApiTester.fetchApiByParamsToIndexData(
-                            indexInfo.getIndexName(),
-                            indexDataSyncRequest.baseDateFrom().replace("-", ""),
-                            indexDataSyncRequest.baseDateTo().replace("-", ""),
-                            indexInfo
-                    );
-                    if (fetchedDataList.isEmpty()) {
-                        return Stream.empty();
-                    }
-                    return fetchedDataList.stream().map(fetchedData -> {
-                        indexDataRepository.findByIndexInfoAndBaseDate(indexInfo, fetchedData.getBaseDate())
-                                .ifPresentOrElse(
-                                        existing -> existing.updateFromSync(fetchedData),
-                                        () -> indexDataRepository.save(fetchedData)
-                                );
-                        return createSuccessLog(JobType.INDEX_DATA, worker, fetchedData.getBaseDate(), indexInfo);
-                    });
-                })
+        List<SyncJobDto> resultLogs = new ArrayList<>();
+
+        for (IndexInfo indexInfo : indexInfos) {
+            try {
+                List<IndexData> fetchedDataList = openApiTester.fetchApiByParamsToIndexData(
+                        indexInfo.getIndexName(),
+                        indexDataSyncRequest.baseDateFrom().replace("-", ""),
+                        indexDataSyncRequest.baseDateTo().replace("-", ""),
+                        indexInfo
+                );
+
+                if (fetchedDataList.isEmpty()) continue;
+
+                List<SyncJobDto> logs = self.bulkSaveIndexDataAndLog(indexInfo, fetchedDataList, worker, indexDataSyncRequest);
+                resultLogs.addAll(logs);
+
+            } catch (Exception e) {
+                log.error("지수 데이터 연동 실패: {}", indexInfo.getIndexName(), e);
+                SyncJob failLog = syncLogService.createFailureLog(
+                        JobType.INDEX_DATA, worker, LocalDate.now(), indexInfo
+                );
+                resultLogs.add(syncJobMapper.toDto(failLog));
+            }
+        }
+
+        return resultLogs;
+    }
+
+    @Transactional
+    public List<SyncJobDto> bulkSaveIndexDataAndLog(IndexInfo indexInfo, List<IndexData> fetchedDataList, String worker, IndexDataSyncRequest indexDataSyncRequest) {
+        LocalDate baseDateFrom = (indexDataSyncRequest.baseDateFrom() == null || indexDataSyncRequest.baseDateFrom().isEmpty())
+                ? fetchedDataList.stream().map(IndexData::getBaseDate).min(LocalDate::compareTo).orElse(LocalDate.MIN)
+                : LocalDate.parse(indexDataSyncRequest.baseDateFrom());
+        LocalDate baseDateTo = (indexDataSyncRequest.baseDateTo() == null || indexDataSyncRequest.baseDateTo().isEmpty())
+                ? fetchedDataList.stream().map(IndexData::getBaseDate).max(LocalDate::compareTo).orElse(LocalDate.MAX)
+                : LocalDate.parse(indexDataSyncRequest.baseDateTo());
+        List<IndexData> existingDataList = indexDataRepository.findAllByIndexInfoAndBaseDateBetween(indexInfo, baseDateFrom, baseDateTo);
+
+        Map<LocalDate, IndexData> existingMap = existingDataList.stream()
+                .collect(Collectors.toMap(IndexData::getBaseDate, Function.identity()));
+
+        List<IndexData> dataToSave = new ArrayList<>();
+        List<SyncJob> logsToSave = new ArrayList<>();
+        for (IndexData fetched : fetchedDataList) {
+            if (existingMap.containsKey(fetched.getBaseDate())) {
+                existingMap.get(fetched.getBaseDate()).updateFromSync(fetched);
+            }
+            else {
+                dataToSave.add(fetched);
+            }
+
+            SyncJob successJob = SyncJob.ofSuccess(
+                    JobType.INDEX_DATA,
+                    worker,
+                    fetched.getBaseDate(),
+                    indexInfo
+            );
+            logsToSave.add(successJob);
+        }
+        if (!dataToSave.isEmpty()) {
+            indexDataRepository.saveAll(dataToSave);
+        }
+        syncLogService.saveAllSuccessLogs(logsToSave);
+        return logsToSave.stream()
                 .map(syncJobMapper::toDto)
                 .toList();
     }
-
+    @Transactional(readOnly = true)
     public CursorPageResponseSyncJobDto getSyncJobsByCursor(CursorPageRequestSyncJobDto request) {
         List<SyncJob> syncJobs = syncJobRepository.findAllByCursor(request);
 
@@ -128,20 +225,19 @@ public class SyncJobService {
             SyncJob lastJob = syncJobs.get(syncJobs.size() - 1);
 
             nextIdAfter = lastJob.getId();
-            nextCursor = String.valueOf(lastJob.getCreatedAt());
             if ("targetDate".equals(request.sortField())) {
                 nextCursor = lastJob.getTargetDate().toString();
             } else if ("jobTime".equals(request.sortField())) {
                 nextCursor = lastJob.getCreatedAt().toString();
             }else{
-                nextCursor = null;
+                nextCursor = lastJob.getCreatedAt().toString();
             }
         }
 
         List<SyncJobDto> content = syncJobs.stream()
                 .map(syncJobMapper::toDto)
                 .toList();
-        System.out.println("content = " + content);
+
         return new CursorPageResponseSyncJobDto(
                 content,
                 nextCursor,
@@ -149,37 +245,6 @@ public class SyncJobService {
                 request.size(),
                 totalElement,
                 hasNext);
-    }
-
-    /**
-     * [내부 메서드] 작업 성공 상태의 로그를 생성하고 저장합니다.
-     *
-     * @param jobType 작업 유형 (INDEX_INFO: 지수 정보, INDEX_DATA: 지수 데이터)
-     * @param worker 작업 수행자
-     * @param indexInfo 대상 지수 정보 엔티티
-     * @return DB에 저장된 성공 상태(Result.SUCCESS)의 SyncJob 엔티티
-     */
-    @Transactional
-    protected SyncJob createSuccessLog(JobType jobType, String worker, LocalDate targetDate, IndexInfo indexInfo) {
-        SyncJob successJob = SyncJob.ofSuccess(jobType, worker, targetDate, indexInfo);
-         return syncJobRepository.save(successJob);
-    }
-
-    /**
-     * [내부 메서드] 작업 실패 상태의 로그를 생성하고 저장합니다.
-     * <p>
-     * 예외 발생 시 호출되며, 트랜잭션 롤백 없이 실패 이력을 남기기 위해 사용됩니다.
-     * </p>
-     *
-     * @param jobType 작업 유형 (INDEX_INFO: 지수 정보, INDEX_DATA: 지수 데이터)
-     * @param worker 작업 수행자
-     * @param indexInfo 대상 지수 정보 엔티티
-     * @return DB에 저장된 실패 상태(Result.FAILED)의 SyncJob 엔티티
-     */
-    @Transactional
-    protected SyncJob createFailureLog(JobType jobType, String worker, LocalDate targetDate, IndexInfo indexInfo) {
-        SyncJob failJob = SyncJob.ofFailure(jobType, worker, targetDate, indexInfo);
-        return syncJobRepository.save(failJob);
     }
 
     public LocalDate getLastSyncDate(IndexInfo indexInfo){

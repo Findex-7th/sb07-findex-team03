@@ -211,4 +211,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long>, Ind
         Sort sort );
 
     Optional<IndexData> findByIndexInfoAndBaseDate(IndexInfo indexInfo, LocalDate baseDate);
+
+    List<IndexData> findAllByIndexInfoAndBaseDateBetween(IndexInfo indexInfo, LocalDate baseDateFrom, LocalDate baseDateTo);
 }
