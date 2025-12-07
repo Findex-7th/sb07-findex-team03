@@ -1,4 +1,4 @@
-package com.team3.findex.controller;
+package com.team3.findex.domain.index.controller;
 
 import com.team3.findex.domain.index.enums.ChartPeriodType;
 import com.team3.findex.common.util.CursorEncodingUtil;
