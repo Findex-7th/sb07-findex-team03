@@ -29,15 +29,15 @@ public record IndexDataWithInfoDto(
         );
     }
 
-    public static IndexDataWithInfoDto fixCurrentPriceDto(IndexDataWithInfoDto dto, double fixedCurrentPrice) {
-        return new IndexDataWithInfoDto(dto.indexInfoId(),
-                dto.indexClassification(),
-                dto.indexName(),
-                dto.versus(),
-                dto.fluctuationRate(),
-                dto.currentPrice(),
-                new BigDecimal(fixedCurrentPrice));
-    }
+//    public static IndexDataWithInfoDto fixCurrentPriceDto(IndexDataWithInfoDto dto, double fixedCurrentPrice) {
+//        return new IndexDataWithInfoDto(dto.indexInfoId(),
+//                dto.indexClassification(),
+//                dto.indexName(),
+//                dto.versus(),
+//                dto.fluctuationRate(),
+//                dto.currentPrice(),
+//                new BigDecimal(fixedCurrentPrice));
+//    }
 
     public static IndexDataWithInfoDto fromBeforeDto(IndexDataBeforeDto dto, double fixedCurrentPrice) {
         return new IndexDataWithInfoDto(dto.indexInfoId(),

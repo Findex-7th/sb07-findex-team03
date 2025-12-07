@@ -141,36 +141,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long>, Ind
     //🐠🐠🐠주요 지수⭕️⭕️⭕️
     //    - **{즐겨찾기}**된 지수의 성과 정보를 포함합니다.
     //    - 성과는 **{종가}**를 기준으로 비교합니다.
-//    @Query("""
-//    SELECT new com.team3.findex.domain.index.dto.IndexDataBeforeDto(
-//        i.id,
-//        i.indexClassification,
-//        i.indexName,
-//        AVG(d.versus),
-//        AVG(d.fluctuationRate),
-//        AVG(d.closingPrice)
-//    )
-//    FROM IndexData d
-//    JOIN d.indexInfo i
-//    WHERE i.favorite = true
-//      AND d.baseDate = (
-//            SELECT MAX(d_sub.baseDate)
-//            FROM IndexData d_sub
-//            WHERE d_sub.indexInfo.id = i.id
-//              AND d_sub.baseDate > :startDate
-//              AND d_sub.baseDate <= :endDate
-//        )
-//    GROUP BY
-//        i.id,
-//        i.indexClassification,
-//        i.indexName
-//    ORDER BY AVG(d.closingPrice) DESC
-//""")
-//    List<IndexDataBeforeDto> findAllFavoriteIndex(
-//        @Param("startDate") LocalDate startDate,
-//        @Param("endDate") LocalDate endDate
-//    );
-
     @Query("""
     SELECT new com.team3.findex.domain.index.dto.IndexDataBeforeDto(
          i.id,
@@ -198,38 +168,9 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long>, Ind
         @Param("endDate") LocalDate endDate
     );
 
-
-
-
-
     //🧊🧊🧊지수 성과 분석 랭킹
     //    - 전일/전주/전월 대비 성과 랭킹
     //    - 성과는 **{종가}**를 기준으로 비교합니다.
-//    @Query("""
-//    SELECT new com.team3.findex.domain.index.dto.IndexDataWithInfoDto(
-//         i.id,
-//         i.indexClassification,
-//         i.indexName,
-//         SUM(d.versus),
-//         SUM(d.fluctuationRate),
-//         SUM(d.closingPrice),
-//         SUM(CAST(d.closingPrice - d.versus AS bigdecimal))
-//    )
-//    FROM IndexData d
-//    JOIN d.indexInfo i
-//    WHERE i.id = :indexInfoId
-//      AND d.baseDate > :startDate
-//      AND d.baseDate <= :endDate
-//    GROUP BY i.id, i.indexClassification, i.indexName
-//    ORDER BY SUM(d.closingPrice) DESC
-//""")
-//    List<IndexDataWithInfoDto> findAllPerformanceRank(
-//        @Param("indexInfoId") Long indexInfoId,
-//        @Param("startDate") LocalDate startDate,
-//        @Param("endDate") LocalDate endDate,
-//        Pageable pageable
-//    );
-
     @Query("""
     SELECT new com.team3.findex.domain.index.dto.IndexDataBeforeDto(
          i.id,
@@ -259,33 +200,9 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long>, Ind
         Pageable pageable
     );
 
-
-
     //🧊🧊🧊지수 성과 분석 랭킹
     //    - 전일/전주/전월 대비 성과 랭킹
     //    - 성과는 **{종가}**를 기준으로 비교합니다.
-//    @Query("""
-//    SELECT new com.team3.findex.domain.index.dto.IndexDataWithInfoDto(
-//         i.id,
-//         i.indexClassification,
-//         i.indexName,
-//         SUM(d.versus),
-//         SUM(d.fluctuationRate),
-//         SUM(d.closingPrice),
-//         SUM(CAST(d.closingPrice - d.versus AS bigdecimal))
-//    )
-//    FROM IndexData d
-//    JOIN d.indexInfo i
-//    WHERE d.baseDate > :startDate
-//      AND d.baseDate <= :endDate
-//    GROUP BY i.id, i.indexClassification, i.indexName
-//    ORDER BY SUM(d.closingPrice) DESC
-//""")
-//    List<IndexDataWithInfoDto> findAllPerformanceRank(
-//        @Param("startDate") LocalDate startDate,
-//        @Param("endDate") LocalDate endDate,
-//        Pageable pageable
-//    );
     @Query("""
     SELECT new com.team3.findex.domain.index.dto.IndexDataBeforeDto(
          i.id,
@@ -312,9 +229,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long>, Ind
         @Param("endDate") LocalDate endDate,
         Pageable pageable
     );
-
-
-
 
 
     @Query("SELECT d FROM IndexData d "

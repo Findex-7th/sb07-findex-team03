@@ -55,9 +55,6 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
 
     private final IndexDataRepository indexDataRepository;
     private final IndexInfoRepository indexInfoRepository;
-
-    //    private final RankedIndexPerformanceMapper rankedIndexPerformanceMapper;
-//    private final IndexPerformanceMapper indexPerformanceMapper;
     private final IndexDataMapper indexDataMapper;
     private final IndexChartMapper indexChartMapper;
 
@@ -134,8 +131,6 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
     @Override
     public List<RankedIndexPerformanceDto> performanceRank(Long indexInfoId, PeriodType periodType,
                                                            int limit) {
-        log.info("❌❌❌❌❌❌❌❌");
-        log.info("❌❌❌❌❌❌❌❌");
         LocalDate end = LocalDate.from(LocalDateTime.now());
         LocalDate start = getPeriodTypeDate(periodType);
 
@@ -249,8 +244,6 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
 
         return indexChartDto;
     }
-
-
     //🐠🐠🐠주요 지수🐠🐠🐠
     @Override
     public List<IndexDataWithInfoDto> favoriteIndex(PeriodType periodType) {
