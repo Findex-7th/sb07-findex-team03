@@ -189,6 +189,8 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     // TODO 로딩문제 해결하기
     @Override
     public CursorPageResponseIndexInfoDto searchIndexInfos(IndexInfoCursorRequest request) {
+        int pageSize = request.size() == null ? 10 : request.size();
+
         List<IndexInfo> results = indexInfoRepository.findByCondition(
                 request.cursor(),
                 new IndexInfoFindCondition(
@@ -196,19 +198,28 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                         request.indexName(),
                         request.favorite()
                 ),
-                request.size(),
+                pageSize,
                 new IndexInfoFindSort(
                         request.indexInfoSortField(),
                         request.sortDirection()
                 )
         );
+
+        boolean hasNext = results.size() > pageSize;
+        List<IndexInfo> pageContent = hasNext ? results.subList(0, pageSize) : results;
+
+        String nextCursor = hasNext ? encodeId(results.get(results.size() - 1).getId()) : null;
+        String nextIdAfter = pageContent.isEmpty()
+                ? null
+                : encodeId(pageContent.get(pageContent.size() - 1).getId());
+
         return new CursorPageResponseIndexInfoDto(
-                indexInfoMapper.toDtoList(results.subList(0, results.size() - 1)),
-                encodeId(results.get(results.size() - 1).getId()),
-                encodeId(results.get(results.size() - 2).getId()),
-                results.size() - 1,
+                indexInfoMapper.toDtoList(pageContent),
+                nextCursor,
+                nextIdAfter,
+                pageContent.size(),
                 indexInfoRepository.count(),
-                results.size() > request.size()
+                hasNext
         );
     }
 }

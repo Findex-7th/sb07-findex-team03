@@ -318,6 +318,8 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
      */
     @Override
     public CursorPageResponseIndexDataDto getAllIndexData(IndexDataCursorRequest request) {
+        int requestSize = request.size() == null ? 10 : request.size();
+
         List<IndexData> results = indexDataRepository.findByCondition(
                 request.cursor(),
                 new IndexDataFindCondition(
@@ -325,19 +327,28 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
                         request.startDate(),
                         request.endDate()
                 ),
-                request.size(),
+                requestSize,
                 new IndexDataFindSort(
                         request.sortField(),
                         request.order()
                 )
         );
+
+        boolean hasNext = results.size() > requestSize;
+        List<IndexData> pageContent = hasNext ? results.subList(0, requestSize) : results;
+
+        String nextCursor = hasNext ? encodeId(results.get(results.size() - 1).getId()) : null;
+        String nextIdAfter = pageContent.isEmpty()
+                ? null
+                : encodeId(pageContent.get(pageContent.size() - 1).getId());
+
         return new CursorPageResponseIndexDataDto(
-                indexDataMapper.toDtoList(results.subList(0, results.size() - 1)),
-                encodeId(results.get(results.size() - 1).getId()),
-                encodeId(results.get(results.size() - 2).getId()),
-                results.size() - 1,
+                indexDataMapper.toDtoList(pageContent),
+                nextCursor,
+                nextIdAfter,
+                pageContent.size(),
                 indexInfoRepository.count(),
-                results.size() > request.size()
+                hasNext
         );
     }
 }
