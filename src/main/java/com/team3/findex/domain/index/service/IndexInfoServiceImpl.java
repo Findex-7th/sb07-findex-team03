@@ -130,12 +130,6 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         indexInfoRepository.delete(indexInfo);
     }
 
-    // TODO
-    @Override
-    public List<IndexInfoSummaryDto> getSummaryList(String sort, String order) {
-        return List.of();
-    }
-
     @Transactional
     public void autoSyncFromOpenApi() {
         // Open Api에서 오늘 지수 정보 리스트 갖고 옴
@@ -174,6 +168,21 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                             }
                     );
         });
+    }
+
+    @Override
+    public List<IndexInfoSummaryDto> getSummaryList(String sortKey, String order) {
+        Sort.Direction direction = "desc".equals(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort;
+
+        if( sortKey == null ||sortKey.isEmpty()){
+            sort = Sort.by(direction, "id");
+        } else {
+            sort = Sort.by(direction, sortKey);
+        }
+
+        List<IndexInfo> list = indexInfoRepository.findAll(sort);
+        return indexInfoMapper.toSummaryDtoList(list);
     }
 
     // =============== 여기부터 ========================
