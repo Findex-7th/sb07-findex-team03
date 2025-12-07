@@ -8,5 +8,4 @@ public interface AutoSyncRepository extends JpaRepository<AutoSync, Long>, AutoS
 
   boolean existsByIndexInfo(IndexInfo IndexInfo);
   void deleteByIndexInfoId(Long indexInfoId);
-
 }

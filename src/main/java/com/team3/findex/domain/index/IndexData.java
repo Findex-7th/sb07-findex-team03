@@ -148,4 +148,16 @@ public class IndexData extends IndexDataBaseEntity {
             request.marketTotalAmount()
         );
     }
+
+    public void updateFromSync(IndexData newData){
+        this.marketPrice = newData.getMarketPrice();
+        this.closingPrice = newData.getClosingPrice();
+        this.highPrice = newData.getHighPrice();
+        this.lowPrice = newData.getLowPrice();
+        this.tradingQuantity = newData.getTradingQuantity();
+        this.versus = newData.getVersus();
+        this.fluctuationRate = newData.getFluctuationRate();
+        this.tradingPrice = newData.getTradingPrice();
+        this.marketTotalAmount = newData.getMarketTotalAmount();
+    }
 }

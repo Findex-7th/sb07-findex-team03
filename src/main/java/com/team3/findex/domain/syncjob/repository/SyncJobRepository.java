@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SyncJobRepository extends JpaRepository<SyncJob, Long>, SyncJobRepositoryCustom{
-
     /**
      * 지수 가장 최근 성공 연동 기록조회
      * @param indexInfo 조회할 지수 정보
@@ -26,7 +25,7 @@ public interface SyncJobRepository extends JpaRepository<SyncJob, Long>, SyncJob
         ORDER BY sj.targetDate DESC
         limit 1
     """)
-    Optional <SyncJob> findLatest(
+    Optional<SyncJob> findLatest(
             @Param("indexInfo") IndexInfo indexInfo,
             @Param("result") Result result
     );
