@@ -40,6 +40,10 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
         Instant jobTimeFrom = StringUtils.hasText(request.jobTimeFrom()) ? Instant.parse(request.jobTimeFrom()) : null;
         Instant jobTimeTo = StringUtils.hasText(request.jobTimeTo()) ? Instant.parse(request.jobTimeTo()) : null;
 
+        System.out.println("jobTimeTo = " + request.jobTimeTo());
+        System.out.println("jobTimeFrom = " + request.jobTimeFrom());
+
+
         Result resultStatus = null;
         if (StringUtils.hasText(request.status())) {
             try {

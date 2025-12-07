@@ -36,6 +36,7 @@ public class SyncJobService {
     private final SyncJobMapper syncJobMapper;
     private final IndexDataRepository indexDataRepository;
     private final OpenApiTester openApiTester;
+    private final AutoSyncRepository autoSyncRepository;
 
 
     /**
@@ -62,11 +63,13 @@ public class SyncJobService {
                                 indexInfo.getEmployedItemsCount(),
                                 indexInfo.getBasePointInTime(),
                                 indexInfo.getBaseIndex(),
-                                indexInfo.getFavorite()
+                                null
                         );
                         return existing;
                     }).orElseGet(() -> indexInfoRepository.save(indexInfo));
-
+                    if (!autoSyncRepository.existsByIndexInfo(savedIndexInfo)) {
+                        autoSyncRepository.save(new AutoSync(savedIndexInfo));
+                    }
                     return createSuccessLog(JobType.INDEX_INFO, worker, savedIndexInfo.getBasePointInTime(), savedIndexInfo);
                 })
                 .map(syncJobMapper::toDto)
@@ -85,8 +88,8 @@ public class SyncJobService {
                     // 외부 API 호출
                     List<IndexData> fetchedDataList = openApiTester.fetchApiByParamsToIndexData(
                             indexInfo.getIndexName(),
-                            indexDataSyncRequest.baseDateFrom(),
-                            indexDataSyncRequest.baseDateTo(),
+                            indexDataSyncRequest.baseDateFrom().replace("-", ""),
+                            indexDataSyncRequest.baseDateTo().replace("-", ""),
                             indexInfo
                     );
                     if (fetchedDataList.isEmpty()) {
@@ -112,8 +115,9 @@ public class SyncJobService {
         boolean hasNext = false;
         String nextCursor = request.cursor() != null ? request.cursor() : null;
         Long nextIdAfter = request.idAfter() != null ? request.idAfter() : null;
+        Long totalElement = null;
         if(request.idAfter() == null){
-            
+            totalElement = syncJobRepository.countByCursorFilter(request);
         }
         if (!syncJobs.isEmpty()) {
             SyncJob lastJob = syncJobs.get(syncJobs.size() - 1);
@@ -138,7 +142,7 @@ public class SyncJobService {
                 nextCursor,
                 nextIdAfter,
                 request.size(),
-                (long) request.size(),
+                totalElement,
                 hasNext);
     }
 

@@ -72,7 +72,7 @@ public class OpenApiTester {
                             .queryParam("pageNo", 1)
                             .queryParam("numOfRows", 500)
                             .queryParam("idxNm", idxNm)
-                            .queryParam("basDt", beginBasDt)
+                            .queryParam("beginBasDt", beginBasDt)
                             .queryParam("endBasDt", endBasDt)
                             .build();
                 })
@@ -85,7 +85,10 @@ public class OpenApiTester {
                 })
                 .body(ApiResponseDto.class);
         dto.getResponse().getBody().getItems().getItemList().forEach(item -> log.info("item: {}", item));
-        return dto.getResponse().getBody().getItems().getItemList().stream().map(item -> openAPIMapper.toIndexDataEntity(item, indexInfo)).toList();
+        return dto.getResponse().getBody().getItems().getItemList().stream()
+                .filter(item -> isSameIndex(item, indexInfo))
+                .map(item -> openAPIMapper.toIndexDataEntity(item, indexInfo))
+                .toList();
     }
 
 
@@ -97,6 +100,13 @@ public class OpenApiTester {
             builder.queryParam("basDt", baseDate);
         }
         return builder.build();
+    }
+
+    private boolean isSameIndex(ApiResponseDto.ApiItemDto item, IndexInfo indexInfo) {
+        boolean nameMatch = item.getIdxNm().equals(indexInfo.getIndexName());
+        boolean classificationMatch = item.getIdxCsf().equals(indexInfo.getIndexClassification());
+
+        return nameMatch && classificationMatch;
     }
 
 }
