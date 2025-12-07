@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +36,6 @@ public class SyncJobService {
     private final SyncJobMapper syncJobMapper;
     private final IndexDataRepository indexDataRepository;
     private final OpenApiTester openApiTester;
-    private final OpenAPIMapper openAPIMapper;
-    private final AutoSyncRepository autoSyncRepository;
 
 
     /**
@@ -52,9 +51,7 @@ public class SyncJobService {
      */
     @Transactional
     public List<SyncJobDto> syncIndexInfos(String worker){
-        List<IndexInfo> indexInfos = openApiTester.fetchAllApi().getResponse().getBody().getItems().getItemList().stream()
-                .map(openAPIMapper::toIndexInfoEntity)
-                .toList();
+        List<IndexInfo> indexInfos = openApiTester.fetchAllApiToIndexInfo();
         return indexInfos.stream()
                 .map(indexInfo -> {
                     IndexInfo savedIndexInfo = indexInfoRepository.findByIndexClassificationAndIndexName(
@@ -68,15 +65,7 @@ public class SyncJobService {
                                 indexInfo.getFavorite()
                         );
                         return existing;
-                    }).orElseGet(() -> {
-                        IndexInfo saveIndexInfo = indexInfoRepository.save(indexInfo);
-
-                        if (!autoSyncRepository.existsByIndexInfo(saveIndexInfo)){
-                            autoSyncRepository.save(new AutoSync(indexInfo));
-                        }
-
-                        return saveIndexInfo;
-                    });
+                    }).orElseGet(() -> indexInfoRepository.save(indexInfo));
 
                     return createSuccessLog(JobType.INDEX_INFO, worker, savedIndexInfo.getBasePointInTime(), savedIndexInfo);
                 })
@@ -89,23 +78,46 @@ public class SyncJobService {
             IndexDataSyncRequest indexDataSyncRequest,
             String worker
             ){
-        List<Long> indexInfoIds = indexDataSyncRequest.indexInfoIds();
-
-
-
-        return null;
+        return indexDataSyncRequest.indexInfoIds().stream()
+                .map(indexInfoId -> indexInfoRepository.findById(indexInfoId)
+                        .orElseThrow(() -> new IllegalArgumentException("지수 정보가 존재하지 않습니다.")))
+                .flatMap(indexInfo -> {
+                    // 외부 API 호출
+                    List<IndexData> fetchedDataList = openApiTester.fetchApiByParamsToIndexData(
+                            indexInfo.getIndexName(),
+                            indexDataSyncRequest.baseDateFrom(),
+                            indexDataSyncRequest.baseDateTo(),
+                            indexInfo
+                    );
+                    if (fetchedDataList.isEmpty()) {
+                        return Stream.empty();
+                    }
+                    return fetchedDataList.stream().map(fetchedData -> {
+                        indexDataRepository.findByIndexInfoAndBaseDate(indexInfo, fetchedData.getBaseDate())
+                                .ifPresentOrElse(
+                                        existing -> existing.updateFromSync(fetchedData),
+                                        () -> indexDataRepository.save(fetchedData)
+                                );
+                        return createSuccessLog(JobType.INDEX_DATA, worker, fetchedData.getBaseDate(), indexInfo);
+                    });
+                })
+                .map(syncJobMapper::toDto)
+                .toList();
     }
 
-    public CursorPageResponseSyncJobDto getSyncJobsByCursor(CursorPageRequestSyncJobDto request){
+    public CursorPageResponseSyncJobDto getSyncJobsByCursor(CursorPageRequestSyncJobDto request) {
         List<SyncJob> syncJobs = syncJobRepository.findAllByCursor(request);
         System.out.println(syncJobs.toString());
 
         boolean hasNext = false;
         String nextCursor = request.cursor() != null ? request.cursor() : null;
         Long nextIdAfter = request.idAfter() != null ? request.idAfter() : null;
-        if(!syncJobs.isEmpty()){
+        if(request.idAfter() == null){
+            
+        }
+        if (!syncJobs.isEmpty()) {
             SyncJob lastJob = syncJobs.get(syncJobs.size() - 1);
-            if(syncJobs.size() > request.size()){
+            if (syncJobs.size() > request.size()) {
                 hasNext = true;
                 syncJobs.remove(request.size());
                 nextIdAfter = lastJob.getId();

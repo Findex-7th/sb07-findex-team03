@@ -1,6 +1,9 @@
 package com.team3.findex.domain.syncjob.openapitester;
 
+import com.team3.findex.domain.index.IndexData;
+import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.syncjob.openapitester.dto.ApiResponseDto;
+import com.team3.findex.domain.syncjob.openapitester.mapper.OpenAPIMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +13,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -24,7 +28,9 @@ public class OpenApiTester {
 
     private final RestClient restClient;
 
-    public ApiResponseDto fetchAllApi() {
+    private final OpenAPIMapper openAPIMapper;
+
+    public List<IndexInfo> fetchAllApiToIndexInfo() {
         ApiResponseDto dto = restClient.get()
                 .uri(uriBuilder -> {
                     return uriBuilder
@@ -46,10 +52,15 @@ public class OpenApiTester {
                 })
                 .body(ApiResponseDto.class);
         dto.getResponse().getBody().getItems().getItemList().forEach(item -> log.info("item: {}", item));
-        return dto;
+        return dto.getResponse().getBody().getItems().getItemList().stream().map(openAPIMapper::toIndexInfoEntity)
+                .toList();
     }
 
-    public ApiResponseDto fetchApiByParams(String idxNm, String beginBasDt, String endBasDt){
+    public List<IndexData> fetchApiByParamsToIndexData(
+            String idxNm,
+            String beginBasDt,
+            String endBasDt,
+            IndexInfo indexInfo){
         ApiResponseDto dto = restClient.get()
                 .uri(uriBuilder -> {
                     return uriBuilder
@@ -74,7 +85,7 @@ public class OpenApiTester {
                 })
                 .body(ApiResponseDto.class);
         dto.getResponse().getBody().getItems().getItemList().forEach(item -> log.info("item: {}", item));
-        return dto;
+        return dto.getResponse().getBody().getItems().getItemList().stream().map(item -> openAPIMapper.toIndexDataEntity(item, indexInfo)).toList();
     }
 
 

@@ -1,11 +1,13 @@
 package com.team3.findex.repository;
 
 import com.team3.findex.domain.index.repository.IndexDataRepositoryCustom;
-import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
+import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -266,4 +268,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long>, Ind
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
         Sort sort );
+
+    Optional<IndexData> findByIndexInfoAndBaseDate(IndexInfo indexInfo, LocalDate baseDate);
 }
