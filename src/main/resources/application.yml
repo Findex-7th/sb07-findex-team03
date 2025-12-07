@@ -4,7 +4,6 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${DATABASE_URL}
 
     hikari:
       connection-timeout: 60000
@@ -19,7 +18,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate # 운영시 반드시 none
+      ddl-auto: update # 운영시 반드시 none
     properties:
       hibernate:
         format_sql: true
