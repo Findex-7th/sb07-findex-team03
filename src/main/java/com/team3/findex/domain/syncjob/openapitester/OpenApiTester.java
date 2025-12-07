@@ -1,19 +1,19 @@
-package com.team3.findex.domain.syncjob.openApiTester;
+package com.team3.findex.domain.syncjob.openapitester;
 
-import com.team3.findex.domain.syncjob.openApiTester.dto.ApiResponseDto;
+import com.team3.findex.domain.index.IndexData;
+import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.syncjob.openapitester.dto.ApiResponseDto;
+import com.team3.findex.domain.syncjob.openapitester.mapper.OpenAPIMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -28,34 +28,9 @@ public class OpenApiTester {
 
     private final RestClient restClient;
 
-    public ApiResponseDto fetchApiByOptions(String indexName, String baseDate, int pageNo, int numOfRows) {
-        ApiResponseDto dto = restClient.get()
-                .uri(uriBuilder -> {
-                    URI uri = uriBuilder
-                            .scheme("https")
-                            .host("apis.data.go.kr")
-                            .path("/1160100/service/GetMarketIndexInfoService/getStockMarketIndex")
-                            .queryParam("serviceKey", serviceKey)
-                            .queryParam("resultType", "json")
-                            .queryParam("pageNo", pageNo)
-                            .queryParam("numOfRows", numOfRows)
-                            .build();
+    private final OpenAPIMapper openAPIMapper;
 
-
-                    return addOptionalParams(uriBuilder, indexName, baseDate);
-                })
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
-                    throw new RuntimeException("클라이언트 에러: " + response.getStatusCode() + " " + response.getStatusText());
-                })
-                .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
-                    throw new RuntimeException("서버 에러: " + response.getStatusCode());
-                })
-                .body(ApiResponseDto.class);
-        return dto;
-    }
-
-    public ApiResponseDto fetchAllApi() {
+    public List<IndexInfo> fetchAllApiToIndexInfo() {
         ApiResponseDto dto = restClient.get()
                 .uri(uriBuilder -> {
                     return uriBuilder
@@ -77,7 +52,43 @@ public class OpenApiTester {
                 })
                 .body(ApiResponseDto.class);
         dto.getResponse().getBody().getItems().getItemList().forEach(item -> log.info("item: {}", item));
-        return dto;
+        return dto.getResponse().getBody().getItems().getItemList().stream().map(openAPIMapper::toIndexInfoEntity)
+                .toList();
+    }
+
+    public List<IndexData> fetchApiByParamsToIndexData(
+            String idxNm,
+            String beginBasDt,
+            String endBasDt,
+            IndexInfo indexInfo){
+        ApiResponseDto dto = restClient.get()
+                .uri(uriBuilder -> {
+                    return uriBuilder
+                            .scheme("https")
+                            .host("apis.data.go.kr")
+                            .path("/1160100/service/GetMarketIndexInfoService/getStockMarketIndex")
+                            .queryParam("serviceKey", serviceKey)
+                            .queryParam("resultType", "json")
+                            .queryParam("pageNo", 1)
+                            .queryParam("numOfRows", 500)
+                            .queryParam("idxNm", idxNm)
+                            .queryParam("beginBasDt", beginBasDt)
+                            .queryParam("endBasDt", endBasDt)
+                            .build();
+                })
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                    throw new RuntimeException("클라이언트 에러: " + response.getStatusCode() + " " + response.getStatusText());
+                })
+                .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
+                    throw new RuntimeException("서버 에러: " + response.getStatusCode());
+                })
+                .body(ApiResponseDto.class);
+        dto.getResponse().getBody().getItems().getItemList().forEach(item -> log.info("item: {}", item));
+        return dto.getResponse().getBody().getItems().getItemList().stream()
+                .filter(item -> isSameIndex(item, indexInfo))
+                .map(item -> openAPIMapper.toIndexDataEntity(item, indexInfo))
+                .toList();
     }
 
 
@@ -89,6 +100,13 @@ public class OpenApiTester {
             builder.queryParam("basDt", baseDate);
         }
         return builder.build();
+    }
+
+    private boolean isSameIndex(ApiResponseDto.ApiItemDto item, IndexInfo indexInfo) {
+        boolean nameMatch = item.getIdxNm().equals(indexInfo.getIndexName());
+        boolean classificationMatch = item.getIdxCsf().equals(indexInfo.getIndexClassification());
+
+        return nameMatch && classificationMatch;
     }
 
 }

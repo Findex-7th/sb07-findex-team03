@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(CustomException e){
-        log.error("CustomException: {}", e.getMessage());
+        log.error("CustomException : ", e);
 
         ErrorCode errorCode = e.getErrorCode();
         String detail = e.getDetailMessage() != null ? e.getDetailMessage() : errorCode.getDetails();
@@ -34,8 +34,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException e){
-        log.error("EntityNotFoundException : {}", e.getMessage());
-        ErrorResponse response = ErrorResponse.error(
+        log.error("EntityNotFoundException : ", e);
+                ErrorResponse response = ErrorResponse.error(
                 HttpStatus.NOT_FOUND.value(),
                 "EntityNotFoundException",
                 e.getMessage()
@@ -46,8 +46,8 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e){
-        log.error("IllegalArgumentException : {}", e.getMessage());
-        ErrorResponse response = ErrorResponse.error(
+        log.error("IllegalArgumentException : ", e);
+                ErrorResponse response = ErrorResponse.error(
                 HttpStatus.BAD_REQUEST.value(),
                 "IllegalArgumentException",
                 e.getMessage()

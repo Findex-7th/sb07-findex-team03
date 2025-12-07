@@ -1,4 +1,4 @@
-package com.team3.findex.domain.syncjob.openApiTester.dto;
+package com.team3.findex.domain.syncjob.openapitester.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,8 +22,8 @@ public class ApiResponseDto {
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Header {
-        private String resultCode; // 결과코드
-        private String resultMsg;  // 결과메시지
+        private String resultCode;
+        private String resultMsg;
     }
 
     @Data

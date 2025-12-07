@@ -1,9 +1,9 @@
 package com.team3.findex.domain.syncjob.controller;
 
-import com.team3.findex.domain.syncjob.dto.CursorPageRequestSyncJobDto;
-import com.team3.findex.domain.syncjob.dto.CursorPageResponseSyncJobDto;
-import com.team3.findex.domain.syncjob.dto.IndexDataSyncRequest;
-import com.team3.findex.domain.syncjob.dto.SyncJobDto;
+import com.team3.findex.domain.syncjob.dto.request.CursorPageRequestSyncJobDto;
+import com.team3.findex.domain.syncjob.dto.response.CursorPageResponseSyncJobDto;
+import com.team3.findex.domain.syncjob.dto.request.IndexDataSyncRequest;
+import com.team3.findex.domain.syncjob.dto.response.SyncJobDto;
 import com.team3.findex.domain.syncjob.service.SyncJobService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,6 @@ public class SyncJobController {
         return ResponseEntity.ok(indexInfos);
     }
 
-
     @PostMapping("/index-infos")
     public ResponseEntity<List<SyncJobDto>> getIndexInfo(HttpServletRequest request){
         String worker = ipIntercept(request);
@@ -40,7 +39,8 @@ public class SyncJobController {
             HttpServletRequest request
     ){
         String worker = ipIntercept(request);
-        return null;
+        List<SyncJobDto> syncJobDtos = syncJobService.syncIndexData(indexDataSyncRequest, worker);
+        return ResponseEntity.ok(syncJobDtos);
     }
 
     @GetMapping
@@ -50,7 +50,6 @@ public class SyncJobController {
         System.out.println("cursorPageRequestSyncJobDto = " + cursorPageRequestSyncJobDto.toString());
         return ResponseEntity.ok(syncJobService.getSyncJobsByCursor(cursorPageRequestSyncJobDto));
     }
-
 
     private String ipIntercept(HttpServletRequest request){
         String ip = request.getHeader("X-Forwarded-For");

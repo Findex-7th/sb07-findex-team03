@@ -1,12 +1,16 @@
 package com.team3.findex.controller;
 
+import com.team3.findex.domain.index.ChartPeriodType;
+import com.team3.findex.common.util.CursorEncodingUtil;
+import com.team3.findex.domain.index.dto.request.IndexDataCursorRequest;
+import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexDataDto;
+import com.team3.findex.domain.index.enums.IndexDataSortField;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
 import com.team3.findex.dto.indexDataDto.IndexDataDto;
-import com.team3.findex.dto.indexDataDto.IndexDataExcelDto;
 import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
-import com.team3.findex.dto.indexDataDto.IndexPerformanceDto;
+import com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto;
 import com.team3.findex.dto.indexDataDto.RankedIndexPerformanceDto;
 import com.team3.findex.domain.index.PeriodType;
 import com.team3.findex.service.Interface.IndexDataServiceInterface;
@@ -14,11 +18,12 @@ import com.team3.findex.swaggerDocs.IndexDataDoc;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,31 +44,46 @@ public class IndexDataController implements IndexDataDoc {
     private final IndexDataServiceInterface indexDataService;
 
     /**
-     * 지수 데이터 목록 조회
-     * @return
-     */
+         * 주어진 필터링 및 페이지네이션 매개변수를 기반으로 지수 데이터의 페이지를 조회합니다.
+         *
+         * @param indexInfoId 필터링할 지수 정보의 ID (선택)
+         * @param startDate 날짜 필터의 시작일 (선택)
+         * @param endDate 날짜 필터의 종료일 (선택)
+         * @param idAfter 페이지네이션을 시작할 지수 데이터의 ID (선택)
+         * @param cursor 페이지네이션 상태를 디코딩하기 위한 커서 문자열 (선택)
+         * @param sortField 지수 데이터를 정렬할 필드 (선택)
+         * @param order 정렬 순서, 오름차순 또는 내림차순 (기본: 내림차순)
+         * @param size 응답에 포함될 최대 항목 수 (기본: 10)
+         * @return 요청된 지수 데이터를 포함한 {@link CursorPageResponseIndexDataDto}를 담은 {@link ResponseEntity}
+         *         또는 필터와 일치하는 데이터가 없는 경우 빈 결과
+         */
     @GetMapping
-    public ResponseEntity<CursorPageResponse<IndexDataDto>> getAllIndexData(
-//        @Valid @RequestParam IndexDataListRequest request){ //??
-        @RequestParam(value = "indexInfoId", required = false) Long indexInfoId,
-        @RequestParam(value = "startDate",   required = false) LocalDate startDate,
-        @RequestParam(value = "endDate",     required = false) LocalDate endDate,
-        @RequestParam(value = "idAfter",     required = false) Long idAfter,
-        @RequestParam(value = "cursor",      required = false) String cursor,
-        @Valid @RequestParam(value = "sortField")              String sortField,
-        @Valid @RequestParam(value = "sortDirection")          String sortDirection,
-        @Valid @RequestParam(value = "size")                   Integer size
-    ){
-
-        CursorPageResponse<IndexDataDto> responseDto  = indexDataService.getAllIndexData(sortField, sortDirection, size);
-
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(responseDto);
+    public ResponseEntity<CursorPageResponseIndexDataDto> getIndexDatas(
+            @RequestParam(required = false) Long indexInfoId,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) LocalDate startDate,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Long idAfter,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false, defaultValue = "desc") String order,
+            @RequestParam(required = false, defaultValue = "10") Integer size
+    ) {
+        return ResponseEntity.ok(indexDataService.getAllIndexData(
+                new IndexDataCursorRequest(
+                        indexInfoId,
+                        startDate,
+                        endDate,
+                        idAfter,
+                        CursorEncodingUtil.decodeId(cursor),
+                        IndexDataSortField.fromString(sortField),
+                        Sort.Direction.fromString(order.toUpperCase()),
+                        size
+                ))
+        );
     }
 
     /**
-     * 지수 데이터 등록
+     * 지수 데이터 등록 ⭕️🎉
      * @return
      */
     @PostMapping
@@ -78,7 +98,7 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     * 지수 데이터 삭제
+     * 지수 데이터 삭제 ⭕️🎉
      * @return
      */
     @DeleteMapping("/{id}")
@@ -94,7 +114,7 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     * 지수 데이터 수정
+     * 지수 데이터 수정 ⭕️🎉
      * @return
      */
     @PatchMapping("/{id}")
@@ -111,44 +131,19 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     * 지수 차트 조회
-     * @return
-     */
-    @GetMapping("/{id}/chart")
-    public ResponseEntity<IndexChartDto> getChartData(
-        @Valid @PathVariable(value = "id") Long id,
-        @RequestParam(value = "periodType", required = false) PeriodType periodType
-    ){
-
-        // 대시보드
-        IndexChartDto indexChartDto = indexDataService.getChartData(id, periodType);
-
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(indexChartDto);
-    }
-
-    /**
-     * 지수 성과 랭킹 조회
-     * http://api/index-data/performance/rank?indexInfoId=123&periodType=WEEKLY&limit=10'
-     * 200
-     * Response body = []
-     * Response headers = [
-     *     connection: keep-alive
-     *     content-type: application/json
-     *     date: Mon,01 Dec 2025 09:18:14 GMT
-     *     server: nginx/1.27.5
-     *     transfer-encoding: chunked
-     *  ]
+     **지수 성과 분석 랭킹 ⭕️🎉**
+     * 전일/전주/전월 대비 성과 랭킹
+     * 성과는 **{종가}**를 기준으로 비교합니다.
+     * 🧊🧊🧊지수 성과 🧊🧊🧊🧊
      * @return
      */
     @GetMapping("/performance/rank")
     public ResponseEntity<List<RankedIndexPerformanceDto>> performanceRank(
-        @RequestParam(value = "indexInfoId", required = false) long indexInfoId,
+        @RequestParam(value = "indexInfoId", required = false) Long indexInfoId,
         @RequestParam("periodType") PeriodType periodType,
         @RequestParam("limit") int limit
     ){
-
+        log.info("🧊🧊🧊지수 성과 분석 랭킹");
         List<RankedIndexPerformanceDto> rankedDtoList = indexDataService.performanceRank(indexInfoId, periodType, limit);
 
         return ResponseEntity
@@ -157,31 +152,46 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
+     * 지수 차트 조회
+     * @return
+     */
+    @GetMapping("/{id}/chart")
+    public ResponseEntity<IndexChartDto> getChartData(
+        @Valid @PathVariable(value = "id") Long id,
+        @RequestParam(value = "periodType", required = false, defaultValue = "YEARLY") ChartPeriodType periodType
+    ){
+        IndexChartDto indexChartDto = indexDataService.getChartData(id,  periodType);
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(indexChartDto);
+    }
+
+
+    /**
+     * 🐠🐠🐠주요 지수 ⭕️🎉
      * 관심 지수 성과 조회
      * @return
      */
     @GetMapping("/performance/favorite")
-    public ResponseEntity<List<IndexPerformanceDto>> performanceFavorite(
+    public ResponseEntity<List<IndexDataWithInfoDto>> favoriteIndex(
         @RequestParam("periodType") PeriodType periodType
     ){
-
-        List<IndexPerformanceDto> indexPerformanceDtoList = indexDataService.performanceFavorite(
+        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataService.favoriteIndex(
             periodType);
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(indexPerformanceDtoList);
+            .body(indexDataWithInfoDtoList);
     }
 
 
-
     /**
-     * 지수 데이터 CSV export
+     * 지수 데이터 CSV export ⭕️🎉
      * @return
      */
     @GetMapping("/export/csv")
     public void exportCsv(
-//        @Valid @RequestParam("") ExportCsvRequest request
         @RequestParam(value = "indexInfoId")                    Long indexInfoId,
         @RequestParam(value = "startDate", required = false)    String startDate,
         @RequestParam(value = "endDate",   required = false)    String endDate,
@@ -189,18 +199,6 @@ public class IndexDataController implements IndexDataDoc {
         @RequestParam(value = "sortDirection")                  String sortDirection,
         HttpServletResponse response) throws IOException {
 
-      List<IndexDataExcelDto> csvDtos = indexDataService.exportCsv(indexInfoId,
-          startDate, endDate, sortField, sortDirection);
-
-      response.setContentType("text/csv; charset=UTF-8");
-      response.setHeader("Content-Disposition",
-          "attachment; filename=index-data-export-" + LocalDate.now() + ".csv");
-
-      PrintWriter writer = response.getWriter();
-      writer.println("기준일자,시가,종가,고가,저가,전일,대비 등락폭,등락률,거래량,거래대금,상장시가총액");
-
-      csvDtos.forEach(csvDto -> writer.println(csvDto.toString()));
-
-      writer.flush();
+        indexDataService.exportCsv(indexInfoId, startDate, endDate, sortField, sortDirection, response);
     }
 }

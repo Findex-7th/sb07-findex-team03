@@ -20,7 +20,7 @@ public record ExportCsvRequest(
 
     @Pattern(
         regexp = "baseDate|marketPrice|closingPrice|highPrice|lowPrice|versus|fluctuationRate|tradingQuantity|tradingPrice|marketTotalAmount",
-        message = "sortField must be one of baseDate, marketPrice, closingPrice, highPrice, lowPrice, versus, fluctuationRate, tradingQuantity, tradingPrice, marketTotalAmount"
+        message = "indexInfoSortField must be one of baseDate, marketPrice, closingPrice, highPrice, lowPrice, versus, fluctuationRate, tradingQuantity, tradingPrice, marketTotalAmount"
     )
     String sortField,  // 정렬 필드, default: baseDate
 
