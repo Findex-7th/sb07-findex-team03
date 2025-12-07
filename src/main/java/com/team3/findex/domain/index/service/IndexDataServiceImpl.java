@@ -133,11 +133,25 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
     @Override
     public List<RankedIndexPerformanceDto> performanceRank(Long indexInfoId, PeriodType periodType,
                                                            int limit) {
-
+        log.info("❌❌❌❌❌❌❌❌");
+        log.info("❌❌❌❌❌❌❌❌");
         LocalDate end = LocalDate.from(LocalDateTime.now());
         LocalDate start = getPeriodTypeDate(periodType);
 
-        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = indexDataRepository
+        List<IndexDataWithInfoDto> indexDataWithInfoDtoList = null;
+
+        if (null == indexInfoId) {
+            indexDataWithInfoDtoList = indexDataRepository
+                .findAllPerformanceRank(start, end, PageRequest.of(0, limit))
+                .stream()
+                .map(dto -> {
+                    double value = dto.currentPrice().doubleValue() - dto.versus().doubleValue();
+                    return IndexDataWithInfoDto.fixCurrentPriceDto(dto, value);
+                })
+                .toList();
+        }
+        else {
+            indexDataWithInfoDtoList = indexDataRepository
                 .findAllPerformanceRank(indexInfoId, start, end, PageRequest.of(0, limit))
                 .stream()
                 .map(dto -> {
@@ -145,6 +159,8 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
                     return IndexDataWithInfoDto.fixCurrentPriceDto(dto, value);
                 })
                 .toList();
+        }
+
 
         log.info("🚨🚨performanceRank = " + String.valueOf(indexDataWithInfoDtoList.size()));
 

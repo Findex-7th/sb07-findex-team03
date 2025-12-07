@@ -219,6 +219,32 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long>, Ind
 
 
 
+    //🧊🧊🧊지수 성과 분석 랭킹 ⭕️⭕️⭕️
+    //    - 전일/전주/전월 대비 성과 랭킹
+    //    - 성과는 **{종가}**를 기준으로 비교합니다.
+    @Query("""
+    SELECT new com.team3.findex.domain.index.dto.IndexDataWithInfoDto(
+         i.id,
+         i.indexClassification,
+         i.indexName,
+         SUM(d.versus),
+         SUM(d.fluctuationRate),
+         SUM(d.closingPrice),
+         SUM(CAST(d.closingPrice - d.versus AS bigdecimal))
+    )
+    FROM IndexData d
+    JOIN d.indexInfo i
+    WHERE i.favorite = true
+      AND d.baseDate > :startDate
+      AND d.baseDate <= :endDate
+    GROUP BY i.id, i.indexClassification, i.indexName
+    ORDER BY SUM(d.closingPrice) DESC
+""")
+    List<IndexDataWithInfoDto> findAllPerformanceRank(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        Pageable pageable
+    );
 
 
 
