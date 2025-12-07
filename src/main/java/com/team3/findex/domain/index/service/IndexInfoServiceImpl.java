@@ -189,7 +189,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                 ),
                 request.size(),
                 new IndexInfoFindSort(
-                        request.sortField(),
+                        request.indexInfoSortField(),
                         request.sortDirection()
                 )
         );

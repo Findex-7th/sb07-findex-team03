@@ -8,6 +8,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface IndexDataMapper {
 
@@ -15,5 +17,6 @@ public interface IndexDataMapper {
     IndexDataDto toDTO(IndexData indexData);
     IndexData toEntity(IndexDataCreateRequest requestDto);
     IndexDataExcelDto toExcelDto(IndexData indexData);
+    List<IndexDataDto> toDtoList(List<IndexData> indexData);
 
 }

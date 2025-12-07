@@ -3,6 +3,7 @@ package com.team3.findex.domain.index.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record IndexInfoFindCondition(
+        // TODO 완전 일치인지 부분 일치인지 확인
         @Schema(description = "지수 분류 (부분 일치 검색)")
         String indexClassification,
 

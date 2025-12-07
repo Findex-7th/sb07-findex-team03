@@ -23,7 +23,7 @@ public class IndexInfoRepositoryCustomImpl implements IndexInfoRepositoryCustom 
     public List<IndexInfo> findWithCursor(Long cursor, int size, IndexInfoFindSort sort) {
         return queryFactory.selectFrom(indexInfo)
                 .where(cursorIdGt(cursor))
-                .orderBy(orderSpecifier(sort)) // TODO 나중에 바꾸기. 지금은 기본
+                .orderBy(orderSpecifier(sort))
                 .limit(size + 1)
                 .fetch();
     }
@@ -45,7 +45,7 @@ public class IndexInfoRepositoryCustomImpl implements IndexInfoRepositoryCustom 
     private OrderSpecifier<?> orderSpecifier(IndexInfoFindSort sort) {
         boolean isAsc = sort.sortDirection().isAscending();
 
-        return switch (sort.sortField()) {
+        return switch (sort.indexInfoSortField()) {
             case INDEX_CLASSIFICATION -> isAsc ? indexInfo.indexClassification.asc() : indexInfo.indexClassification.desc();
             case INDEX_NAME -> isAsc ? indexInfo.indexName.asc() : indexInfo.indexName.desc();
             case EMPLOYED_ITEMS_COUNT -> isAsc ? indexInfo.employedItemsCount.asc() : indexInfo.employedItemsCount.desc();

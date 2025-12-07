@@ -126,7 +126,7 @@ public class AutoSyncRepositoryImpl implements AutoSyncRepositoryCustom {
   private OrderSpecifier<?> getOrderSpecifier(String sortField, String softDirection) {
     Order order = "DESC".equalsIgnoreCase(softDirection) ? Order.DESC : Order.ASC;
 
-    // sortField 정렬 필드
+    // indexInfoSortField 정렬 필드
     if ("indexInfo.indexName".equalsIgnoreCase(sortField)) {
       return new OrderSpecifier<>(order, autoSync.indexInfo.id);
     }
