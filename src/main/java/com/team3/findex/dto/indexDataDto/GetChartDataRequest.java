@@ -1,5 +1,6 @@
 package com.team3.findex.dto.indexDataDto;
 
+import com.team3.findex.domain.index.PeriodType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -10,9 +11,5 @@ public record GetChartDataRequest(
     @Min(1)
     Long id,  // 지수 정보 ID
 
-    @Pattern(
-        regexp = "DAILY|MONTHLY|QUARTERLY|YEARLY",
-        message = "periodType must be one of DAILY, MONTHLY, QUARTERLY, YEARLY"
-    )
-    String periodType  // 차트 기간 유형, default: DAILY
+    PeriodType periodType  // 차트 기간 유형, default: DAILY
 ) {}

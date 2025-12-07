@@ -1,5 +1,6 @@
 package com.team3.findex.service.Interface;
 
+import com.team3.findex.domain.index.ChartPeriodType;
 import com.team3.findex.domain.index.dto.request.IndexDataCursorRequest;
 import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexDataDto;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
@@ -23,7 +24,7 @@ public interface IndexDataServiceInterface {
     void deleteIndexData(Long id);
     IndexDataDto updateIndexData(Long id, IndexDataUpdateRequest request);
     List<IndexDataWithInfoDto> favoriteIndex(PeriodType periodType);
-    IndexChartDto getChartData(Long id, PeriodType periodType);
+    IndexChartDto getChartData(Long id, ChartPeriodType periodType);
     List<RankedIndexPerformanceDto> performanceRank(Long indexInfoId, PeriodType periodType, int limit);
     void exportCsv( Long indexInfoId,
         String startDate,
