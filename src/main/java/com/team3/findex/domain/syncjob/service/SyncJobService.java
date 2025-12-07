@@ -1,8 +1,11 @@
 package com.team3.findex.domain.syncjob.service;
 
 import com.team3.findex.domain.autosync.AutoSync;
+import com.team3.findex.domain.autosync.repository.AutoSyncRepository;
 import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.index.repository.IndexDataRepository;
+import com.team3.findex.domain.index.repository.IndexInfoRepository;
 import com.team3.findex.domain.syncjob.dto.request.CursorPageRequestSyncJobDto;
 import com.team3.findex.domain.syncjob.dto.response.CursorPageResponseSyncJobDto;
 import com.team3.findex.domain.syncjob.dto.request.IndexDataSyncRequest;
@@ -12,9 +15,6 @@ import com.team3.findex.domain.syncjob.SyncJob;
 import com.team3.findex.domain.syncjob.enums.Result;
 import com.team3.findex.domain.syncjob.mapper.SyncJobMapper;
 import com.team3.findex.domain.syncjob.openapitester.OpenApiTester;
-import com.team3.findex.repository.AutoSyncRepository;
-import com.team3.findex.repository.IndexDataRepository;
-import com.team3.findex.repository.IndexInfoRepository;
 import com.team3.findex.domain.syncjob.repository.SyncJobRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
