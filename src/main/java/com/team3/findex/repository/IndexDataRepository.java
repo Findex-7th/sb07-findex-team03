@@ -1,5 +1,6 @@
 package com.team3.findex.repository;
 
+import com.team3.findex.domain.index.repository.IndexDataRepositoryCustom;
 import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
 import com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto;
 import java.time.LocalDate;
@@ -12,7 +13,7 @@ import com.team3.findex.domain.index.IndexData;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
+public interface IndexDataRepository extends JpaRepository<IndexData, Long>, IndexDataRepositoryCustom {
 
     void deleteAllByIndexInfoId(Long indexInfoId); //!! for.IndexInfo
     void deleteByIndexInfoId(Long indexInfoId);

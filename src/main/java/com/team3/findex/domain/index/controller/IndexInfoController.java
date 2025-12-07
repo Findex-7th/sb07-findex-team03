@@ -7,7 +7,7 @@ import com.team3.findex.domain.index.dto.request.IndexInfoUpdateRequest;
 import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexInfoDto;
 import com.team3.findex.domain.index.dto.response.IndexInfoDto;
 import com.team3.findex.domain.index.dto.response.IndexInfoSummaryDto;
-import com.team3.findex.domain.index.enums.SortField;
+import com.team3.findex.domain.index.enums.IndexInfoSortField;
 import com.team3.findex.domain.index.service.IndexInfoService;
 
 import java.util.List;
@@ -82,20 +82,18 @@ public class IndexInfoController {
             @RequestParam(required = false, defaultValue = "asc") String order,
             @RequestParam(required = false, defaultValue = "10") Integer size
     ) {
-        CursorPageResponseIndexInfoDto response =
-                indexInfoService.searchIndexInfos(
-                        new IndexInfoCursorRequest(
-                                classification,
-                                indexName,
-                                favorite,
-                                idAfter,
-                                CursorEncodingUtil.decodeId(cursor),
-                                SortField.fromString(sortField),
-                                Sort.Direction.fromString(order),
-                                size
-                        ));
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(indexInfoService.searchIndexInfos(
+                new IndexInfoCursorRequest(
+                        classification,
+                        indexName,
+                        favorite,
+                        idAfter,
+                        CursorEncodingUtil.decodeId(cursor),
+                        IndexInfoSortField.fromString(sortField),
+                        Sort.Direction.fromString(order),
+                        size
+                ))
+        );
     }
 
     @GetMapping("/summaries")

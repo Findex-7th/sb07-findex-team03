@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * API 요청 시 카멜케이스로 받아서 Enum으로 변환합니다.
  * </p>
  */
-public enum SortField {
+public enum IndexInfoSortField {
     INDEX_CLASSIFICATION("indexClassification"),
     INDEX_NAME("indexName"),
     EMPLOYED_ITEMS_COUNT("employedItemsCount"),
@@ -17,7 +17,7 @@ public enum SortField {
 
     private final String fieldName;
 
-    SortField(String fieldName) {
+    IndexInfoSortField(String fieldName) {
         this.fieldName = fieldName;
     }
 
@@ -35,15 +35,15 @@ public enum SortField {
      * 카멜케이스 문자열을 Enum으로 변환
      *
      * @param value "indexClassification", "indexName" 등
-     * @return 해당하는 SortField enum
+     * @return 해당하는 IndexInfoSortField enum
      */
     @JsonCreator  // JSON 역직렬화 시 이 메서드 사용
-    public static SortField fromString(String value) {
+    public static IndexInfoSortField fromString(String value) {
         if (value == null || value.isBlank()) {
             return INDEX_CLASSIFICATION;  // 기본값
         }
 
-        for (SortField field : values()) {
+        for (IndexInfoSortField field : values()) {
             if (field.fieldName.equalsIgnoreCase(value)) {
                 return field;
             }

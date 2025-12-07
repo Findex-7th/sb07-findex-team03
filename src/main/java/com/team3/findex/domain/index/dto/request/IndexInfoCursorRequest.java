@@ -1,6 +1,6 @@
 package com.team3.findex.domain.index.dto.request;
 
-import com.team3.findex.domain.index.enums.SortField;
+import com.team3.findex.domain.index.enums.IndexInfoSortField;
 import org.springframework.data.domain.Sort;
 
 public record IndexInfoCursorRequest(
@@ -9,7 +9,7 @@ public record IndexInfoCursorRequest(
         Boolean favorite,
         Long idAfter,
         Long cursor,
-        SortField sortField,
+        IndexInfoSortField indexInfoSortField,
         Sort.Direction sortDirection,
         Integer size
 ) {

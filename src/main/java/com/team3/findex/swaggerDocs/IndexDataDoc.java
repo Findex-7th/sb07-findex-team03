@@ -1,6 +1,6 @@
 package com.team3.findex.swaggerDocs;
 
-import com.team3.findex.dto.indexDataDto.CursorPageResponse;
+import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexDataDto;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
 import com.team3.findex.dto.indexDataDto.IndexDataDto;
@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,40 +29,39 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Tag(name = "지수 데이터 API", description = "지수 데이터 관리 API")
 public interface IndexDataDoc {
 
-    @Operation(summary = "지수 데이터 목록 조회")
+    @Operation(summary = "지수 데이터 목록 조회 (커서 페이지네이션)")
     @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "지수 데이터 목록 조회 성공",
+            content = @Content(
+                schema = @Schema(implementation = CursorPageResponseIndexDataDto.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청 (유효하지 않은 필터 값 등)",
+            content = @Content(
+                schema = @Schema(implementation = IndexDataDoc.class)
+            )
+        ),
         @ApiResponse(
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
                 schema = @Schema(implementation = IndexDataDoc.class)
             )
-        ),
-        @ApiResponse(
-            responseCode = "200",
-            description = "지수 데이터 목록 조회 성공",
-            content = @Content(
-                schema = @Schema(implementation = IndexDataDoc.class)
-            )
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "\"잘못된 요청 (유효하지 않은 필터 값 등)\"",
-            content = @Content(
-                schema = @Schema(implementation = IndexDataDoc.class)
-            )
         )
     })
-    ResponseEntity<CursorPageResponse<IndexDataDto>> getAllIndexData(
-//        @Valid @RequestParam IndexDataListRequest request){ //??
-        @Valid @RequestParam(value = "indexInfoId", required = false) Long indexInfoId,
-        @Valid @RequestParam(value = "startDate",   required = false) LocalDate startDate,
-        @Valid @RequestParam(value = "endDate",     required = false) LocalDate endDate,
-        @Valid @RequestParam(value = "idAfter",     required = false) Long idAfter,
-        @Valid @RequestParam(value = "cursor",      required = false) String cursor,
-        @Valid @RequestParam(value = "sortField")                     String sortField,
-        @Valid @RequestParam(value = "sortDirection")                 String sortDirection,
-        @Valid @RequestParam(value = "size")                          Integer size
+    ResponseEntity<CursorPageResponseIndexDataDto> getIndexDatas(
+        @RequestParam(required = false) Long indexInfoId,
+        @RequestParam(required = false) LocalDate startDate,
+        @RequestParam(required = false) LocalDate endDate,
+        @RequestParam(required = false) Long idAfter,
+        @RequestParam(required = false) String cursor,
+        @RequestParam(required = false) String sortField,
+        @RequestParam(required = false, defaultValue = "desc") String order,
+        @RequestParam(required = false, defaultValue = "10") Integer size
     );
 
 
