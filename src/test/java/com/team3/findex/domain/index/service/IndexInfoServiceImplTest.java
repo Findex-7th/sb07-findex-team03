@@ -8,8 +8,8 @@ import com.team3.findex.common.openapi.OpenApiProvider;
 import com.team3.findex.common.openapi.dto.IndexInfoSyncData;
 import com.team3.findex.domain.autosync.service.AutoSyncService;
 import com.team3.findex.domain.index.IndexInfo;
-import com.team3.findex.domain.index.SourceType;
-import com.team3.findex.repository.IndexInfoRepository;
+import com.team3.findex.domain.index.enums.SourceType;
+import com.team3.findex.domain.index.repository.IndexInfoRepository;
 
 import java.time.LocalDate;
 import java.util.List;

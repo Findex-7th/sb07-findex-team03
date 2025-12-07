@@ -9,7 +9,7 @@ import com.team3.findex.domain.autosync.dto.CursorPageRequestAutoSyncConfigDto;
 import com.team3.findex.domain.autosync.dto.CursorPageResponseAutoSyncConfigDto;
 import com.team3.findex.domain.autosync.mapper.AutoSyncMapper;
 import com.team3.findex.domain.index.IndexInfo;
-import com.team3.findex.repository.AutoSyncRepository;
+import com.team3.findex.domain.autosync.repository.AutoSyncRepository;
 
 import java.util.List;
 

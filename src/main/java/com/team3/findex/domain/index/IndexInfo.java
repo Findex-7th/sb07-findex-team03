@@ -1,5 +1,6 @@
 package com.team3.findex.domain.index;
 
+import com.team3.findex.domain.index.enums.SourceType;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
