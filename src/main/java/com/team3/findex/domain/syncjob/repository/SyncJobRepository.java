@@ -20,7 +20,7 @@ public interface SyncJobRepository extends JpaRepository<SyncJob, Long>, SyncJob
     @Query("""
         SELECT sj
         FROM SyncJob sj
-        WHERE sj.indexInfo = :indexinfo
+        WHERE sj.indexInfo = :indexInfo
         AND sj.result = :result
         ORDER BY sj.targetDate DESC
         limit 1
