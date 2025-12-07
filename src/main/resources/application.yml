@@ -36,7 +36,7 @@ spring:
       enabled: false # 애플리케이션 시작 시 배치 작업 자동 실행 (필요 시 true)
     auto-sync:
       cron: "0 0 9 * * *" #초 분 시 일 월 요일
-      enabled: true
+      enabled: false
 
 server:
   port: ${PORT:8080}
