@@ -1,4 +1,4 @@
-package com.team3.findex.domain.syncjob.openapitester.config;
+package com.team3.findex.domain.syncjob.infrastructure.openapitester.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

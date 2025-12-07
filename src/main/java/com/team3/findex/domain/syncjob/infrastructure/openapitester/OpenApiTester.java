@@ -1,9 +1,9 @@
-package com.team3.findex.domain.syncjob.openapitester;
+package com.team3.findex.domain.syncjob.infrastructure.openapitester;
 
 import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.IndexInfo;
-import com.team3.findex.domain.syncjob.openapitester.dto.ApiResponseDto;
-import com.team3.findex.domain.syncjob.openapitester.mapper.OpenAPIMapper;
+import com.team3.findex.domain.syncjob.infrastructure.openapitester.dto.ApiResponseDto;
+import com.team3.findex.domain.syncjob.infrastructure.openapitester.mapper.OpenAPIMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

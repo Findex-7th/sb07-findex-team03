@@ -1,8 +1,8 @@
-package com.team3.findex.domain.syncjob.openapitester.mapper;
+package com.team3.findex.domain.syncjob.infrastructure.openapitester.mapper;
 
 import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.IndexInfo;
-import com.team3.findex.domain.syncjob.openapitester.dto.ApiResponseDto;
+import com.team3.findex.domain.syncjob.infrastructure.openapitester.dto.ApiResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

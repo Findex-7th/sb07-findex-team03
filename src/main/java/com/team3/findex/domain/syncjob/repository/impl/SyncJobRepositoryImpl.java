@@ -34,8 +34,6 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
 
         Instant jobTimeFrom = StringUtils.hasText(request.jobTimeFrom()) ? Instant.parse(request.jobTimeFrom()) : null;
         Instant jobTimeTo = StringUtils.hasText(request.jobTimeTo()) ? Instant.parse(request.jobTimeTo()) : null;
-
-        System.out.println("request = " + request);
         
         Result resultStatus = null;
         if (StringUtils.hasText(request.status())) {
@@ -112,9 +110,6 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
                 .limit(request.size() + 1)
                 .fetch();
 
-        returnData.forEach(data -> {
-            System.out.println("data = " + data);
-        });
         return returnData;
     }
 

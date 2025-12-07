@@ -1,4 +1,4 @@
-package com.team3.findex.domain.syncjob.openapitester.dto;
+package com.team3.findex.domain.syncjob.infrastructure.openapitester.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
