@@ -20,14 +20,14 @@ public class SyncJobController {
     private final SyncJobService syncJobService;
 
     @PostMapping("/index-infos")
-    public ResponseEntity<List<SyncJobDto>> getIndexInfo(HttpServletRequest request){
+    public ResponseEntity<List<SyncJobDto>> syncIndexInfos(HttpServletRequest request){
         String worker = ipIntercept(request);
         List<SyncJobDto> indexInfos = syncJobService.syncIndexInfos(worker);
         return ResponseEntity.ok(indexInfos);
     }
 
     @PostMapping("/index-data")
-    public ResponseEntity<List<SyncJobDto>> getIndexData(
+    public ResponseEntity<List<SyncJobDto>> syncIndexData(
             @RequestBody IndexDataSyncRequest indexDataSyncRequest,
             HttpServletRequest request
     ){
