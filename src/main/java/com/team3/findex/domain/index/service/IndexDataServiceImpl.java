@@ -142,22 +142,23 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
         List<IndexDataWithInfoDto> indexDataWithInfoDtoList = null;
 
         if (null == indexInfoId) {
-            indexDataWithInfoDtoList = indexDataRepository
+
+            indexDataWithInfoDtoList= indexDataRepository
                 .findAllPerformanceRank(start, end, PageRequest.of(0, limit))
                 .stream()
                 .map(dto -> {
-                    double value = dto.currentPrice().doubleValue() - dto.versus().doubleValue();
-                    return IndexDataWithInfoDto.fixCurrentPriceDto(dto, value);
+                    double value = dto.closingPriceAvg().doubleValue() - dto.versusAvg().doubleValue();
+                    return IndexDataWithInfoDto.fromBeforeDto(dto, value);
                 })
                 .toList();
         }
         else {
-            indexDataWithInfoDtoList = indexDataRepository
+            indexDataWithInfoDtoList= indexDataRepository
                 .findAllPerformanceRank(indexInfoId, start, end, PageRequest.of(0, limit))
                 .stream()
                 .map(dto -> {
-                    double value = dto.currentPrice().doubleValue() - dto.versus().doubleValue();
-                    return IndexDataWithInfoDto.fixCurrentPriceDto(dto, value);
+                    double value = dto.closingPriceAvg().doubleValue() - dto.versusAvg().doubleValue();
+                    return IndexDataWithInfoDto.fromBeforeDto(dto, value);
                 })
                 .toList();
         }
@@ -257,7 +258,6 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
         LocalDate end = LocalDate.from(LocalDateTime.now());
         LocalDate start = getPeriodTypeDate(periodType);
 
-
         List<IndexDataWithInfoDto> dooList = indexDataRepository.findAllFavoriteIndex(start, end)
             .stream()
             .map(dto -> {
@@ -265,14 +265,6 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
                 return IndexDataWithInfoDto.fromBeforeDto(dto, value);
             })
             .toList();
-
-
-
-//        List<IndexDataWithInfoDto> dooList = indexDataRepository.findAllFavoriteIndex(from,
-//            now)
-//            .stream()
-//            .map(dto -> IndexDataWithInfoDto.from(dto, 0))
-//            .toList();
 
         log.info("🚨 favoriteIndex = " + String.valueOf(dooList.size()));
         return dooList;
