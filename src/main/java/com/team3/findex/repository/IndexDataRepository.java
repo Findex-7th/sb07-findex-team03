@@ -24,7 +24,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     @Query("SELECT d FROM IndexData d "
         + "JOIN FETCH d.indexInfo i "
         + "WHERE d.indexInfo.id = :indexInfoId "
-        + "AND d.baseDate >= :startDate "
+        + "AND d.baseDate > :startDate "
         + "AND d.baseDate <= :endDate ")
 //        + "AND d.closingPrice < :createdAt " //??)
     Slice<IndexData> findAllIndexDataWithIndexInfo(
@@ -39,7 +39,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 //        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.closingPrice) "
 //        + "FROM IndexData d "
 //        + "WHERE d.indexInfo.id = :id "
-//        + "AND d.baseDate >= :startDate "
+//        + "AND d.baseDate > :startDate "
 //        + "AND d.baseDate <= :endDate "
 //        + "ORDER BY d.baseDate ASC ")
 //    List<ChartDataPointDto> findChartData(@Param("id") Long id,
@@ -50,7 +50,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 //        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.ma5) "
 //        + "FROM IndexData d "
 //        + "WHERE d.indexInfo.id = :id "
-//        + "AND d.baseDate >= :startDate "
+//        + "AND d.baseDate > :startDate "
 //        + "AND d.baseDate <= :endDate "
 //        + "ORDER BY d.baseDate ASC ")
 //    List<ChartDataPointDto> findMa5(@Param("id")Long id,
@@ -61,7 +61,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 //        + "FUNCTION('DATE_FORMAT', d.baseDate, '%Y-%m-%d'), d.ma20 ) "
 //        + "FROM IndexData d "
 //        + "WHERE d.indexInfo.id = :id "
-//        + "AND d.baseDate >= :startDate "
+//        + "AND d.baseDate > :startDate "
 //        + "AND d.baseDate <= :endDate "
 //        + "ORDER BY d.baseDate ASC ")
 //    List<ChartDataPointDto> findMa20(@Param("id") Long id,
@@ -89,61 +89,42 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 //        @Param("startDate") LocalDate startDate,
 //        @Param("endDate") LocalDate endDate);
 
+//🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷
+
     @Query(value =
-        "SELECT DATE_FORMAT(t.base_date, '%Y-%m-%d') AS baseDate, " +
-            "       t.ma5 AS value " +
-            "FROM ( " +
-            "    SELECT d.base_date, " +
-            "           AVG(d2.closing_price) AS ma5 " +
-            "    FROM index_data d " +
-            "    JOIN index_data d2 " +
-            "      ON d2.index_info_id = d.index_info_id " +
-            "     AND d2.base_date BETWEEN DATE_SUB(d.base_date, INTERVAL 4 DAY) AND d.base_date " +
-            "    WHERE d.index_info_id = :id " +
-            "      AND d.base_date BETWEEN :startDate AND :endDate " +
-            "    GROUP BY d.base_date " +
-            ") t " +
-            "ORDER BY t.base_date ASC",
+        "SELECT FORMATDATETIME(d.base_date, 'yyyy-MM-dd') AS date, d.ma5 AS value " +
+            "FROM index_data d " +
+            "WHERE d.index_info_id = :id " +
+            "  AND d.base_date BETWEEN :startDate AND :endDate " +
+            "ORDER BY d.base_date ASC",
         nativeQuery = true)
     List<ChartDataPointDto> findMa5(
         @Param("id") Long id,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate);
 
-
-
     @Query(value =
-        "SELECT DATE_FORMAT(t.base_date, '%Y-%m-%d') AS baseDate, " +
-            "       t.ma20 AS value " +
-            "FROM ( " +
-            "    SELECT d.base_date, " +
-            "           AVG(d2.closing_price) AS ma20 " +
-            "    FROM index_data d " +
-            "    JOIN index_data d2 " +
-            "      ON d2.index_info_id = d.index_info_id " +
-            "     AND d2.base_date BETWEEN DATE_SUB(d.base_date, INTERVAL 19 DAY) AND d.base_date " +
-            "    WHERE d.index_info_id = :id " +
-            "      AND d.base_date BETWEEN :startDate AND :endDate " +
-            "    GROUP BY d.base_date " +
-            ") t " +
-            "ORDER BY t.base_date ASC",
+        "SELECT FORMATDATETIME(d.base_date, 'yyyy-MM-dd') AS date, d.ma20 AS value " +
+            "FROM index_data d " +
+            "WHERE d.index_info_id = :id " +
+            "  AND d.base_date BETWEEN :startDate AND :endDate " +
+            "ORDER BY d.base_date ASC",
         nativeQuery = true)
     List<ChartDataPointDto> findMa20(
         @Param("id") Long id,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate);
 
+
     @Query(value =
-        "SELECT DATE_FORMAT(d.base_date, '%Y-%m') AS period, " +
-            "       d.closing_price AS value " +
+        "SELECT CONCAT(x.y, '-', LPAD(x.m, 2, '0')) AS period, d.closing_price AS value " +
             "FROM index_data d " +
             "JOIN ( " +
-            "       SELECT index_info_id, DATE_FORMAT(base_date, '%Y-%m') AS ym, " +
-            "              MAX(base_date) AS last_day " +
+            "       SELECT index_info_id, YEAR(base_date) AS y, MONTH(base_date) AS m, MAX(base_date) AS last_day " +
             "       FROM index_data " +
             "       WHERE index_info_id = :id " +
             "         AND base_date BETWEEN :startDate AND :endDate " +
-            "       GROUP BY index_info_id, ym " +
+            "       GROUP BY index_info_id, YEAR(base_date), MONTH(base_date) " +
             ") x " +
             "  ON d.index_info_id = x.index_info_id " +
             " AND d.base_date = x.last_day " +
@@ -156,22 +137,14 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
 
     @Query(value =
-        "SELECT DATE_FORMAT(d.base_date, '%Y-Q%q') AS period, " +
-            "       d.closing_price AS value " +
-            "FROM ( " +
-            "    SELECT d1.*, " +
-            "           CONCAT(YEAR(d1.base_date), '-', QUARTER(d1.base_date)) AS period_key " +
-            "    FROM index_data d1 " +
-            "    WHERE d1.index_info_id = :id " +
-            "      AND d1.base_date BETWEEN :startDate AND :endDate " +
-            ") d " +
+        "SELECT CONCAT(x.y, '-Q', x.q) AS period, d.closing_price AS value " +
+            "FROM index_data d " +
             "JOIN ( " +
-            "       SELECT index_info_id, CONCAT(YEAR(base_date), '-', QUARTER(base_date)) AS period_key, " +
-            "              MAX(base_date) AS last_day " +
+            "       SELECT index_info_id, YEAR(base_date) AS y, QUARTER(base_date) AS q, MAX(base_date) AS last_day " +
             "       FROM index_data " +
             "       WHERE index_info_id = :id " +
             "         AND base_date BETWEEN :startDate AND :endDate " +
-            "       GROUP BY index_info_id, period_key " +
+            "       GROUP BY index_info_id, YEAR(base_date), QUARTER(base_date) " +
             ") x " +
             "  ON d.index_info_id = x.index_info_id " +
             " AND d.base_date = x.last_day " +
@@ -184,15 +157,14 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
 
     @Query(value =
-        "SELECT YEAR(d.base_date) AS period, " +
-            "       d.closing_price AS value " +
+        "SELECT CAST(x.y AS VARCHAR) AS period, d.closing_price AS value " +
             "FROM index_data d " +
             "JOIN ( " +
-            "       SELECT index_info_id, YEAR(base_date) AS yr, MAX(base_date) AS last_day " +
+            "       SELECT index_info_id, YEAR(base_date) AS y, MAX(base_date) AS last_day " +
             "       FROM index_data " +
             "       WHERE index_info_id = :id " +
             "         AND base_date BETWEEN :startDate AND :endDate " +
-            "       GROUP BY index_info_id, yr " +
+            "       GROUP BY index_info_id, YEAR(base_date) " +
             ") x " +
             "  ON d.index_info_id = x.index_info_id " +
             " AND d.base_date = x.last_day " +
@@ -204,6 +176,9 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
         @Param("endDate") LocalDate endDate);
 
 
+
+//🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼
+//🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼
 
     //🐠🐠🐠주요 지수⭕️⭕️⭕️
     //    - **{즐겨찾기}**된 지수의 성과 정보를 포함합니다.
@@ -220,7 +195,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     )
     FROM IndexData d
     JOIN d.indexInfo i
-    WHERE d.baseDate >= :startDate
+    WHERE d.baseDate > :startDate
       AND d.baseDate <= :endDate
     ORDER BY d.closingPrice DESC
 """)
@@ -246,7 +221,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     FROM IndexData d
     JOIN d.indexInfo i
     WHERE i.favorite = true
-      AND d.baseDate >= :startDate
+      AND d.baseDate > :startDate
       AND d.baseDate <= :endDate
     GROUP BY i.indexClassification, i.indexName
     ORDER BY SUM(d.closingPrice) DESC
@@ -260,7 +235,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     @Query("SELECT d FROM IndexData d "
         + "JOIN FETCH d.indexInfo i "
         + "WHERE i.id = :indexInfoId "
-        + "AND d.baseDate >= :startDate "
+        + "AND d.baseDate > :startDate "
         + "AND d.baseDate <= :endDate ")
 //        + "ORDER BY d.baseDate ASC")
     List<IndexData> findAllExportCsvData(@Param("indexInfoId") Long indexInfoId,

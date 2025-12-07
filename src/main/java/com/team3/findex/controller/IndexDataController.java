@@ -1,5 +1,6 @@
 package com.team3.findex.controller;
 
+import com.team3.findex.domain.index.ChartPeriodType;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
@@ -143,11 +144,9 @@ public class IndexDataController implements IndexDataDoc {
     @GetMapping("/{id}/chart")
     public ResponseEntity<IndexChartDto> getChartData(
         @Valid @PathVariable(value = "id") Long id,
-        @RequestParam(value = "periodType", required = false) PeriodType periodType
+        @RequestParam(value = "periodType", required = false, defaultValue = "YEARLY") ChartPeriodType periodType
     ){
-
-        // 대시보드
-        IndexChartDto indexChartDto = indexDataService.getChartData(id, periodType);
+        IndexChartDto indexChartDto = indexDataService.getChartData(id,  periodType);
 
         return ResponseEntity
             .status(HttpStatus.OK)

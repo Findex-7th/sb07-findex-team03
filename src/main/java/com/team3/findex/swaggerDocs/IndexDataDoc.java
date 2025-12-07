@@ -1,5 +1,6 @@
 package com.team3.findex.swaggerDocs;
 
+import com.team3.findex.domain.index.ChartPeriodType;
 import com.team3.findex.dto.indexDataDto.CursorPageResponse;
 import com.team3.findex.dto.indexDataDto.IndexChartDto;
 import com.team3.findex.dto.indexDataDto.IndexDataCreateRequest;
@@ -213,7 +214,7 @@ public interface IndexDataDoc {
     })
     ResponseEntity<IndexChartDto> getChartData(
         @Valid @PathVariable(value = "id") Long id,
-        @RequestParam(value = "periodType", required = false) PeriodType periodType
+        @RequestParam(value = "periodType", required = false) ChartPeriodType periodType
     );
 
 

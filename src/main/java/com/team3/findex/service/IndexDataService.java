@@ -4,6 +4,7 @@ package com.team3.findex.service;
 import com.team3.findex.common.exception.CustomException;
 import com.team3.findex.common.exception.ErrorCode;
 import com.team3.findex.common.util.ReflectionUtil;
+import com.team3.findex.domain.index.ChartPeriodType;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.PeriodType;
 import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
@@ -59,6 +60,19 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
     private final IndexDataMapper indexDataMapper;
     private final IndexChartMapper indexChartMapper;
 
+
+    private LocalDate getChartPeriodTypeDate(ChartPeriodType periodType) {
+        LocalDate fromData = LocalDate.now();
+
+        switch (periodType) {
+            case MONTHLY -> fromData = fromData.minusMonths(1);
+            case QUARTERLY -> fromData = fromData.minusMonths(3);
+            case YEARLY -> fromData = fromData.minusYears(1);
+            default -> throw new IllegalArgumentException("🚨getPeriodTypeDate.periodType error! ");
+        }
+
+        return fromData;
+    }
 
     private LocalDate getPeriodTypeDate(PeriodType periodType) {
         LocalDate fromData = LocalDate.now();
@@ -193,26 +207,31 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
 
     @Transactional
     @Override
-    public IndexChartDto getChartData(Long id, PeriodType periodType) {
+    public IndexChartDto getChartData(Long id, ChartPeriodType periodType) {
 
         IndexInfo indexInfo = indexInfoRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("🚨indexInfo.id error!"));
 
         LocalDate now = LocalDate.from(LocalDateTime.now());
-        LocalDate from = getPeriodTypeDate(periodType);
+        LocalDate from = getChartPeriodTypeDate(periodType);
 //        List<ChartDataPointDto> data = indexDataRepository.findChartData(id, from, now);
         List<ChartDataPointDto> ma5 = indexDataRepository.findMa5(id, from, now);
+        log.info("🐳 ma5 = " + String.valueOf(ma5.size()));
+
         List<ChartDataPointDto> ma20 = indexDataRepository.findMa20(id, from, now);
+        log.info("🐳 ma20 = " + String.valueOf(ma20.size()));
 
         List<ChartDataPointDto> pointDtoList = new ArrayList<>();
         switch (periodType) {
-            case DAILY -> pointDtoList = indexDataRepository.findMonthlySeries(id, from, now);
-            case WEEKLY -> pointDtoList = indexDataRepository.findQuarterlySeries(id, from, now);
-            case MONTHLY -> pointDtoList = indexDataRepository.findYearlySeries(id, from, now);
+            case MONTHLY  -> pointDtoList = indexDataRepository.findMonthlySeries(id, from, now);
+            case QUARTERLY -> pointDtoList = indexDataRepository.findQuarterlySeries(id, from, now);
+            case YEARLY -> pointDtoList = indexDataRepository.findYearlySeries(id, from, now);
             default -> throw new IllegalArgumentException("🚨getPeriodTypeDate.periodType error! ");
         }
 
-        return new IndexChartDto(
+        log.info("🐳 pointDtoList = " + String.valueOf(pointDtoList.size()));
+
+        IndexChartDto indexChartDto = new IndexChartDto(
             indexInfo.getId(),
             indexInfo.getIndexClassification(),
             indexInfo.getIndexName(),
@@ -222,7 +241,9 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
             ma20
         );
 
-//        return indexChartMapper.toDTO(null);
+        log.info("🐳 pointDtoList = " + indexChartDto.toString());
+
+        return indexChartDto;
     }
 
 
