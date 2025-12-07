@@ -1,5 +1,6 @@
 package com.team3.findex.domain.index.repository;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.team3.findex.domain.index.IndexInfo;
@@ -22,16 +23,37 @@ public class IndexInfoRepositoryCustomImpl implements IndexInfoRepositoryCustom 
     public List<IndexInfo> findWithCursor(Long cursor, int size, IndexInfoFindSort sort) {
         return queryFactory.selectFrom(indexInfo)
                 .where(cursorIdGt(cursor))
-                .orderBy(indexInfo.indexClassification.asc()) // TODO 나중에 바꾸기. 지금은 기본
+                .orderBy(orderSpecifier(sort)) // TODO 나중에 바꾸기. 지금은 기본
                 .limit(size + 1)
                 .fetch();
     }
 
-
     @Override
     public List<IndexInfo> findByCondition(Long cursor, IndexInfoFindCondition condition, int size, IndexInfoFindSort sort) {
-        return null;
+        return queryFactory.selectFrom(indexInfo)
+                .where(
+                        cursorIdGt(cursor),
+                        indexClassificationContains(condition.indexClassification()),
+                        indexNameEq(condition.indexName()),
+                        favoriteEq(condition.isFavorite())
+                )
+                .orderBy(orderSpecifier(sort))
+                .limit(size + 1)
+                .fetch();
     }
+
+    private OrderSpecifier<?> orderSpecifier(IndexInfoFindSort sort) {
+        boolean isAsc = sort.sortDirection().isAscending();
+
+        return switch (sort.sortField()) {
+            case INDEX_CLASSIFICATION -> isAsc ? indexInfo.indexClassification.asc() : indexInfo.indexClassification.desc();
+            case INDEX_NAME -> isAsc ? indexInfo.indexName.asc() : indexInfo.indexName.desc();
+            case EMPLOYED_ITEMS_COUNT -> isAsc ? indexInfo.employedItemsCount.asc() : indexInfo.employedItemsCount.desc();
+            case ID -> isAsc ? indexInfo.id.asc() : indexInfo.id.desc();
+            default -> indexInfo.indexClassification.asc();
+        };
+    }
+
 
     private BooleanExpression cursorIdGt(Long cursorId) {
         return cursorId == null ? null : indexInfo.id.gt(cursorId);

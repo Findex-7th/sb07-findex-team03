@@ -1,10 +1,10 @@
 package com.team3.findex.domain.index.service;
 
 import com.team3.findex.common.openapi.OpenApiProvider;
-import com.team3.findex.common.util.CursorEncodingUtil;
 import com.team3.findex.domain.autosync.service.AutoSyncService;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.SourceType;
+import com.team3.findex.domain.index.dto.IndexInfoFindCondition;
 import com.team3.findex.domain.index.dto.IndexInfoFindSort;
 import com.team3.findex.domain.index.dto.request.IndexInfoCreateRequest;
 import com.team3.findex.domain.index.dto.request.IndexInfoCursorRequest;
@@ -176,86 +176,23 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         });
     }
 
-    // 페이지네이션(정렬 생성 메서드 추가)
-    private Sort createSort(String sortKey, String order) {
-        if (sortKey == null) return Sort.by("id").ascending();
-
-        return switch (sortKey) {
-            case "indexClassification" -> Sort.by("indexClassification").ascending();
-            case "indexClassificationDesc" -> Sort.by(Sort.Direction.DESC, "indexClassification");
-            case "indexName" -> Sort.by("indexName").ascending();
-            case "indexNameDesc" -> Sort.by(Sort.Direction.DESC, "indexName");
-            case "employedItemsCount" -> Sort.by("employedItemsCount").ascending();
-            case "employedItemsCountDesc" -> Sort.by(Sort.Direction.DESC, "employedItemsCount");
-            default -> Sort.by("id").ascending();
-        };
-    }
-
-//    // 페이지네이션(search 메서드 전체)
-//    @Override
-//    public CursorPageResponseIndexInfoDto search(
-//            String classification,
-//            String name,
-//            Boolean favorite,
-//            String sortKey,
-//            String order,
-//            Long cursorId,
-//            int size
-//    ) {
-//        Sort sort = createSort(sortKey, order);
-//        Pageable pageable = PageRequest.of(0, size + 1, sort);
-//
-//        List<IndexInfo> result = indexInfoRepository.searchWithCursor(
-//                classification,
-//                name,
-//                favorite,
-//                cursorId,
-//                pageable
-//        );
-//
-//        boolean hasNext = false;
-//
-//        if (result.size() > size) {
-//            hasNext = true;
-//            result.remove(size);
-//        }
-//
-//        List<IndexInfoDto> dtoList = result.stream()
-//                .map(indexInfoMapper::toDto)
-//                .toList();
-//
-//        Long nextCursor = result.isEmpty()
-//                ? null
-//                : result.get(result.size() - 1).getId();
-//
-//        return new CursorPageResponseIndexInfoDto(dtoList, nextCursor, hasNext);
-//    }
-//
-//    @Override
-//    public List<IndexInfoSummaryDto> getSummaryList(String sortKey, String order) {
-//        Sort.Direction direction = "desc".equals(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
-//        Sort sort;
-//
-//        if (sortKey == null || sortKey.isEmpty()) {
-//            sort = Sort.by(direction, "id");
-//        } else {
-//            sort = Sort.by(direction, sortKey);
-//        }
-//
-//        List<IndexInfo> list = indexInfoRepository.findAll(sort);
-//        return indexInfoMapper.toSummaryDtoList(list);
-//    }
-
     // =============== 여기부터 ========================
+    // TODO 로딩문제 해결하기
     @Override
     public CursorPageResponseIndexInfoDto searchIndexInfos(IndexInfoCursorRequest request) {
-        List<IndexInfo> results = indexInfoRepository.findWithCursor(
+        List<IndexInfo> results = indexInfoRepository.findByCondition(
                 request.cursor(),
+                new IndexInfoFindCondition(
+                        request.indexClassification(),
+                        request.indexName(),
+                        request.favorite()
+                ),
                 request.size(),
                 new IndexInfoFindSort(
                         request.sortField(),
                         request.sortDirection()
-                ));
+                )
+        );
         return new CursorPageResponseIndexInfoDto(
                 indexInfoMapper.toDtoList(results.subList(0, results.size() - 1)),
                 encodeId(results.get(results.size() - 1).getId()),
@@ -265,6 +202,4 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                 results.size() > request.size()
         );
     }
-
-
 }
