@@ -110,7 +110,6 @@ public class SyncJobService {
 
     public CursorPageResponseSyncJobDto getSyncJobsByCursor(CursorPageRequestSyncJobDto request) {
         List<SyncJob> syncJobs = syncJobRepository.findAllByCursor(request);
-        System.out.println(syncJobs.toString());
 
         boolean hasNext = false;
         String nextCursor = request.cursor() != null ? request.cursor() : null;
