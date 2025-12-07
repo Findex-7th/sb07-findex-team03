@@ -10,8 +10,8 @@ spring:
         web-allow-others: true
 
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:postgresql//${PGHOST}:${PGPORT}/${PGDATABASE}
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
     username: ${PGUSER}
     password: ${PGPASSWORD}
 
