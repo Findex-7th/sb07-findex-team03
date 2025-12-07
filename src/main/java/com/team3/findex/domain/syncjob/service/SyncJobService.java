@@ -11,6 +11,7 @@ import com.team3.findex.domain.syncjob.dto.IndexDataSyncRequest;
 import com.team3.findex.domain.syncjob.dto.SyncJobDto;
 import com.team3.findex.domain.syncjob.enums.JobType;
 import com.team3.findex.domain.syncjob.SyncJob;
+import com.team3.findex.domain.syncjob.enums.Result;
 import com.team3.findex.domain.syncjob.mapper.SyncJobMapper;
 import com.team3.findex.domain.syncjob.openApiTester.OpenApiTester;
 import com.team3.findex.domain.syncjob.openApiTester.mapper.OpenAPIMapper;
@@ -164,5 +165,11 @@ public class SyncJobService {
     protected SyncJob createFailureLog(JobType jobType, String worker, LocalDate targetDate, IndexInfo indexInfo) {
         SyncJob failJob = SyncJob.ofFailure(jobType, worker, targetDate, indexInfo);
         return syncJobRepository.save(failJob);
+    }
+
+    public LocalDate getLastSyncDate(IndexInfo indexInfo){
+        return syncJobRepository.findLatest(indexInfo, Result.SUCCESS)
+                .map(SyncJob::getTargetDate)
+                .orElse(null);
     }
 }
