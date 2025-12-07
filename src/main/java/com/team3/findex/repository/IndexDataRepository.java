@@ -3,6 +3,7 @@ package com.team3.findex.repository;
 import com.team3.findex.dto.indexDataDto.ChartDataPointDto;
 import com.team3.findex.dto.indexDataDto.IndexDataWithInfoDto;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -69,20 +70,20 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 //        @Param("endDate") LocalDate endDate);
 
 //    @Query(value =
-//        "SELECT DATE_FORMAT(t.base_date, '%Y-%m-%d') AS baseDate, " +
-//            "       t.ma5 AS value " +
+//        "SELECT DATE_FORMAT(t.baseDate, '%Y-%m-%d') AS baseDate, " +
+//            "       t.ma5 AS val " +
 //            "FROM ( " +
-//            "    SELECT d.base_date, " +
-//            "           AVG(d2.closing_price) AS ma5 " +
-//            "    FROM index_data d " +
-//            "    JOIN index_data d2 " +
-//            "      ON d2.index_info_id = d.index_info_id " +
-//            "     AND d2.base_date BETWEEN DATE_SUB(d.base_date, INTERVAL 4 DAY) AND d.base_date " +
-//            "    WHERE d.index_info_id = :id " +
-//            "      AND d.base_date BETWEEN :startDate AND :endDate " +
-//            "    GROUP BY d.base_date " +
+//            "    SELECT d.baseDate, " +
+//            "           AVG(d2.closingPrice) AS ma5 " +
+//            "    FROM indexData d " +
+//            "    JOIN indexData d2 " +
+//            "      ON d2.indexInfoId = d.indexInfoId " +
+//            "     AND d2.baseDate BETWEEN DATE_SUB(d.baseDate, INTERVAL 4 DAY) AND d.baseDate " +
+//            "    WHERE d.indexInfoId = :id " +
+//            "      AND d.baseDate BETWEEN :startDate AND :endDate " +
+//            "    GROUP BY d.baseDate " +
 //            ") t " +
-//            "ORDER BY t.base_date ASC",
+//            "ORDER BY t.baseDate ASC",
 //        nativeQuery = true)
 //    List<ChartDataPointDto> findMa5(
 //        @Param("id") Long id,
@@ -92,88 +93,110 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 //🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷🌷
 
     @Query(value =
-        "SELECT FORMATDATETIME(d.base_date, 'yyyy-MM-dd') AS date, d.ma5 AS value " +
-            "FROM index_data d " +
-            "WHERE d.index_info_id = :id " +
-            "  AND d.base_date BETWEEN :startDate AND :endDate " +
-            "ORDER BY d.base_date ASC",
+        "SELECT FORMATDATETIME(t.base_point_time, 'yyyy-MM-dd') AS date, t.ma5 AS val " +
+            "FROM ( " +
+            "    SELECT d.base_point_time, AVG(d2.closing_price) AS ma5 " +
+            "    FROM index_data d " +
+            "    JOIN index_data d2 " +
+            "      ON d2.index_info_id = d.index_info_id " +
+            "     AND d2.base_point_time BETWEEN DATEADD('DAY', -4, d.base_point_time) AND d.base_point_time " +
+            "    WHERE d.index_info_id = :id " +
+            "      AND d.base_point_time BETWEEN :startDate AND :endDate " +
+            "    GROUP BY d.base_point_time " +
+            ") t " +
+            "ORDER BY t.base_point_time ASC",
         nativeQuery = true)
-    List<ChartDataPointDto> findMa5(
+    List<Object[]> findMa5(
         @Param("id") Long id,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate);
-
-    @Query(value =
-        "SELECT FORMATDATETIME(d.base_date, 'yyyy-MM-dd') AS date, d.ma20 AS value " +
-            "FROM index_data d " +
-            "WHERE d.index_info_id = :id " +
-            "  AND d.base_date BETWEEN :startDate AND :endDate " +
-            "ORDER BY d.base_date ASC",
-        nativeQuery = true)
-    List<ChartDataPointDto> findMa20(
-        @Param("id") Long id,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate);
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate);
 
 
     @Query(value =
-        "SELECT CONCAT(x.y, '-', LPAD(x.m, 2, '0')) AS period, d.closing_price AS value " +
+        "SELECT FORMATDATETIME(t.base_point_time, 'yyyy-MM-dd') AS date, t.ma20 AS val " +
+            "FROM ( " +
+            "    SELECT d.base_point_time, AVG(d2.closing_price) AS ma20 " +
+            "    FROM index_data d " +
+            "    JOIN index_data d2 " +
+            "      ON d2.index_info_id = d.index_info_id " +
+            "     AND d2.base_point_time BETWEEN DATEADD('DAY', -19, d.base_point_time) AND d.base_point_time " +
+            "    WHERE d.index_info_id = :id " +
+            "      AND d.base_point_time BETWEEN :startDate AND :endDate " +
+            "    GROUP BY d.base_point_time " +
+            ") t " +
+            "ORDER BY t.base_point_time ASC",
+        nativeQuery = true)
+    List<Object[]> findMa20(
+        @Param("id") Long id,
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate);
+
+
+    @Query(value =
+        "SELECT CONCAT(x.y, '-', LPAD(x.m, 2, '0')) AS period, d.closing_price AS val " +
             "FROM index_data d " +
             "JOIN ( " +
-            "       SELECT index_info_id, YEAR(base_date) AS y, MONTH(base_date) AS m, MAX(base_date) AS last_day " +
+            "       SELECT index_info_id, YEAR(base_point_time) AS y, MONTH(base_point_time) AS m, " +
+            "              MAX(base_point_time) AS last_day " +
             "       FROM index_data " +
             "       WHERE index_info_id = :id " +
-            "         AND base_date BETWEEN :startDate AND :endDate " +
-            "       GROUP BY index_info_id, YEAR(base_date), MONTH(base_date) " +
+            "         AND base_point_time BETWEEN :startDate AND :endDate " +
+            "       GROUP BY index_info_id, YEAR(base_point_time), MONTH(base_point_time) " +
             ") x " +
             "  ON d.index_info_id = x.index_info_id " +
-            " AND d.base_date = x.last_day " +
-            "ORDER BY d.base_date ASC",
+            " AND d.base_point_time = x.last_day " +
+            "ORDER BY x.y ASC, x.m ASC",
         nativeQuery = true)
-    List<ChartDataPointDto> findMonthlySeries(
+    List<Object[]> findMonthlySeries(
         @Param("id") Long id,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate);
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate);
 
 
     @Query(value =
-        "SELECT CONCAT(x.y, '-Q', x.q) AS period, d.closing_price AS value " +
+        "SELECT CONCAT(x.y, '-Q', x.q) AS period, d.closing_price AS val " +
             "FROM index_data d " +
             "JOIN ( " +
-            "       SELECT index_info_id, YEAR(base_date) AS y, QUARTER(base_date) AS q, MAX(base_date) AS last_day " +
+            "       SELECT index_info_id, YEAR(base_point_time) AS y, " +
+            "              (FLOOR((MONTH(base_point_time)-1)/3) + 1) AS q, " +
+            "              MAX(base_point_time) AS last_day " +
             "       FROM index_data " +
             "       WHERE index_info_id = :id " +
-            "         AND base_date BETWEEN :startDate AND :endDate " +
-            "       GROUP BY index_info_id, YEAR(base_date), QUARTER(base_date) " +
+            "         AND base_point_time BETWEEN :startDate AND :endDate " +
+            "       GROUP BY index_info_id, YEAR(base_point_time), (FLOOR((MONTH(base_point_time)-1)/3) + 1) " +
             ") x " +
             "  ON d.index_info_id = x.index_info_id " +
-            " AND d.base_date = x.last_day " +
-            "ORDER BY d.base_date ASC",
+            " AND YEAR(d.base_point_time) = x.y " +
+            " AND (FLOOR((MONTH(d.base_point_time)-1)/3) + 1) = x.q " +
+            " AND d.base_point_time = x.last_day " +
+            "ORDER BY x.y ASC, x.q ASC",
         nativeQuery = true)
-    List<ChartDataPointDto> findQuarterlySeries(
+    List<Object[]> findQuarterlySeries(
         @Param("id") Long id,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate);
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate);
 
 
     @Query(value =
-        "SELECT CAST(x.y AS VARCHAR) AS period, d.closing_price AS value " +
+        "SELECT CAST(x.y AS VARCHAR) AS period, d.closing_price AS val " +
             "FROM index_data d " +
             "JOIN ( " +
-            "       SELECT index_info_id, YEAR(base_date) AS y, MAX(base_date) AS last_day " +
+            "       SELECT index_info_id, YEAR(base_point_time) AS y, MAX(base_point_time) AS last_day " +
             "       FROM index_data " +
             "       WHERE index_info_id = :id " +
-            "         AND base_date BETWEEN :startDate AND :endDate " +
-            "       GROUP BY index_info_id, YEAR(base_date) " +
+            "         AND base_point_time BETWEEN :startDate AND :endDate " +
+            "       GROUP BY index_info_id, YEAR(base_point_time) " +
             ") x " +
             "  ON d.index_info_id = x.index_info_id " +
-            " AND d.base_date = x.last_day " +
-            "ORDER BY d.base_date ASC",
+            " AND d.base_point_time = x.last_day " +
+            "ORDER BY x.y ASC",
         nativeQuery = true)
-    List<ChartDataPointDto> findYearlySeries(
+    List<Object[]> findYearlySeries(
         @Param("id") Long id,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate);
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate);
+
+
 
 
 

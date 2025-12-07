@@ -32,6 +32,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -212,20 +213,52 @@ public class IndexDataService extends HttpServlet implements IndexDataServiceInt
         IndexInfo indexInfo = indexInfoRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("🚨indexInfo.id error!"));
 
-        LocalDate now = LocalDate.from(LocalDateTime.now());
-        LocalDate from = getChartPeriodTypeDate(periodType);
+        LocalDateTime now = LocalDate.from(LocalDateTime.now()).atStartOfDay();
+        LocalDateTime from = getChartPeriodTypeDate(periodType).atStartOfDay();
 //        List<ChartDataPointDto> data = indexDataRepository.findChartData(id, from, now);
-        List<ChartDataPointDto> ma5 = indexDataRepository.findMa5(id, from, now);
+        List<ChartDataPointDto> ma5 = indexDataRepository.findMa5(id, from, now)
+            .stream()
+            .map(row -> new ChartDataPointDto(
+                (String) row[0],                     // date
+                ((BigDecimal) row[1]).doubleValue()  // value
+            ))
+            .toList();
+
         log.info("🐳 ma5 = " + String.valueOf(ma5.size()));
 
-        List<ChartDataPointDto> ma20 = indexDataRepository.findMa20(id, from, now);
+        List<ChartDataPointDto> ma20 = indexDataRepository.findMa20(id, from, now)
+            .stream()
+            .map(row -> new ChartDataPointDto(
+                (String) row[0],                     // date
+                ((BigDecimal) row[1]).doubleValue()  // value
+            ))
+            .toList();
+
         log.info("🐳 ma20 = " + String.valueOf(ma20.size()));
 
         List<ChartDataPointDto> pointDtoList = new ArrayList<>();
         switch (periodType) {
-            case MONTHLY  -> pointDtoList = indexDataRepository.findMonthlySeries(id, from, now);
-            case QUARTERLY -> pointDtoList = indexDataRepository.findQuarterlySeries(id, from, now);
-            case YEARLY -> pointDtoList = indexDataRepository.findYearlySeries(id, from, now);
+            case MONTHLY  -> pointDtoList = indexDataRepository.findMonthlySeries(id, from, now)
+                .stream()
+                .map(row -> new ChartDataPointDto(
+                    (String) row[0],                     // date
+                    ((BigDecimal) row[1]).doubleValue()  // value
+                ))
+                .toList();
+            case QUARTERLY -> pointDtoList = indexDataRepository.findQuarterlySeries(id, from, now)
+                .stream()
+                .map(row -> new ChartDataPointDto(
+                    (String) row[0],                     // date
+                    ((BigDecimal) row[1]).doubleValue()  // value
+                ))
+                .toList();
+            case YEARLY -> pointDtoList = indexDataRepository.findYearlySeries(id, from, now)
+                .stream()
+                .map(row -> new ChartDataPointDto(
+                    (String) row[0],                     // date
+                    ((BigDecimal) row[1]).doubleValue()  // value
+                ))
+                .toList();
             default -> throw new IllegalArgumentException("🚨getPeriodTypeDate.periodType error! ");
         }
 
