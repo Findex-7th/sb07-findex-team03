@@ -3,7 +3,7 @@ package com.team3.findex.domain.index.service;
 import com.team3.findex.common.openapi.OpenApiProvider;
 import com.team3.findex.domain.autosync.service.AutoSyncService;
 import com.team3.findex.domain.index.IndexInfo;
-import com.team3.findex.domain.index.SourceType;
+import com.team3.findex.domain.index.enums.SourceType;
 import com.team3.findex.domain.index.dto.IndexInfoFindCondition;
 import com.team3.findex.domain.index.dto.IndexInfoFindSort;
 import com.team3.findex.domain.index.dto.request.IndexInfoCreateRequest;
@@ -13,9 +13,9 @@ import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexInfoDto
 import com.team3.findex.domain.index.dto.response.IndexInfoDto;
 import com.team3.findex.domain.index.dto.response.IndexInfoSummaryDto;
 import com.team3.findex.domain.index.mapper.IndexInfoMapper;
-import com.team3.findex.repository.AutoSyncRepository;
-import com.team3.findex.repository.IndexDataRepository;
-import com.team3.findex.repository.IndexInfoRepository;
+import com.team3.findex.domain.autosync.repository.AutoSyncRepository;
+import com.team3.findex.domain.index.repository.IndexDataRepository;
+import com.team3.findex.domain.index.repository.IndexInfoRepository;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
@@ -192,7 +192,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         int pageSize = request.size() == null ? 10 : request.size();
 
         List<IndexInfo> results = indexInfoRepository.findByCondition(
-                request.cursor(),
+                request.idAfter(),
                 new IndexInfoFindCondition(
                         request.indexClassification(),
                         request.indexName(),
@@ -209,9 +209,9 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         List<IndexInfo> pageContent = hasNext ? results.subList(0, pageSize) : results;
 
         String nextCursor = hasNext ? encodeId(results.get(results.size() - 1).getId()) : null;
-        String nextIdAfter = pageContent.isEmpty()
+        Long nextIdAfter = pageContent.isEmpty()
                 ? null
-                : encodeId(pageContent.get(pageContent.size() - 1).getId());
+                : pageContent.get(pageContent.size() - 1).getId();
 
         return new CursorPageResponseIndexInfoDto(
                 indexInfoMapper.toDtoList(pageContent),

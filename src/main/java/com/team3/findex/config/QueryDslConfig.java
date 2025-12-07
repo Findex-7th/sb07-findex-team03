@@ -14,12 +14,12 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class QueryDslConfig {
 
-  private final EntityManager entityManager;
+    private final EntityManager entityManager;
 
-  @Bean
-  public JPAQueryFactory jpaQueryFactory() {
-    return new JPAQueryFactory(entityManager);
-  }
+    @Bean
+    public JPAQueryFactory jpaQueryFactory() {
+        return new JPAQueryFactory(entityManager);
+    }
 
 
 }
