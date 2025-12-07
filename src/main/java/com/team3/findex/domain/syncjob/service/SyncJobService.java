@@ -12,7 +12,6 @@ import com.team3.findex.domain.syncjob.SyncJob;
 import com.team3.findex.domain.syncjob.enums.Result;
 import com.team3.findex.domain.syncjob.mapper.SyncJobMapper;
 import com.team3.findex.domain.syncjob.openapitester.OpenApiTester;
-import com.team3.findex.domain.syncjob.openapitester.mapper.OpenAPIMapper;
 import com.team3.findex.repository.AutoSyncRepository;
 import com.team3.findex.repository.IndexDataRepository;
 import com.team3.findex.repository.IndexInfoRepository;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -82,6 +82,7 @@ public class SyncJobService {
             IndexDataSyncRequest indexDataSyncRequest,
             String worker
             ){
+
         return indexDataSyncRequest.indexInfoIds().stream()
                 .map(indexInfoId -> indexInfoRepository.findById(indexInfoId)
                         .orElseThrow(() -> new IllegalArgumentException("지수 정보가 존재하지 않습니다.")))
@@ -116,27 +117,32 @@ public class SyncJobService {
         String nextCursor = request.cursor() != null ? request.cursor() : null;
         Long nextIdAfter = request.idAfter() != null ? request.idAfter() : null;
         Long totalElement = null;
-        if(request.idAfter() == null){
+        if (request.idAfter() == null && (request.cursor() == null || request.cursor().isBlank())) {
             totalElement = syncJobRepository.countByCursorFilter(request);
         }
         if (!syncJobs.isEmpty()) {
-            SyncJob lastJob = syncJobs.get(syncJobs.size() - 1);
             if (syncJobs.size() > request.size()) {
                 hasNext = true;
                 syncJobs.remove(request.size());
-                nextIdAfter = lastJob.getId();
             }
+
+            SyncJob lastJob = syncJobs.get(syncJobs.size() - 1);
+
+            nextIdAfter = lastJob.getId();
             nextCursor = String.valueOf(lastJob.getCreatedAt());
             if ("targetDate".equals(request.sortField())) {
-                nextCursor = null;
+                nextCursor = lastJob.getTargetDate().toString();
             } else if ("jobTime".equals(request.sortField())) {
                 nextCursor = lastJob.getCreatedAt().toString();
+            }else{
+                nextCursor = null;
             }
         }
 
         List<SyncJobDto> content = syncJobs.stream()
                 .map(syncJobMapper::toDto)
                 .toList();
+        System.out.println("content = " + content);
         return new CursorPageResponseSyncJobDto(
                 content,
                 nextCursor,

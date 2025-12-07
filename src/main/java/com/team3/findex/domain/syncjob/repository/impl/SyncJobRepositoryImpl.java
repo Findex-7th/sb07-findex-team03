@@ -1,5 +1,7 @@
 package com.team3.findex.domain.syncjob.repository.impl;
 
+import static com.team3.findex.domain.syncjob.QSyncJob.syncJob;
+
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -23,14 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
 
-    @PersistenceContext
-    private final EntityManager em;
-
-    private final QSyncJob syncJob = QSyncJob.syncJob;
-
-    private JPAQueryFactory getQueryFactory(){
-        return new JPAQueryFactory(em);
-    }
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public List<SyncJob> findAllByCursor(CursorPageRequestSyncJobDto request) {
@@ -40,10 +35,8 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
         Instant jobTimeFrom = StringUtils.hasText(request.jobTimeFrom()) ? Instant.parse(request.jobTimeFrom()) : null;
         Instant jobTimeTo = StringUtils.hasText(request.jobTimeTo()) ? Instant.parse(request.jobTimeTo()) : null;
 
-        System.out.println("jobTimeTo = " + request.jobTimeTo());
-        System.out.println("jobTimeFrom = " + request.jobTimeFrom());
-
-
+        System.out.println("request = " + request);
+        
         Result resultStatus = null;
         if (StringUtils.hasText(request.status())) {
             try {
@@ -54,36 +47,47 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
         List<OrderSpecifier<?>> orders = new ArrayList<>();
         BooleanExpression cursorCondition = null;
         boolean isAsc = "ASC".equalsIgnoreCase(request.sortDirection());
+        boolean hasCursor = StringUtils.hasText(request.cursor());
+        boolean hasIdAfter = request.idAfter() != null;
 
         if ("targetDate".equals(request.sortField())) {
             orders.add(isAsc ? syncJob.targetDate.asc() : syncJob.targetDate.desc());
             orders.add(syncJob.id.desc());
 
-            if (StringUtils.hasText(request.cursor()) && request.idAfter() != null) {
+            if (hasCursor && hasIdAfter) {
                 LocalDate cursorDate = LocalDate.parse(request.cursor());
-                cursorCondition = isAsc
-                        ? syncJob.targetDate.gt(cursorDate).or(syncJob.targetDate.eq(cursorDate).and(syncJob.id.gt(request.idAfter())))
-                        : syncJob.targetDate.lt(cursorDate).or(syncJob.targetDate.eq(cursorDate).and(syncJob.id.gt(request.idAfter())));
+                if (isAsc) {
+                    cursorCondition = syncJob.targetDate.gt(cursorDate)
+                            .or(syncJob.targetDate.eq(cursorDate).and(syncJob.id.lt(request.idAfter())));
+                } else {
+                    cursorCondition = syncJob.targetDate.lt(cursorDate)
+                            .or(syncJob.targetDate.eq(cursorDate).and(syncJob.id.lt(request.idAfter())));
+                }
             }
         }
+        // B. 정렬 기준: JobTime (Instant)
         else if ("jobTime".equals(request.sortField())) {
             orders.add(isAsc ? syncJob.createdAt.asc() : syncJob.createdAt.desc());
             orders.add(syncJob.id.desc());
-
-            if (StringUtils.hasText(request.cursor()) && request.idAfter() != null) {
+            if (hasCursor && hasIdAfter) {
                 Instant cursorTime = Instant.parse(request.cursor());
-                cursorCondition = isAsc
-                        ? syncJob.createdAt.gt(cursorTime).or(syncJob.createdAt.eq(cursorTime).and(syncJob.id.gt(request.idAfter())))
-                        : syncJob.createdAt.lt(cursorTime).or(syncJob.createdAt.eq(cursorTime).and(syncJob.id.gt(request.idAfter())));
+                if (isAsc) {
+                    cursorCondition = syncJob.createdAt.gt(cursorTime)
+                            .or(syncJob.createdAt.eq(cursorTime).and(syncJob.id.lt(request.idAfter())));
+                } else {
+                    cursorCondition = syncJob.createdAt.lt(cursorTime)
+                            .or(syncJob.createdAt.eq(cursorTime).and(syncJob.id.lt(request.idAfter())));
+                }
             }
         }
         else {
             orders.add(syncJob.id.desc());
+            if (hasIdAfter) {
+                cursorCondition = syncJob.id.lt(request.idAfter());
+            }
         }
-        if (request.idAfter() != null) {
-            cursorCondition = syncJob.id.lt(request.idAfter());
-        }
-        return getQueryFactory()
+
+        List<SyncJob> returnData = queryFactory
                 .selectFrom(syncJob)
                 .where(
                         request.jobType() != null ? syncJob.jobType.eq(request.jobType()) : null,
@@ -107,6 +111,11 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
                 .orderBy(orders.toArray(new OrderSpecifier[0]))
                 .limit(request.size() + 1)
                 .fetch();
+
+        returnData.forEach(data -> {
+            System.out.println("data = " + data);
+        });
+        return returnData;
     }
 
     @Override
@@ -125,7 +134,7 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
             } catch (IllegalArgumentException ignored) {}
         }
 
-        return getQueryFactory()
+        return queryFactory
                 .select(syncJob.count())
                 .from(syncJob)
                 .where(
