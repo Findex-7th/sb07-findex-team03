@@ -12,7 +12,7 @@ import com.team3.findex.domain.index.dto.request.IndexDataUpdateRequest;
 import com.team3.findex.domain.index.dto.IndexDataWithInfoDto;
 import com.team3.findex.domain.index.dto.RankedIndexPerformanceDto;
 import com.team3.findex.domain.index.enums.PeriodType;
-import com.team3.findex.domain.index.service.IndexDataServiceInterface;
+import com.team3.findex.domain.index.service.IndexDataService;
 import com.team3.findex.domain.index.swaggerDocs.IndexDataDoc;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/index-data")
 public class IndexDataController implements IndexDataDoc {
-    private final IndexDataServiceInterface indexDataService;
+    private final IndexDataService indexDataService;
 
     /**
          * 주어진 필터링 및 페이지네이션 매개변수를 기반으로 지수 데이터의 페이지를 조회합니다.
