@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * 자동 연동 설정 엔티티
@@ -27,6 +29,7 @@ public class AutoSync {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "index_info_id", nullable = false, unique = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private IndexInfo indexInfo;
 
     public AutoSync(IndexInfo indexInfo) {

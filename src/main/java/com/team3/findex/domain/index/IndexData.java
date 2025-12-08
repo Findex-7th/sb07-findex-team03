@@ -12,6 +12,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -67,6 +69,7 @@ public class IndexData extends IndexDataBaseEntity{
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "index_info_id")
     @NotNull(message = "🚨indexInfo 필수입니다.")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private IndexInfo indexInfo; // 지수ID
 
     public void setUpdateIndexData(IndexDataUpdateRequest request) {

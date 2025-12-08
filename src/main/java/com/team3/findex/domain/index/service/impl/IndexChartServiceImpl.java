@@ -6,7 +6,6 @@ import com.team3.findex.domain.index.dto.IndexDataWithInfoDto;
 import com.team3.findex.domain.index.dto.RankedIndexPerformanceDto;
 import com.team3.findex.domain.index.enums.ChartPeriodType;
 import com.team3.findex.domain.index.enums.PeriodType;
-import com.team3.findex.domain.index.mapper.IndexChartMapper;
 import com.team3.findex.domain.index.repository.IndexDataRepository;
 import com.team3.findex.domain.index.repository.IndexInfoRepository;
 import com.team3.findex.domain.index.service.IndexChartService;
@@ -27,7 +26,6 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class IndexChartServiceImpl implements IndexChartService {
 
-    private final IndexChartMapper indexChartMapper;
     private final IndexDataRepository indexDataRepository;
     private final IndexInfoRepository indexInfoRepository;
 

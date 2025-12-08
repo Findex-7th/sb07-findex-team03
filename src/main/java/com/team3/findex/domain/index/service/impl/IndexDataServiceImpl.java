@@ -6,19 +6,15 @@ import com.team3.findex.common.util.ReflectionUtil;
 import com.team3.findex.domain.index.enums.ChartPeriodType;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.enums.PeriodType;
-import com.team3.findex.domain.index.dto.ChartDataPointDto;
 import com.team3.findex.domain.index.dto.IndexDataFindCondition;
 import com.team3.findex.domain.index.dto.IndexDataFindSort;
 import com.team3.findex.domain.index.dto.request.IndexDataCursorRequest;
 import com.team3.findex.domain.index.dto.response.CursorPageResponseIndexDataDto;
 import com.team3.findex.domain.index.dto.IndexDataWithInfoDto;
-import com.team3.findex.domain.index.dto.RankedIndexPerformanceDto;
-import com.team3.findex.domain.index.dto.IndexChartDto;
 import com.team3.findex.domain.index.dto.request.IndexDataCreateRequest;
 import com.team3.findex.domain.index.dto.IndexDataDto;
 import com.team3.findex.domain.index.dto.request.IndexDataUpdateRequest;
 import com.team3.findex.domain.index.IndexData;
-import com.team3.findex.domain.index.mapper.IndexChartMapper;
 import com.team3.findex.domain.index.mapper.IndexDataMapper;
 import com.team3.findex.domain.index.repository.IndexDataRepository;
 import com.team3.findex.domain.index.repository.IndexInfoRepository;
@@ -30,17 +26,14 @@ import jakarta.transaction.Transactional;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
@@ -57,7 +50,6 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
     private final IndexDataRepository indexDataRepository;
     private final IndexInfoRepository indexInfoRepository;
     private final IndexDataMapper indexDataMapper;
-    private final IndexChartMapper indexChartMapper;
 
 
     private LocalDate getChartPeriodTypeDate(ChartPeriodType periodType) {
