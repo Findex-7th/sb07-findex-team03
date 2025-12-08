@@ -1,0 +1,11 @@
+package com.team3.findex.domain.syncjob.dto.request;
+
+import java.time.LocalDate;
+import java.util.List;
+
+public record IndexDataSyncRequest(
+        List<Long> indexInfoIds,
+        String baseDateFrom,
+        String baseDateTo
+) {
+}

@@ -1,7 +1,7 @@
 package com.team3.findex.domain.syncjob.repository;
 
 import com.team3.findex.domain.syncjob.SyncJob;
-import com.team3.findex.domain.syncjob.dto.CursorPageRequestSyncJobDto;
+import com.team3.findex.domain.syncjob.dto.request.CursorPageRequestSyncJobDto;
 import java.util.List;
 
 public interface SyncJobRepositoryCustom {

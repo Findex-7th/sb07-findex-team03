@@ -1,6 +1,8 @@
 package com.team3.findex.domain.index;
 
-import com.team3.findex.dto.indexDataDto.IndexDataUpdateRequest;
+import com.team3.findex.domain.index.enums.SourceType;
+import com.team3.findex.domain.index.dto.request.IndexDataCreateRequest;
+import com.team3.findex.domain.index.dto.request.IndexDataUpdateRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -129,5 +131,34 @@ public class IndexData extends IndexDataBaseEntity {
                 this.marketTotalAmount = marketTotalAmount;
             }
         }
+    }
+
+    public static IndexData from(IndexInfo indexInfo, IndexDataCreateRequest request) {
+        return new IndexData(
+            indexInfo,
+            request.marketPrice(),
+            request.closingPrice(),
+            request.highPrice(),
+            request.lowPrice(),
+            request.tradingQuantity(),
+            request.versus(),
+            request.fluctuationRate(),
+            SourceType.USER, //??
+            LocalDate.parse(request.baseDate()),
+            request.tradingPrice(),
+            request.marketTotalAmount()
+        );
+    }
+
+    public void updateFromSync(IndexData newData){
+        this.marketPrice = newData.getMarketPrice();
+        this.closingPrice = newData.getClosingPrice();
+        this.highPrice = newData.getHighPrice();
+        this.lowPrice = newData.getLowPrice();
+        this.tradingQuantity = newData.getTradingQuantity();
+        this.versus = newData.getVersus();
+        this.fluctuationRate = newData.getFluctuationRate();
+        this.tradingPrice = newData.getTradingPrice();
+        this.marketTotalAmount = newData.getMarketTotalAmount();
     }
 }

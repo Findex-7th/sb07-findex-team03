@@ -2,19 +2,8 @@ spring:
   application:
     name: findex
 
-  h2:
-    console:
-      enabled: true
-      path: /h2
-      settings:
-        web-allow-others: true
-
   datasource:
-    driver-class-name: org.h2.Driver
-    # 내장: 파일 모드 + 다중 접속 허용(IntelliJ 동시 사용) + PostgreSQL 호환 모드
-    url: jdbc:h2:~/findex;AUTO_SERVER=TRUE;MODE=PostgreSQL
-    username: findex
-    password: 1234
+    driver-class-name: org.postgresql.Driver
 
     hikari:
       connection-timeout: 60000
@@ -29,7 +18,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop # 운영시 반드시 none
+      ddl-auto: update # 운영시 반드시 none
     properties:
       hibernate:
         format_sql: true
@@ -39,12 +28,15 @@ spring:
 
   batch:
     jdbc:
-      initialize-schema: always
+      initialize-schema: never
     job:
       enabled: false # 애플리케이션 시작 시 배치 작업 자동 실행 (필요 시 true)
+    auto-sync:
+      cron: "* * 4 * * *" #초 분 시 일 월 요일
+      enabled: true
 
 server:
-  port: 8098
+  port: ${PORT:8080}
   servlet:
     encoding:
       charset: UTF-8
@@ -58,7 +50,7 @@ logging:
 
 decorator:
   datasource:
-    enabled: true                  # P6Spy 및 데이터소스 데코레이터 전체 활성화 여부 (기본값: true)
+    enabled: false                  # P6Spy 및 데이터소스 데코레이터 전체 활성화 여부 (기본값: true)
     p6spy:
       enable-logging: true         # SQL 로깅 기능 자체를 켤지 끄를지 결정
       multiline: true              # 쿼리를 여러 줄로 포맷팅하여 출력 (가독성 매우 향상됨)
