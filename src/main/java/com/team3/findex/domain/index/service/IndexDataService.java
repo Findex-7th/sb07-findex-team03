@@ -22,8 +22,6 @@ public interface IndexDataService {
     void deleteIndexData(Long id);
     IndexDataDto updateIndexData(Long id, IndexDataUpdateRequest request);
     List<IndexDataWithInfoDto> favoriteIndex(PeriodType periodType);
-    IndexChartDto getChartData(Long id, ChartPeriodType periodType);
-    List<RankedIndexPerformanceDto> performanceRank(Long indexInfoId, PeriodType periodType, int limit);
     void exportCsv( Long indexInfoId,
         String startDate,
         String endDate,
