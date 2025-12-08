@@ -5,6 +5,7 @@ import com.team3.findex.domain.autosync.dto.AutoSyncConfigUpdateRequest;
 import com.team3.findex.domain.autosync.dto.CursorPageRequestAutoSyncConfigDto;
 import com.team3.findex.domain.autosync.dto.CursorPageResponseAutoSyncConfigDto;
 import com.team3.findex.domain.autosync.service.AutoSyncService;
+import com.team3.findex.domain.autosync.swaggerdocs.autoSyncDocs;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auto-sync-configs")
 @RequiredArgsConstructor
-public class AutoSyncController {
+public class AutoSyncController implements autoSyncDocs {
 
     private final AutoSyncService autoSyncService;
 
