@@ -18,12 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name ="IndexData")
-public class IndexData{
-
-    @Id
-    @Column(name = "id", updatable = false, nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class IndexData extends IndexDataBaseEntity{
 
     @Column(name = "marke_price", precision = 10, scale = 4, nullable = false)
     @NotNull(message = "🚨marketPrice 필수입니다.")
