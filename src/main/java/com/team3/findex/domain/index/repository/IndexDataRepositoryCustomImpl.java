@@ -34,6 +34,18 @@ public class IndexDataRepositoryCustomImpl implements IndexDataRepositoryCustom 
                 .fetch();
     }
 
+    @Override
+    public Long CountByCondition(IndexDataFindCondition condition) {
+        return queryFactory.select(indexData.count())
+                .from(indexData)
+                .where(
+                        indexInfoIdEq(condition.indexInfoId()),
+                        baseDateGoe(condition.startDate()),
+                        baseDateLoe(condition.endDate())
+                )
+                .fetchOne();
+    }
+
     // ========== 정렬 변환 메서드 ==========
 
     /**
