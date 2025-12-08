@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,7 +22,6 @@ public class AutoSyncScheduler {
     private final AutoSyncService autoSyncService;
     private final SyncJobService syncJobService;
 
-    @Transactional
     @Scheduled(cron = "${spring.batch.auto-sync.cron}")
     public void autoSyncSchedule(){
         log.info("지수 연동 배치 시작");
@@ -36,8 +34,12 @@ public class AutoSyncScheduler {
             return;
         }
         for(AutoSync autoSync : enabledAutoSync){
+            try {
                 syncForIndex(autoSync);
+            } catch (Exception e) {
+                log.error("지수 연동 에러 | 지수ID: {}", autoSync.getIndexInfo().getId());
             }
+        }
         log.info("배치 완료");
     }
 

@@ -4,7 +4,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.team3.findex.domain.index.IndexInfo;
-import com.team3.findex.domain.index.QIndexInfo;
 import com.team3.findex.domain.index.dto.IndexInfoFindCondition;
 import com.team3.findex.domain.index.dto.IndexInfoFindSort;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,7 @@ public class IndexInfoRepositoryCustomImpl implements IndexInfoRepositoryCustom 
         return queryFactory.selectFrom(indexInfo)
                 .where(
                         indexClassificationContains(condition.indexClassification()),
-                        indexNameEq(condition.indexName()),
+                        indexNameContains(condition.indexName()),
                         favoriteEq(condition.isFavorite())
                 )
                 .orderBy(orderSpecifier(sort), indexInfo.id.asc())
@@ -41,7 +40,7 @@ public class IndexInfoRepositoryCustomImpl implements IndexInfoRepositoryCustom 
                 .from(indexInfo)
                 .where(
                         indexClassificationContains(condition.indexClassification()),
-                        indexNameEq(condition.indexName()),
+                        indexNameContains(condition.indexName()),
                         favoriteEq(condition.isFavorite())
                 ).fetchOne();
     }
@@ -64,27 +63,16 @@ public class IndexInfoRepositoryCustomImpl implements IndexInfoRepositoryCustom 
         };
     }
 
-
-    private BooleanExpression cursorIdGt(Long cursorId) {
-        return cursorId == null ? null : indexInfo.id.gt(cursorId);
-    }
-
     private BooleanExpression indexClassificationContains(String indexClassification) {
-        return indexClassification == null ? null : indexInfo.indexClassification.containsIgnoreCase(indexClassification);
+        return indexClassification == null ?
+                null : indexInfo.indexClassification.containsIgnoreCase(indexClassification);
     }
 
-    private BooleanExpression indexClassificationEq(String indexClassification) {
-        if (indexClassification == null) {
-            return null;
-        }
-        return indexInfo.indexClassification.eq(indexClassification);
-    }
-
-    private BooleanExpression indexNameEq(String indexName) {
+    private BooleanExpression indexNameContains(String indexName) {
         if (indexName == null) {
             return null;
         }
-        return indexInfo.indexName.eq(indexName);
+        return indexInfo.indexName.containsIgnoreCase(indexName);
     }
 
     private BooleanExpression favoriteEq(Boolean isFavorite) {
