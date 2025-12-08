@@ -10,6 +10,7 @@ import com.team3.findex.domain.index.dto.response.IndexInfoSummaryDto;
 import com.team3.findex.domain.index.enums.IndexInfoSortField;
 import com.team3.findex.domain.index.service.IndexInfoService;
 
+import com.team3.findex.domain.index.swaggerDocs.IndexInfoDocs;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/index-infos")
-public class IndexInfoController {
+public class IndexInfoController implements IndexInfoDocs {
 
     private final IndexInfoService indexInfoService;
 

@@ -5,6 +5,7 @@ import com.team3.findex.domain.syncjob.dto.response.CursorPageResponseSyncJobDto
 import com.team3.findex.domain.syncjob.dto.request.IndexDataSyncRequest;
 import com.team3.findex.domain.syncjob.dto.response.SyncJobDto;
 import com.team3.findex.domain.syncjob.service.SyncJobService;
+import com.team3.findex.domain.syncjob.swaggerDocs.SyncJobDocs;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/sync-jobs")
-public class SyncJobController {
+public class SyncJobController implements SyncJobDocs {
 
     private final SyncJobService syncJobService;
 
