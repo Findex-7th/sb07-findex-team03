@@ -18,4 +18,5 @@ public interface IndexInfoRepositoryCustom {
                                     IndexInfoFindCondition condition,
                                     int size,
                                     IndexInfoFindSort sort);
+    Long CountByCondition(IndexInfoFindCondition condition);
 }
