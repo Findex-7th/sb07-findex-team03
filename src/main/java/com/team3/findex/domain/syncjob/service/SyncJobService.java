@@ -34,9 +34,16 @@ public class SyncJobService {
     private final SyncLogService syncLogService;
 
     public List<SyncJobDto> syncIndexInfos(String worker) {
-        List<IndexInfo> fetchedIndexInfos = openApiService.fetchAllApiToIndexInfo();
-
-        List<SyncJobDto> resultLogs = new ArrayList<>();
+        List<SyncJobDto> resultLogs = Collections.emptyList();
+        List<IndexInfo> fetchedIndexInfos = Collections.emptyList();
+        try {
+             fetchedIndexInfos = openApiService.fetchAllApiToIndexInfo();
+        }catch (Exception e){
+            log.error("지수 정보 일괄 동기화 실패", e);
+            SyncJob failLog = syncLogService.createFailureLog(
+                    JobType.INDEX_INFO, worker, LocalDate.now(), null);
+            resultLogs.add(syncJobMapper.toDto(failLog));
+        }
 
         if (fetchedIndexInfos.isEmpty()) {
             return Collections.emptyList();

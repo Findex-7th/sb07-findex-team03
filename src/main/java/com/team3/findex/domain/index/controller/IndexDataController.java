@@ -89,13 +89,13 @@ public class IndexDataController implements IndexDataDoc {
      */
     @PostMapping
     public ResponseEntity<IndexDataDto> createIndexData(
-        @Valid @RequestBody IndexDataCreateRequest request){
+        @RequestBody IndexDataCreateRequest request){
 
-        IndexDataDto indexData = indexDataService.createIndexData(request);
+        IndexDataDto indexDataDto = indexDataService.createIndexData(request);
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(indexData);
+            .body(indexDataDto);
     }
 
     /**

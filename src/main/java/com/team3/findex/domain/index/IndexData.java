@@ -1,25 +1,24 @@
 package com.team3.findex.domain.index;
 
-import com.team3.findex.domain.index.enums.SourceType;
 import com.team3.findex.domain.index.dto.request.IndexDataCreateRequest;
 import com.team3.findex.domain.index.dto.request.IndexDataUpdateRequest;
+import com.team3.findex.domain.index.enums.SourceType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity
 @Table(name ="IndexData")
+@ToString(exclude = "indexInfo")
 public class IndexData extends IndexDataBaseEntity{
 
     @Column(name = "marke_price", precision = 10, scale = 4, nullable = false)
@@ -52,7 +51,7 @@ public class IndexData extends IndexDataBaseEntity{
 
     @Column(name = "source_type", nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private SourceType sourceType = SourceType.OPEN_API; // 소스 타입
+    private SourceType sourceType = SourceType.USER; // 소스 타입
 
     @Column(name = "base_point_time", nullable = false)
     @NotNull(message = "🚨baseDate 필수입니다.")
@@ -132,18 +131,29 @@ public class IndexData extends IndexDataBaseEntity{
     }
 
     private IndexData(IndexInfo indexInfo,
-                     @NotNull(message = "🚨marketPrice 필수입니다.")
-                     BigDecimal marketPrice, @NotNull(message = "🚨closingPrice 필수입니다.")
-                     BigDecimal closingPrice, @NotNull(message = "🚨highPrice 필수입니다.")
-                     BigDecimal highPrice, @NotNull(message = "🚨lowPrice 필수입니다.")
-                     BigDecimal lowPrice, @NotNull(message = "🚨tradingQuantity 필수입니다.")
-                     BigDecimal tradingQuantity, @NotNull(message = "🚨🚨versus 필수입니다.")
-                     BigDecimal versus, @NotNull(message = "🚨fluctuationRate 필수입니다.")
+                     BigDecimal marketPrice,
+                     BigDecimal closingPrice,
+                     BigDecimal highPrice,
+                     BigDecimal lowPrice,
+                     BigDecimal tradingQuantity,
+                     BigDecimal versus,
                      BigDecimal fluctuationRate,
                      SourceType sourceType,
-                     LocalDate baseDate, @NotNull(message = "🚨tradingPrice 필수입니다.")
-                     BigDecimal tradingPrice, @NotNull(message = "🚨marketTotalAmount 필수입니다.")
+                     LocalDate baseDate,
+                     BigDecimal tradingPrice,
                      BigDecimal marketTotalAmount) {
+        this.indexInfo = indexInfo;
+        this.marketPrice = marketPrice;
+        this.closingPrice = closingPrice;
+        this.highPrice = highPrice;
+        this.lowPrice = lowPrice;
+        this.tradingQuantity = tradingQuantity;
+        this.versus = versus;
+        this.fluctuationRate = fluctuationRate;
+        this.sourceType = sourceType;
+        this.baseDate = baseDate;
+        this.tradingPrice = tradingPrice;
+        this.marketTotalAmount = marketTotalAmount;
     }
 
     public static IndexData from(IndexInfo indexInfo, IndexDataCreateRequest request) {
@@ -156,7 +166,7 @@ public class IndexData extends IndexDataBaseEntity{
             request.tradingQuantity(),
             request.versus(),
             request.fluctuationRate(),
-            SourceType.USER, //??
+            SourceType.USER,
             LocalDate.parse(request.baseDate()),
             request.tradingPrice(),
             request.marketTotalAmount()

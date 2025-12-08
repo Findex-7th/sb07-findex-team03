@@ -18,5 +18,4 @@ public interface IndexDataMapper {
     IndexData toEntity(IndexDataCreateRequest requestDto);
     IndexDataExcelDto toExcelDto(IndexData indexData);
     List<IndexDataDto> toDtoList(List<IndexData> indexData);
-
 }

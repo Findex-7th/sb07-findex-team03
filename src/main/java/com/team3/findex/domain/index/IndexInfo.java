@@ -75,5 +75,6 @@ public class IndexInfo {
     if(basePointInTime != null) { this.basePointInTime = basePointInTime; }
     if(baseIndex != null) { this.baseIndex = baseIndex; }
     if(favorite != null && !favorite.equals(this.favorite)) { this.favorite = favorite; }
+    this.sourceType = SourceType.USER;
   }
 }
