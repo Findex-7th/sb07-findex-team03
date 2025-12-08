@@ -23,6 +23,7 @@ public interface OpenAPIMapper {
     @Mapping(target = "sourceType", constant = "OPEN_API")
     IndexInfo toIndexInfoEntity(ApiResponseDto.ApiItemDto dto);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "indexInfo", source = "indexInfo")
     @Mapping(target = "baseDate", source = "dto.basDt", qualifiedByName = "stringToLocalDate")
     @Mapping(target = "marketPrice", source = "dto.mkp")

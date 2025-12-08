@@ -12,8 +12,6 @@ public record IndexDataWithInfoDto(
         BigDecimal versus,
         BigDecimal fluctuationRate,
         BigDecimal currentPrice,
-
-        @Setter
         BigDecimal beforePrice
 ) {
 

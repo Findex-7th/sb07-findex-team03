@@ -1,4 +1,4 @@
-package com.team3.findex.domain.index.service;
+package com.team3.findex.domain.index.service.impl;
 
 import com.team3.findex.common.openapi.OpenApiProvider;
 import com.team3.findex.domain.autosync.service.AutoSyncService;
@@ -16,6 +16,7 @@ import com.team3.findex.domain.index.mapper.IndexInfoMapper;
 import com.team3.findex.domain.autosync.repository.AutoSyncRepository;
 import com.team3.findex.domain.index.repository.IndexDataRepository;
 import com.team3.findex.domain.index.repository.IndexInfoRepository;
+import com.team3.findex.domain.index.service.IndexInfoService;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;

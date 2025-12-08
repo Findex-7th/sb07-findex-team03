@@ -3,14 +3,7 @@ package com.team3.findex.domain.index;
 import com.team3.findex.domain.index.enums.SourceType;
 import com.team3.findex.domain.index.dto.request.IndexDataCreateRequest;
 import com.team3.findex.domain.index.dto.request.IndexDataUpdateRequest;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,13 +16,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Entity @Table(name ="IndexData")
-public class IndexData extends IndexDataBaseEntity {
+@Entity
+@Table(name ="IndexData")
+public class IndexData{
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "index_info_id")
-    @NotNull(message = "🚨indexInfo 필수입니다.")
-    private IndexInfo indexInfo; // 지수ID
+    @Id
+    @Column(name = "id", updatable = false, nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "marke_price", precision = 10, scale = 4, nullable = false)
     @NotNull(message = "🚨marketPrice 필수입니다.")
@@ -74,6 +68,11 @@ public class IndexData extends IndexDataBaseEntity {
     @Column(name = "market_total_amount", precision = 20, nullable = false)
     @NotNull(message = "🚨marketTotalAmount 필수입니다.")
     private BigDecimal marketTotalAmount; // 상장시가총액
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "index_info_id")
+    @NotNull(message = "🚨indexInfo 필수입니다.")
+    private IndexInfo indexInfo; // 지수ID
 
     public void setUpdateIndexData(IndexDataUpdateRequest request) {
 
@@ -131,6 +130,22 @@ public class IndexData extends IndexDataBaseEntity {
                 this.marketTotalAmount = marketTotalAmount;
             }
         }
+        this.sourceType = SourceType.USER;
+    }
+
+    private IndexData(IndexInfo indexInfo,
+                     @NotNull(message = "🚨marketPrice 필수입니다.")
+                     BigDecimal marketPrice, @NotNull(message = "🚨closingPrice 필수입니다.")
+                     BigDecimal closingPrice, @NotNull(message = "🚨highPrice 필수입니다.")
+                     BigDecimal highPrice, @NotNull(message = "🚨lowPrice 필수입니다.")
+                     BigDecimal lowPrice, @NotNull(message = "🚨tradingQuantity 필수입니다.")
+                     BigDecimal tradingQuantity, @NotNull(message = "🚨🚨versus 필수입니다.")
+                     BigDecimal versus, @NotNull(message = "🚨fluctuationRate 필수입니다.")
+                     BigDecimal fluctuationRate,
+                     SourceType sourceType,
+                     LocalDate baseDate, @NotNull(message = "🚨tradingPrice 필수입니다.")
+                     BigDecimal tradingPrice, @NotNull(message = "🚨marketTotalAmount 필수입니다.")
+                     BigDecimal marketTotalAmount) {
     }
 
     public static IndexData from(IndexInfo indexInfo, IndexDataCreateRequest request) {

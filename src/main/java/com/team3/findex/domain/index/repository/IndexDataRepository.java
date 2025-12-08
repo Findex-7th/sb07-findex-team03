@@ -2,12 +2,13 @@ package com.team3.findex.domain.index.repository;
 
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.dto.IndexDataBeforeDto;
-import com.team3.findex.domain.index.dto.IndexDataWithInfoDto;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.team3.findex.domain.index.repository.custom.IndexDataRepositoryCustom;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;

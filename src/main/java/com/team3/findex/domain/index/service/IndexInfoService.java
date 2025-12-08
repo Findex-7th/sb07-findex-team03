@@ -18,16 +18,6 @@ public interface IndexInfoService {
 
     void delete(Long id);
 
-//    CursorPageResponseIndexInfoDto search(
-//            String classification,
-//            String name,
-//            Boolean favorite,
-//            String sort,
-//            String order,
-//            Long cursorId,
-//            int size
-//    );
-
     List<IndexInfoSummaryDto> getSummaryList(String sort, String order);
 
     List<IndexInfoDto> findAllSorted(String sort, String order);

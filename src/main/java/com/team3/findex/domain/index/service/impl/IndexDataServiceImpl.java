@@ -1,4 +1,4 @@
-package com.team3.findex.domain.index.service;
+package com.team3.findex.domain.index.service.impl;
 
 import com.team3.findex.common.exception.CustomException;
 import com.team3.findex.common.exception.ErrorCode;
@@ -22,6 +22,7 @@ import com.team3.findex.domain.index.mapper.IndexChartMapper;
 import com.team3.findex.domain.index.mapper.IndexDataMapper;
 import com.team3.findex.domain.index.repository.IndexDataRepository;
 import com.team3.findex.domain.index.repository.IndexInfoRepository;
+import com.team3.findex.domain.index.service.IndexDataService;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,9 +57,21 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
     private final IndexDataRepository indexDataRepository;
     private final IndexInfoRepository indexInfoRepository;
     private final IndexDataMapper indexDataMapper;
+    private final IndexChartMapper indexChartMapper;
 
 
+    private LocalDate getChartPeriodTypeDate(ChartPeriodType periodType) {
+        LocalDate fromData = LocalDate.now();
 
+        switch (periodType) {
+            case MONTHLY -> fromData = fromData.minusMonths(1);
+            case QUARTERLY -> fromData = fromData.minusMonths(3);
+            case YEARLY -> fromData = fromData.minusYears(1);
+            default -> throw new IllegalArgumentException("🚨getPeriodTypeDate.periodType error! ");
+        }
+
+        return fromData;
+    }
 
     private LocalDate getPeriodTypeDate(PeriodType periodType) {
         LocalDate fromData = LocalDate.now();
@@ -108,9 +121,6 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
 
         return indexDataMapper.toDTO(indexData);
     }
-
-
-
 
     //🐠🐠🐠주요 지수🐠🐠🐠
     @Override
@@ -227,7 +237,7 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
                 nextCursor,
                 nextIdAfter,
                 pageContent.size(),
-                nextIdAfter == null ?
+                request.idAfter() == null ?
                         indexDataRepository.CountByCondition(condition) : null,
                 hasNext
         );

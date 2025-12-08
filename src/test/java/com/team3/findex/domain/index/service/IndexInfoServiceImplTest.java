@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import com.team3.findex.domain.index.service.impl.IndexInfoServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

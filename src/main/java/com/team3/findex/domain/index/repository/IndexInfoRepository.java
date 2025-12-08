@@ -5,6 +5,7 @@ import com.team3.findex.domain.index.IndexInfo;
 import java.util.List;
 import java.util.Optional;
 
+import com.team3.findex.domain.index.repository.custom.IndexInfoRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long>, IndexInfoRepositoryCustom {

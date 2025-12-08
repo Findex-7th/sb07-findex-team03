@@ -1,4 +1,4 @@
-package com.team3.findex.domain.index.repository;
+package com.team3.findex.domain.index.repository.custom;
 
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.dto.IndexInfoFindCondition;

@@ -4,6 +4,7 @@ import com.team3.findex.domain.autosync.AutoSync;
 import com.team3.findex.domain.autosync.repository.AutoSyncRepository;
 import com.team3.findex.domain.index.IndexData;
 import com.team3.findex.domain.index.IndexInfo;
+import com.team3.findex.domain.index.enums.SourceType;
 import com.team3.findex.domain.index.repository.IndexDataRepository;
 import com.team3.findex.domain.index.repository.IndexInfoRepository;
 import com.team3.findex.domain.syncjob.SyncJob;
@@ -125,7 +126,9 @@ public class SyncIndexService {
         List<SyncJob> logsToSave = new ArrayList<>();
         for (IndexData fetched : fetchedDataList) {
             if (existingMap.containsKey(fetched.getBaseDate())) {
-                existingMap.get(fetched.getBaseDate()).updateFromSync(fetched);
+                if(existingMap.get(fetched.getBaseDate()).getSourceType().equals(SourceType.OPEN_API)) {
+                    existingMap.get(fetched.getBaseDate()).updateFromSync(fetched);
+                }
             }
             else {
                 dataToSave.add(fetched);

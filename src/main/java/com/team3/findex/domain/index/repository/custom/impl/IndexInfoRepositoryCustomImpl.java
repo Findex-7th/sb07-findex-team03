@@ -1,4 +1,4 @@
-package com.team3.findex.domain.index.repository;
+package com.team3.findex.domain.index.repository.custom.impl;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -6,6 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.team3.findex.domain.index.IndexInfo;
 import com.team3.findex.domain.index.dto.IndexInfoFindCondition;
 import com.team3.findex.domain.index.dto.IndexInfoFindSort;
+import com.team3.findex.domain.index.repository.custom.IndexInfoRepositoryCustom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

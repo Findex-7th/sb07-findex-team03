@@ -39,6 +39,7 @@ public class IndexInfo {
   private Double baseIndex;
 
   @Column(nullable = false)
+  @Builder.Default
   private Boolean favorite = false;
 
   @Enumerated(EnumType.STRING)
