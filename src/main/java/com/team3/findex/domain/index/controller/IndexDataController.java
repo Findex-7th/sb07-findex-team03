@@ -12,6 +12,7 @@ import com.team3.findex.domain.index.dto.request.IndexDataUpdateRequest;
 import com.team3.findex.domain.index.dto.IndexDataWithInfoDto;
 import com.team3.findex.domain.index.dto.RankedIndexPerformanceDto;
 import com.team3.findex.domain.index.enums.PeriodType;
+import com.team3.findex.domain.index.service.IndexChartService;
 import com.team3.findex.domain.index.service.IndexDataService;
 import com.team3.findex.domain.index.swaggerDocs.IndexDataDoc;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/index-data")
 public class IndexDataController implements IndexDataDoc {
     private final IndexDataService indexDataService;
+    private final IndexChartService indexChartService;
 
     /**
          * 주어진 필터링 및 페이지네이션 매개변수를 기반으로 지수 데이터의 페이지를 조회합니다.
@@ -143,7 +145,7 @@ public class IndexDataController implements IndexDataDoc {
         @RequestParam("limit") int limit
     ){
         log.info("🧊🧊🧊지수 성과 분석 랭킹");
-        List<RankedIndexPerformanceDto> rankedDtoList = indexDataService.performanceRank(indexInfoId, periodType, limit);
+        List<RankedIndexPerformanceDto> rankedDtoList = indexChartService.performanceRank(indexInfoId, periodType, limit);
 
         return ResponseEntity
             .status(HttpStatus.OK)
@@ -157,9 +159,9 @@ public class IndexDataController implements IndexDataDoc {
     @GetMapping("/{id}/chart")
     public ResponseEntity<IndexChartDto> getChartData(
         @Valid @PathVariable(value = "id") Long id,
-        @RequestParam(value = "periodType", required = false, defaultValue = "YEARLY") ChartPeriodType periodType
+        @RequestParam(value = "periodType", required = false, defaultValue = "DAILY") ChartPeriodType periodType
     ){
-        IndexChartDto indexChartDto = indexDataService.getChartData(id,  periodType);
+        IndexChartDto indexChartDto = indexChartService.getChartData(id,  periodType);
 
         return ResponseEntity
             .status(HttpStatus.OK)
