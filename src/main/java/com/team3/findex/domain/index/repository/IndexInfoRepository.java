@@ -13,19 +13,4 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long>, Ind
 
   List<IndexInfo> findByIndexClassificationInAndIndexNameIn(List<String> indexClassifications, List<String> indexNames);
 
-//  @Query("""
-//    SELECT i FROM IndexInfo i
-//    WHERE (:classification IS NULL OR i.indexClassification LIKE %:classification%)
-//      AND (:name IS NULL OR i.indexName LIKE %:name%)
-//      AND (:favorite IS NULL OR i.favorite = :favorite)
-//      AND (:cursor IS NULL OR i.id > :cursor)
-//    """)
-//  List<IndexInfo> searchWithCursor(
-//      @Param("classification") String classification,
-//      @Param("name") String name,
-//      @Param("favorite") Boolean favorite,
-//      @Param("cursor") Long cursor,
-//      Pageable pageable
-//  );
-
 }

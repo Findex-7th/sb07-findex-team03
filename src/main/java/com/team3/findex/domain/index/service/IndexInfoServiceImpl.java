@@ -38,6 +38,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     private final AutoSyncService autoSyncService;
     private final OpenApiProvider openApiProvider;
     private final AutoSyncRepository autoSyncRepository;
+    private IndexInfoFindCondition condition;
 
     @Override
     public IndexInfoDto create(IndexInfoCreateRequest request) {
@@ -175,7 +176,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         Sort.Direction direction = "desc".equals(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Sort sort;
 
-        if( sortKey == null ||sortKey.isEmpty()){
+        if (sortKey == null || sortKey.isEmpty()) {
             sort = Sort.by(direction, "id");
         } else {
             sort = Sort.by(direction, sortKey);
@@ -189,15 +190,18 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     // TODO 로딩문제 해결하기
     @Override
     public CursorPageResponseIndexInfoDto searchIndexInfos(IndexInfoCursorRequest request) {
+        // 촉; 요청엔 count 보내고
+        // 그 외에는 ㅇㅇ
         int pageSize = request.size() == null ? 10 : request.size();
 
+        condition = new IndexInfoFindCondition(
+                request.indexClassification(),
+                request.indexName(),
+                request.favorite()
+        );
         List<IndexInfo> results = indexInfoRepository.findByCondition(
                 request.idAfter(),
-                new IndexInfoFindCondition(
-                        request.indexClassification(),
-                        request.indexName(),
-                        request.favorite()
-                ),
+                condition,
                 pageSize,
                 new IndexInfoFindSort(
                         request.indexInfoSortField(),
@@ -218,7 +222,8 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                 nextCursor,
                 nextIdAfter,
                 pageContent.size(),
-                indexInfoRepository.count(),
+                request.idAfter() == null ?
+                        indexInfoRepository.CountByCondition(condition) : null,
                 hasNext
         );
     }

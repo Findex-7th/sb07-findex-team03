@@ -20,17 +20,6 @@ public class IndexInfoRepositoryCustomImpl implements IndexInfoRepositoryCustom 
 
     private final JPAQueryFactory queryFactory;
 
-
-    private BooleanExpression cursorCondition(Long cursorId, IndexInfoFindSort sort) {
-        if (cursorId == null) {
-            return null;
-        }
-
-        // 커서 기반 페이지네이션은 id 기반으로 단순화하거나,
-        // 정렬 필드 값과 id를 조합한 복합 커서가 필요합니다
-        return indexInfo.id.gt(cursorId);
-    }
-
     @Override
     public List<IndexInfo> findByCondition(Long idAfter, IndexInfoFindCondition condition, int size, IndexInfoFindSort sort) {
         return queryFactory.selectFrom(indexInfo)
@@ -43,6 +32,18 @@ public class IndexInfoRepositoryCustomImpl implements IndexInfoRepositoryCustom 
                 .offset(idAfter == null ? 0 : idAfter)
                 .limit(size + 1)
                 .fetch();
+    }
+
+    @Override
+    public Long CountByCondition(IndexInfoFindCondition condition) {
+        return queryFactory
+                .select(indexInfo.count())
+                .from(indexInfo)
+                .where(
+                        indexClassificationContains(condition.indexClassification()),
+                        indexNameEq(condition.indexName()),
+                        favoriteEq(condition.isFavorite())
+                ).fetchOne();
     }
 
     private OrderSpecifier<?> orderSpecifier(IndexInfoFindSort sort) {

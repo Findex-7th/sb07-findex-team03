@@ -138,24 +138,23 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
 
         if (null == indexInfoId) {
 
-            indexDataWithInfoDtoList= indexDataRepository
-                .findAllPerformanceRank(start, end, PageRequest.of(0, limit))
-                .stream()
-                .map(dto -> {
-                    double value = dto.closingPriceAvg().doubleValue() - dto.versusAvg().doubleValue();
-                    return IndexDataWithInfoDto.fromBeforeDto(dto, value);
-                })
-                .toList();
-        }
-        else {
-            indexDataWithInfoDtoList= indexDataRepository
-                .findAllPerformanceRank(indexInfoId, start, end, PageRequest.of(0, limit))
-                .stream()
-                .map(dto -> {
-                    double value = dto.closingPriceAvg().doubleValue() - dto.versusAvg().doubleValue();
-                    return IndexDataWithInfoDto.fromBeforeDto(dto, value);
-                })
-                .toList();
+            indexDataWithInfoDtoList = indexDataRepository
+                    .findAllPerformanceRank(start, end, PageRequest.of(0, limit))
+                    .stream()
+                    .map(dto -> {
+                        double value = dto.closingPriceAvg().doubleValue() - dto.versusAvg().doubleValue();
+                        return IndexDataWithInfoDto.fromBeforeDto(dto, value);
+                    })
+                    .toList();
+        } else {
+            indexDataWithInfoDtoList = indexDataRepository
+                    .findAllPerformanceRank(indexInfoId, start, end, PageRequest.of(0, limit))
+                    .stream()
+                    .map(dto -> {
+                        double value = dto.closingPriceAvg().doubleValue() - dto.versusAvg().doubleValue();
+                        return IndexDataWithInfoDto.fromBeforeDto(dto, value);
+                    })
+                    .toList();
         }
 
 
@@ -244,6 +243,7 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
 
         return indexChartDto;
     }
+
     //🐠🐠🐠주요 지수🐠🐠🐠
     @Override
     public List<IndexDataWithInfoDto> favoriteIndex(PeriodType periodType) {
@@ -252,12 +252,12 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
         LocalDate start = getPeriodTypeDate(periodType);
 
         List<IndexDataWithInfoDto> dooList = indexDataRepository.findAllFavoriteIndex(start, end)
-            .stream()
-            .map(dto -> {
-                double value = dto.closingPriceAvg().doubleValue() - dto.versusAvg().doubleValue();
-                return IndexDataWithInfoDto.fromBeforeDto(dto, value);
-            })
-            .toList();
+                .stream()
+                .map(dto -> {
+                    double value = dto.closingPriceAvg().doubleValue() - dto.versusAvg().doubleValue();
+                    return IndexDataWithInfoDto.fromBeforeDto(dto, value);
+                })
+                .toList();
 
         log.info("🚨 favoriteIndex = " + String.valueOf(dooList.size()));
         return dooList;
@@ -331,13 +331,15 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
     public CursorPageResponseIndexDataDto getAllIndexData(IndexDataCursorRequest request) {
         int pageSize = request.size() == null ? 10 : request.size();
 
+        IndexDataFindCondition condition = new IndexDataFindCondition(
+                request.indexInfoId(),
+                request.startDate(),
+                request.endDate()
+        );
+
         List<IndexData> results = indexDataRepository.findByCondition(
                 request.idAfter(),
-                new IndexDataFindCondition(
-                        request.indexInfoId(),
-                        request.startDate(),
-                        request.endDate()
-                ),
+                condition,
                 pageSize,
                 new IndexDataFindSort(
                         request.sortField(),
@@ -357,7 +359,8 @@ public class IndexDataServiceImpl extends HttpServlet implements IndexDataServic
                 nextCursor,
                 nextIdAfter,
                 pageContent.size(),
-                indexInfoRepository.count(),
+                nextIdAfter == null ?
+                        indexDataRepository.CountByCondition(condition) : null,
                 hasNext
         );
     }
