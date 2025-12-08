@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "지수 정보 API", description = "지수 정보 관리 API")
-public interface IndexInfoDocs {
+public interface IndexInfoDoc {
 
   // 지수 정보 목록 조회
   @Operation(summary = "지수 정보 목록 조회", description = "지수 정보 목록을 조회합니다. 필터링, 정렬, 커서 기반 페이지네이션을 지원합니다.")
