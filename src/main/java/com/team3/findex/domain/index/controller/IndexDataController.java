@@ -12,7 +12,7 @@ import com.team3.findex.domain.index.dto.request.IndexDataUpdateRequest;
 import com.team3.findex.domain.index.dto.IndexDataWithInfoDto;
 import com.team3.findex.domain.index.dto.RankedIndexPerformanceDto;
 import com.team3.findex.domain.index.enums.PeriodType;
-import com.team3.findex.domain.index.service.IndexDataServiceInterface;
+import com.team3.findex.domain.index.service.IndexDataService;
 import com.team3.findex.domain.index.swaggerDocs.IndexDataDoc;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/index-data")
 public class IndexDataController implements IndexDataDoc {
-    private final IndexDataServiceInterface indexDataService;
+    private final IndexDataService indexDataService;
 
     /**
          * 주어진 필터링 및 페이지네이션 매개변수를 기반으로 지수 데이터의 페이지를 조회합니다.
@@ -82,7 +82,7 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     * 지수 데이터 등록 ⭕️🎉
+     * 지수 데이터 등록 
      * @return
      */
     @PostMapping
@@ -97,7 +97,7 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     * 지수 데이터 삭제 ⭕️🎉
+     * 지수 데이터 삭제 
      * @return
      */
     @DeleteMapping("/{id}")
@@ -113,7 +113,7 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     * 지수 데이터 수정 ⭕️🎉
+     * 지수 데이터 수정 
      * @return
      */
     @PatchMapping("/{id}")
@@ -130,7 +130,7 @@ public class IndexDataController implements IndexDataDoc {
     }
 
     /**
-     **지수 성과 분석 랭킹 ⭕️🎉**
+     **지수 성과 분석 랭킹 **
      * 전일/전주/전월 대비 성과 랭킹
      * 성과는 **{종가}**를 기준으로 비교합니다.
      * 🧊🧊🧊지수 성과 🧊🧊🧊🧊
@@ -168,7 +168,7 @@ public class IndexDataController implements IndexDataDoc {
 
 
     /**
-     * 🐠🐠🐠주요 지수 ⭕️🎉
+     * 🐠🐠🐠주요 지수 
      * 관심 지수 성과 조회
      * @return
      */
@@ -186,7 +186,7 @@ public class IndexDataController implements IndexDataDoc {
 
 
     /**
-     * 지수 데이터 CSV export ⭕️🎉
+     * 지수 데이터 CSV export 
      * @return
      */
     @GetMapping("/export/csv")
