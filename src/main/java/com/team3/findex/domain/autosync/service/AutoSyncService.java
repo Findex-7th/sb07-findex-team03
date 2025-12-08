@@ -131,7 +131,7 @@ public class AutoSyncService {
      */
     @Transactional
     public List<AutoSync> getEnabledAutoSyncConfig() {
-        return autoSyncRepository.findByIsEnableTrue();
+        return autoSyncRepository.findEnabledIndexInfos();
     }
 
 
