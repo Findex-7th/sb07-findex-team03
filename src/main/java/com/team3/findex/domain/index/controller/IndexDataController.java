@@ -159,7 +159,7 @@ public class IndexDataController implements IndexDataDoc {
     @GetMapping("/{id}/chart")
     public ResponseEntity<IndexChartDto> getChartData(
         @Valid @PathVariable(value = "id") Long id,
-        @RequestParam(value = "periodType", required = false, defaultValue = "DAILY") ChartPeriodType periodType
+        @RequestParam(value = "periodType", required = false, defaultValue = "MONTHLY") ChartPeriodType periodType
     ){
         IndexChartDto indexChartDto = indexChartService.getChartData(id,  periodType);
 
