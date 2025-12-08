@@ -73,7 +73,7 @@ public class IndexInfoController {
     //   페이지네이션
     @GetMapping
     public ResponseEntity<CursorPageResponseIndexInfoDto> searchIndexInfos(
-            @RequestParam(required = false) String classification,
+            @RequestParam(required = false) String indexClassification,
             @RequestParam(required = false) String indexName,
             @RequestParam(required = false) Boolean favorite,
             @RequestParam(required = false) Long idAfter,
@@ -84,7 +84,7 @@ public class IndexInfoController {
     ) {
         return ResponseEntity.ok(indexInfoService.searchIndexInfos(
                 new IndexInfoCursorRequest(
-                        classification,
+                        indexClassification,
                         indexName,
                         favorite,
                         idAfter,
