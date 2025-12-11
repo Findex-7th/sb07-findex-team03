@@ -60,6 +60,7 @@ public class SyncIndexService {
                         fetched.getEmployedItemsCount(),
                         fetched.getBasePointInTime(),
                         fetched.getBaseIndex(),
+                        null,
                         null
                 );
                 allProcessedInfos.add(existing);

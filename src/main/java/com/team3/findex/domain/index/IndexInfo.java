@@ -69,12 +69,13 @@ public class IndexInfo {
       Integer employedItemsCount,
       LocalDate basePointInTime,
       Double baseIndex,
-      Boolean favorite
+      Boolean favorite,
+      SourceType sourceType
   ) {
     if(employedItemsCount != null) { this.employedItemsCount = employedItemsCount; }
     if(basePointInTime != null) { this.basePointInTime = basePointInTime; }
     if(baseIndex != null) { this.baseIndex = baseIndex; }
     if(favorite != null && !favorite.equals(this.favorite)) { this.favorite = favorite; }
-    this.sourceType = SourceType.USER;
+    if(sourceType != null) { this.sourceType = sourceType; }
   }
 }

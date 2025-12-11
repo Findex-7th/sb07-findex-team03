@@ -21,6 +21,7 @@ import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -79,11 +80,19 @@ public class IndexInfoServiceImpl implements IndexInfoService {
             parsedDate = LocalDate.parse(request.basePointInTime());
         }
 
+        boolean isDataChanged =
+                request.employedItemsCount() != null ||
+                        request.basePointInTime() != null||
+                        request.baseIndex() != null;
+
+        SourceType newSourceType = isDataChanged ? SourceType.USER : indexInfo.getSourceType();
+
         indexInfo.update(
                 request.employedItemsCount(),
                 parsedDate,
                 request.baseIndex(),
-                request.favorite()
+                request.favorite(),
+                newSourceType
         );
 
         IndexInfo updated = indexInfoRepository.save(indexInfo);
@@ -150,7 +159,8 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                                         sync.employedItemsCount(),
                                         sync.basePointInTime(),
                                         sync.baseIndex(),
-                                        existing.getFavorite()
+                                        existing.getFavorite(),
+                                        existing.getSourceType()
                                 );
                                 indexInfoRepository.save(existing);
                             },
